@@ -1,0 +1,1 @@
+web: java -cp target/classes:target/dependency/* cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.heroku.Main
