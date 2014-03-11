@@ -1,5 +1,6 @@
 package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful;
 
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 
 import org.glassfish.jersey.server.ResourceConfig;
@@ -29,10 +30,14 @@ public class MyResourceTest extends JerseyTest {
     
     @Test
     public void testHello() {
+    	UserAccount user = new UserAccount();
+    	user.setName("Fxxk");
     	Hello  hello = new Hello();
-    	hello.setMessage("Hello, buddy!");
-    	final Hello responseMsg = target().path("myresource/hello").request().get(Hello.class);
-    	assertTrue("Faill to test Hello", hello.equals(responseMsg));
+    	hello.setMessage("Hello, Fxxk!");
+    	final Hello responseMsg = target().path("myresource/hello").request().post(Entity.json(user), Hello.class);
+    	//final Hello responseMsg = target().path("myresource/hello").request().get(Hello.class);
+    	assertEquals(hello.getMessage(), responseMsg.getMessage());
+    	//assertTrue("Faill to test Hello", hello.equals(responseMsg));
     	
     }
 }

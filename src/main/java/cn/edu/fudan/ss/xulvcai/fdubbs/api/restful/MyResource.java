@@ -1,8 +1,10 @@
 package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.core.MediaType;
 
 /**
@@ -23,12 +25,20 @@ public class MyResource {
         return "Hello, My Precious!";
     }
     
-    @GET
+    @POST
     @Path("hello")
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Hello sayHello() {
+    public Hello sayHello(UserAccount user) {
+    	if(user == null) {
+    		Hello response = new Hello();
+    		response.setMessage("Hello,  Anonymous!");
+    		return response;
+    	}
+    	
+    	System.out.println("User : "+ user.getName());
     	Hello  hello = new Hello();
-    	hello.setMessage("Hello, buddy!");
+    	hello.setMessage("Hello, " + user.getName() + "!");
     	return hello;
     }
 }
