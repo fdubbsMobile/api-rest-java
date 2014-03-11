@@ -22,4 +22,13 @@ public class MyResource {
     public String getIt() {
         return "Hello, My Precious!";
     }
+    
+    @GET
+    @Path("hello")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Hello sayHello() {
+    	Hello  hello = new Hello();
+    	hello.setMessage("Hello, buddy!");
+    	return hello;
+    }
 }
