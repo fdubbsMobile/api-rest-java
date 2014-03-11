@@ -15,4 +15,8 @@ public class Hello {
 		this.message = message;
 	}
 	
+	public boolean equals(Hello hello) {
+		return this.message.equals(hello.getMessage());
+	}
+	
 }
