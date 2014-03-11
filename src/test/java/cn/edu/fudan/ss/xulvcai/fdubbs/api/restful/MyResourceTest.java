@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.MyResource;
 
 public class MyResourceTest extends JerseyTest {
@@ -40,4 +41,5 @@ public class MyResourceTest extends JerseyTest {
     	//assertTrue("Faill to test Hello", hello.equals(responseMsg));
     	
     }
+
 }
