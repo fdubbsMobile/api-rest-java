@@ -9,8 +9,9 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.MyResource;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.Hello;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.UserAccount;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.resource.MyResource;
 
 public class MyResourceTest extends JerseyTest {
 

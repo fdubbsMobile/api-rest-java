@@ -1,4 +1,4 @@
-package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful;
+package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.resource;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -6,6 +6,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.core.MediaType;
+
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.Hello;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.UserAccount;
 
 /**
  * Root resource (exposed at "myresource" path)

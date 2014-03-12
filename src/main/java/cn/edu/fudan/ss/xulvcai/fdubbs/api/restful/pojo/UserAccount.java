@@ -1,4 +1,4 @@
-package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful;
+package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo;
 
 public class UserAccount {
 
