@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Generated;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -34,16 +35,18 @@ public class LoginResponse {
 
     /**
      * result code
+     * (Required)
      * 
      */
     @JsonProperty("result_code")
+    @NotNull
     private LoginResponse.ResultCode resultCode;
     /**
      * error message
      * 
      */
     @JsonProperty("error_message")
-    private LoginResponse.ErrorMessage errorMessage;
+    private String errorMessage;
     /**
      * cookies
      * 
@@ -55,6 +58,7 @@ public class LoginResponse {
 
     /**
      * result code
+     * (Required)
      * 
      */
     @JsonProperty("result_code")
@@ -64,6 +68,7 @@ public class LoginResponse {
 
     /**
      * result code
+     * (Required)
      * 
      */
     @JsonProperty("result_code")
@@ -76,7 +81,7 @@ public class LoginResponse {
      * 
      */
     @JsonProperty("error_message")
-    public LoginResponse.ErrorMessage getErrorMessage() {
+    public String getErrorMessage() {
         return errorMessage;
     }
 
@@ -85,7 +90,7 @@ public class LoginResponse {
      * 
      */
     @JsonProperty("error_message")
-    public void setErrorMessage(LoginResponse.ErrorMessage errorMessage) {
+    public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
     }
 
@@ -130,44 +135,6 @@ public class LoginResponse {
     @JsonAnySetter
     public void setAdditionalProperties(String name, Object value) {
         this.additionalProperties.put(name, value);
-    }
-
-    @Generated("com.googlecode.jsonschema2pojo")
-    public static enum ErrorMessage {
-
-        SUCCESS("SUCCESS"),
-        USER_NOT_EXIST("USER_NOT_EXIST"),
-        PASSWD_INCORRECT("PASSWD_INCORRECT"),
-        INTERNAL_ERROR("INTERNAL_ERROR");
-        private final String value;
-        private static Map<String, LoginResponse.ErrorMessage> constants = new HashMap<String, LoginResponse.ErrorMessage>();
-
-        static {
-            for (LoginResponse.ErrorMessage c: LoginResponse.ErrorMessage.values()) {
-                constants.put(c.value, c);
-            }
-        }
-
-        private ErrorMessage(String value) {
-            this.value = value;
-        }
-
-        @JsonValue
-        @Override
-        public String toString() {
-            return this.value;
-        }
-
-        @JsonCreator
-        public static LoginResponse.ErrorMessage fromValue(String value) {
-            LoginResponse.ErrorMessage constant = constants.get(value);
-            if (constant == null) {
-                throw new IllegalArgumentException(value);
-            } else {
-                return constant;
-            }
-        }
-
     }
 
     @Generated("com.googlecode.jsonschema2pojo")
