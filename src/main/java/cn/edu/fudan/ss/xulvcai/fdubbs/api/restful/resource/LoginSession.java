@@ -12,27 +12,22 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.http.Consts;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
-import org.apache.http.ParseException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
+import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.CookieKeyValuePair;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.LoginResponse;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.ErrorMessage;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.HttpParsingHelper;
 
 @Path("/user")
 public class LoginSession{
@@ -40,9 +35,6 @@ public class LoginSession{
 	
 	private static Logger logger = LoggerFactory.getLogger(LoginSession.class);
 	private static CloseableHttpClient httpclient = HttpClients.createDefault();
-	
-	private static final String USER_NOT_EXIST_ERROR_MESSAGE = "找不到指定的用户";
-	private static final String PASSWD_INCORRECT_ERROR_MESSAGE = "用户名和密码不匹配";
 	
 
 	@POST
@@ -99,18 +91,18 @@ public class LoginSession{
 		logger.debug("Login successful : " + loginSuccess);
 		
 		if(loginSuccess) {
-			List<CookieKeyValuePair> cookies = getCookiePairsFromContext(context);
+			List<CookieKeyValuePair> cookies = HttpParsingHelper.getCookiePairsFromContext(context);
 			result.setResultCode(LoginResponse.ResultCode.SUCCESS);
 			result.setCookies(cookies);
 		}else{
-			String errorMessage = getErrorMessageFromResponse(postResponse);
-			if(USER_NOT_EXIST_ERROR_MESSAGE.equals(errorMessage)) {
+			String errorMessage = HttpParsingHelper.getErrorMessageFromResponse(postResponse);
+			if(ErrorMessage.USER_NOT_EXIST_ERROR_MESSAGE.equals(errorMessage)) {
 				result.setResultCode(LoginResponse.ResultCode.USER_NOT_EXIST);
-				result.setErrorMessage(USER_NOT_EXIST_ERROR_MESSAGE);
+				result.setErrorMessage(ErrorMessage.USER_NOT_EXIST_ERROR_MESSAGE);
 			}
-			else if(PASSWD_INCORRECT_ERROR_MESSAGE.equals(errorMessage)) {
+			else if(ErrorMessage.PASSWD_INCORRECT_ERROR_MESSAGE.equals(errorMessage)) {
 				result.setResultCode(LoginResponse.ResultCode.PASSWD_INCORRECT);
-				result.setErrorMessage(PASSWD_INCORRECT_ERROR_MESSAGE);
+				result.setErrorMessage(ErrorMessage.PASSWD_INCORRECT_ERROR_MESSAGE);
 			}
 			else {
 				result.setResultCode(LoginResponse.ResultCode.INTERNAL_ERROR);
@@ -126,41 +118,17 @@ public class LoginSession{
 	private boolean isLoginSuccess(CloseableHttpResponse response) {
 		int status = response.getStatusLine().getStatusCode();
 		
-		if(HttpStatus.SC_MOVED_TEMPORARILY == status) {
+		if(HttpStatus.MOVED_TEMPORARILY_302 == status) {
 			return true;
 		}
 		
 		/*
-		if(HttpStatus.SC_OK == status) {
+		if(HttpStatus.OK_200 == status) {
 			return false;
 		}
 		*/
 		return false;
 	}
 	
-	private List<CookieKeyValuePair> getCookiePairsFromContext(HttpClientContext context) {
-		List<CookieKeyValuePair> cookiePairs = new ArrayList<CookieKeyValuePair>();
-		List<Cookie> cookies = context.getCookieStore().getCookies();
-		for(Cookie cookie : cookies) {
-			CookieKeyValuePair cookiePair = new CookieKeyValuePair();
-			cookiePair.setCookieName(cookie.getName());
-			cookiePair.setCookieValue(cookie.getValue());
-			cookiePairs.add(cookiePair);
-		}
-		return cookiePairs;
-	}
-	
-	private String getErrorMessageFromResponse(CloseableHttpResponse response) throws ParseException, IOException {
-		HttpEntity responseEntity = response.getEntity();
-		
-		if(responseEntity == null)	return "";
-		
-		
-		String contentAsString = EntityUtils.toString(responseEntity);
-		Document doc = Jsoup.parse(contentAsString);
-		Element bodyContent = doc.select("body > div").first();
-		return bodyContent.text();
-
-	}
 
 }
