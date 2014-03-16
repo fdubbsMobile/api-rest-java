@@ -16,11 +16,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.fluent.Form;
-import org.apache.http.client.fluent.Request;
-import org.apache.http.client.fluent.Response;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.protocol.HttpClientContext;
@@ -38,8 +34,8 @@ import org.slf4j.LoggerFactory;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.CookieKeyValuePair;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.LoginResponse;
 
-@Path("user")
-public class LoginSession {
+@Path("/user")
+public class LoginSession{
 
 	
 	private static Logger logger = LoggerFactory.getLogger(LoginSession.class);
@@ -48,13 +44,13 @@ public class LoginSession {
 	private static final String USER_NOT_EXIST_ERROR_MESSAGE = "找不到指定的用户";
 	private static final String PASSWD_INCORRECT_ERROR_MESSAGE = "用户名和密码不匹配";
 	
+
 	@POST
-	@Path("login")
+	@Path("/login")
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces(MediaType.APPLICATION_JSON)
 	public LoginResponse doUserLogin(@FormParam("user_id") String user_id,
 			@FormParam("passwd") String passwd) {
-	
 		logger.info(">>>>>>>>>>>>> Start doUserLogin <<<<<<<<<<<<<<");
 		
 		
@@ -71,9 +67,8 @@ public class LoginSession {
 		else {
 			try {
 				loginResponse = postLoginRequest(user_id, passwd);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} catch (Exception e) {
+				//e.printStackTrace();
 				loginResponse.setResultCode(LoginResponse.ResultCode.INTERNAL_ERROR);
 				loginResponse.setErrorMessage("Internal Error!");
 			}
@@ -82,7 +77,8 @@ public class LoginSession {
 		
 		logger.info(">>>>>>>>>>>>> End doUserLogin <<<<<<<<<<<<<<");
 		return loginResponse;
-	}
+	}	
+
 	
 	private LoginResponse postLoginRequest(String user_id, String passwd) throws IOException {
 		LoginResponse result = new LoginResponse();
@@ -150,20 +146,21 @@ public class LoginSession {
 			cookiePair.setCookieName(cookie.getName());
 			cookiePair.setCookieValue(cookie.getValue());
 			cookiePairs.add(cookiePair);
-			logger.debug("Name : " + cookie.getName() + "; Value : " + cookie.getValue()); 
 		}
 		return cookiePairs;
 	}
 	
 	private String getErrorMessageFromResponse(CloseableHttpResponse response) throws ParseException, IOException {
 		HttpEntity responseEntity = response.getEntity();
-		if(responseEntity != null) {
-			String contentAsString = EntityUtils.toString(responseEntity);
-			Document doc = Jsoup.parse(contentAsString);
-			Element bodyContent = doc.select("body > div").first();
-			logger.debug("Body Content : " + bodyContent.text());
-			return bodyContent.text();
-		}
-		return null;
+		
+		if(responseEntity == null)	return "";
+		
+		
+		String contentAsString = EntityUtils.toString(responseEntity);
+		Document doc = Jsoup.parse(contentAsString);
+		Element bodyContent = doc.select("body > div").first();
+		return bodyContent.text();
+
 	}
+
 }

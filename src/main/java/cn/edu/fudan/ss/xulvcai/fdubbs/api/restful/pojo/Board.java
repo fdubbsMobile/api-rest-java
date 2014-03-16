@@ -24,10 +24,10 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
-    "bid",
+    "board_id",
     "title",
     "category",
-    "description",
+    "board_desc",
     "managers",
     "post_number",
     "is_directory",
@@ -39,8 +39,8 @@ public class Board {
      * board id, sometimes there is no way to get this
      * 
      */
-    @JsonProperty("bid")
-    private Integer bid;
+    @JsonProperty("board_id")
+    private Integer boardId;
     /**
      * board title
      * (Required)
@@ -60,9 +60,9 @@ public class Board {
      * (Required)
      * 
      */
-    @JsonProperty("description")
+    @JsonProperty("board_desc")
     @NotNull
-    private String description;
+    private String boardDesc;
     /**
      * board managers
      * (Required)
@@ -95,18 +95,18 @@ public class Board {
      * board id, sometimes there is no way to get this
      * 
      */
-    @JsonProperty("bid")
-    public Integer getBid() {
-        return bid;
+    @JsonProperty("board_id")
+    public Integer getBoardId() {
+        return boardId;
     }
 
     /**
      * board id, sometimes there is no way to get this
      * 
      */
-    @JsonProperty("bid")
-    public void setBid(Integer bid) {
-        this.bid = bid;
+    @JsonProperty("board_id")
+    public void setBoardId(Integer boardId) {
+        this.boardId = boardId;
     }
 
     /**
@@ -152,9 +152,9 @@ public class Board {
      * (Required)
      * 
      */
-    @JsonProperty("description")
-    public String getDescription() {
-        return description;
+    @JsonProperty("board_desc")
+    public String getBoardDesc() {
+        return boardDesc;
     }
 
     /**
@@ -162,9 +162,9 @@ public class Board {
      * (Required)
      * 
      */
-    @JsonProperty("description")
-    public void setDescription(String description) {
-        this.description = description;
+    @JsonProperty("board_desc")
+    public void setBoardDesc(String boardDesc) {
+        this.boardDesc = boardDesc;
     }
 
     /**
