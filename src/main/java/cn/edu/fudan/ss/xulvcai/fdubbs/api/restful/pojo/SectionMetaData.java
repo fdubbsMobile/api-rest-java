@@ -31,7 +31,7 @@ public class SectionMetaData {
      * 
      */
     @JsonProperty("section_id")
-    private Integer sectionId;
+    private String sectionId;
     /**
      * section description
      * 
@@ -45,7 +45,7 @@ public class SectionMetaData {
      * 
      */
     @JsonProperty("section_id")
-    public Integer getSectionId() {
+    public String getSectionId() {
         return sectionId;
     }
 
@@ -54,7 +54,7 @@ public class SectionMetaData {
      * 
      */
     @JsonProperty("section_id")
-    public void setSectionId(Integer sectionId) {
+    public void setSectionId(String sectionId) {
         this.sectionId = sectionId;
     }
 
