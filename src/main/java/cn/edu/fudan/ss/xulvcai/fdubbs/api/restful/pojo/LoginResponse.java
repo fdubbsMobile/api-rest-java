@@ -143,6 +143,8 @@ public class LoginResponse {
         SUCCESS("SUCCESS"),
         USER_NOT_EXIST("USER_NOT_EXIST"),
         PASSWD_INCORRECT("PASSWD_INCORRECT"),
+        USER_ID_EMPTY("USER_ID_EMPTY"),
+        PASSWD_EMPTY("PASSWD_EMPTY"),
         INTERNAL_ERROR("INTERNAL_ERROR");
         private final String value;
         private static Map<String, LoginResponse.ResultCode> constants = new HashMap<String, LoginResponse.ResultCode>();

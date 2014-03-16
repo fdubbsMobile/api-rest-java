@@ -24,6 +24,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
+    "bid",
     "title",
     "category",
     "description",
@@ -35,6 +36,12 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 public class Board {
 
     /**
+     * board id, sometimes there is no way to get this
+     * 
+     */
+    @JsonProperty("bid")
+    private Integer bid;
+    /**
      * board title
      * (Required)
      * 
@@ -44,11 +51,9 @@ public class Board {
     private String title;
     /**
      * board category
-     * (Required)
      * 
      */
     @JsonProperty("category")
-    @NotNull
     private String category;
     /**
      * board description
@@ -87,6 +92,24 @@ public class Board {
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     /**
+     * board id, sometimes there is no way to get this
+     * 
+     */
+    @JsonProperty("bid")
+    public Integer getBid() {
+        return bid;
+    }
+
+    /**
+     * board id, sometimes there is no way to get this
+     * 
+     */
+    @JsonProperty("bid")
+    public void setBid(Integer bid) {
+        this.bid = bid;
+    }
+
+    /**
      * board title
      * (Required)
      * 
@@ -108,7 +131,6 @@ public class Board {
 
     /**
      * board category
-     * (Required)
      * 
      */
     @JsonProperty("category")
@@ -118,7 +140,6 @@ public class Board {
 
     /**
      * board category
-     * (Required)
      * 
      */
     @JsonProperty("category")
