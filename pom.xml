@@ -57,12 +57,28 @@
             <artifactId>jsoup</artifactId>
             <version>1.7.3</version>
         </dependency>
-        <!-- uncomment this to get JSON support
         <dependency>
-
-            <groupId>org.glassfish.jersey.media</groupId>
-            <artifactId>jersey-media-moxy</artifactId>
-        </dependency> -->
+            <groupId>dom4j</groupId>
+            <artifactId>dom4j</artifactId>
+            <version>1.6.1</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>jaxen</groupId>
+            <artifactId>jaxen</artifactId>
+            <version>1.1.3</version>
+            <!-- http://jira.codehaus.org/browse/JAXEN-217 -->
+            <exclusions>
+            <exclusion>
+                <groupId>maven-plugins</groupId>
+                <artifactId>maven-cobertura-plugin</artifactId>
+            </exclusion>
+            <exclusion>
+                <groupId>maven-plugins</groupId>
+                <artifactId>maven-findbugs-plugin</artifactId>
+            </exclusion>
+            </exclusions>
+        </dependency>
 
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
