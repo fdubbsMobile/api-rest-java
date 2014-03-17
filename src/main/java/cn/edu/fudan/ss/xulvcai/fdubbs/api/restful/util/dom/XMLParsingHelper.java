@@ -1,4 +1,4 @@
-package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util;
+package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom;
 
 
 import java.util.HashMap;
@@ -12,7 +12,7 @@ import org.dom4j.Node;
 
 
 
-public class XMLParsingHelper {
+public class XMLParsingHelper implements DOMParsingHelper{
 
 	//private static Logger logger = LoggerFactory.getLogger(XMLParsingHelper.class);
 	
@@ -22,25 +22,28 @@ public class XMLParsingHelper {
 	private HashMap<String, List<Node>> nodesCache = new HashMap<String, List<Node>>();
 	
 	
-	public XMLParsingHelper() {
-		
-	}
-	
-	public void parseText(String xmlContent) throws DocumentException {
+	private XMLParsingHelper(String xmlContent) throws DocumentException {
 		doc = DocumentHelper.parseText(xmlContent);
 	}
 	
-	public String getValueOfNode(String xpathExpression) {
+	public static XMLParsingHelper parseText(String xmlContent) throws DocumentException {
+		return new XMLParsingHelper(xmlContent);
+	}
+	
+	@Override
+	public String getTextValueOfSingleNode(String xpathExpression) {
 		Node node = doc.selectSingleNode(xpathExpression);
 		return node == null ? null : node.getText();
 	}
 	
+	@Override
 	public int getNumberOfNodes(String xpathExpression) {
 		List<Node> nodes = getNodesFromCacheOrDocument(xpathExpression);
 		return nodes == null ? 0 : nodes.size();
 	}
 	
-	public String getAttributeValueOfNode(String attributName, String xpathOfNode, int index) {
+	@Override
+	public String getAttributeTextValueOfNode(String attributName, String xpathOfNode, int index) {
 		
 		List<Node> nodes = getNodesFromCacheOrDocument(xpathOfNode);
 		
@@ -58,6 +61,17 @@ public class XMLParsingHelper {
 
 	}
 	
+	@Override
+	public String getTextValueOfNode(String xpathExpression, int index) {
+		List<Node> nodes = getNodesFromCacheOrDocument(xpathExpression);
+		
+		if(nodes == null || index < 0 || index >= nodes.size()) 
+			return null;
+		
+		Node node = nodes.get(index);
+		return node.getText();
+	}
+	
 	
 	@SuppressWarnings("unchecked")
 	private List<Node> getNodesFromCacheOrDocument(String xpathExpression) {
@@ -71,6 +85,6 @@ public class XMLParsingHelper {
 		}
 		return nodes;
 	}
-	
+
 
 }

@@ -23,10 +23,6 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.dom4j.DocumentException;
 import org.eclipse.jetty.http.HttpStatus;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +33,9 @@ import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.SectionMetaData;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.ErrorMessage;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.HttpParsingHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.ResponseStatus;
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.XMLParsingHelper;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.DOMParsingHelper;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.HtmlParsingHelper;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.XMLParsingHelper;
 
 
 @Path("/section")
@@ -55,7 +53,7 @@ public class SectionManager {
 		
 		List<SectionMetaData> sections = null;
 		try {
-			sections = getSectionsFromServer();
+			sections = getAllSectionsMetaDataFromServer();
 		} catch (Exception e) {
 			logger.error("Exception occurs in getAllSectionsMetaData!", e);
 			return Response.status(ResponseStatus.SERVER_INTERNAL_ERROR_STATUS).build();
@@ -97,41 +95,30 @@ public class SectionManager {
 	}
 	
 	
-	private List<SectionMetaData> getSectionsFromServer() throws IOException {
+	private List<SectionMetaData> getAllSectionsMetaDataFromServer() throws IOException {
 		
-		List<SectionMetaData> sections = new ArrayList<SectionMetaData>();
+		
 		
 		HttpGet httpGet = new HttpGet("http://bbs.fudan.edu.cn/m/bbs/sec");
 		
 		CloseableHttpResponse response = httpclient.execute(httpGet);
 		HttpEntity responseEntity = response.getEntity();
 		String contentAsString = EntityUtils.toString(responseEntity);
-			
-		Document doc = Jsoup.parse(contentAsString);
-		Elements elements = doc.select("ul.sec > li > a");
-			
-		for(Element element : elements) {
-			String content = element.text();
-			SectionMetaData metaData = constructSectionMetaData(content);
+		
+		String xpathOfBoard = "ul.sec > li > a";
+		HtmlParsingHelper htmlParsingHelper = HtmlParsingHelper.parseText(contentAsString);
+		int nodeCount = htmlParsingHelper.getNumberOfNodes(xpathOfBoard);
+		List<SectionMetaData> sections = new ArrayList<SectionMetaData>();
+		
+		for(int index = 0; index < nodeCount; index++) {
+			SectionMetaData metaData = constructSectionMetaData(htmlParsingHelper, xpathOfBoard, index);
 			sections.add(metaData);
 		}
-			
 		
 		return sections;
 	}
 	
-	private SectionMetaData constructSectionMetaData(String content) {
-		int idx = 1; //content.indexOf(" "); 
-		String sectionId = content.substring(0, idx);
-		String sectionDesc = content.substring(idx + 1);
-		
-		
-		SectionMetaData metaData = new SectionMetaData();
-		metaData.setSectionId(sectionId);
-		metaData.setSectionDesc(sectionDesc);
-		
-		return metaData;
-	}
+	
 	
 	private Section getSectionDetailFromServer(String sectionId) 
 			throws IOException, InvalidParameterException, 
@@ -165,8 +152,7 @@ public class SectionManager {
 	
 	private Section parseSectionDetail(String sectionId, String contentAsString) throws DocumentException {
 		
-		XMLParsingHelper xmlParsingHelper = new XMLParsingHelper();
-		xmlParsingHelper.parseText(contentAsString);
+		XMLParsingHelper xmlParsingHelper = XMLParsingHelper.parseText(contentAsString);
 		
 		String xpathOfBoard = "/bbsboa/brd";
 		int nodeCount = xmlParsingHelper.getNumberOfNodes(xpathOfBoard);
@@ -177,7 +163,7 @@ public class SectionManager {
 			boards.add(board);
 		}
 		
-		String sectionDesc = xmlParsingHelper.getValueOfNode("/bbsboa/@title");
+		String sectionDesc = xmlParsingHelper.getTextValueOfSingleNode("/bbsboa/@title");
 		
 		SectionMetaData metaData = new SectionMetaData();
 		metaData.setSectionId(sectionId);
@@ -190,15 +176,33 @@ public class SectionManager {
 		return section;
 	}
 	
-	private Board constructBoard(XMLParsingHelper xmlParsingHelper, String xpath, int index) {
+	
+	private SectionMetaData constructSectionMetaData(DOMParsingHelper domParsingHelper, String xpathExpression, int index) {
 		
-		String dir = xmlParsingHelper.getAttributeValueOfNode("dir", "/bbsboa/brd", index);
-		String title = xmlParsingHelper.getAttributeValueOfNode("title", "/bbsboa/brd", index);
-		String category = xmlParsingHelper.getAttributeValueOfNode("cate", "/bbsboa/brd", index);
-		String boardDesc = xmlParsingHelper.getAttributeValueOfNode("desc", "/bbsboa/brd", index);
-		String bm = xmlParsingHelper.getAttributeValueOfNode("bm", "/bbsboa/brd", index);
-		String read = xmlParsingHelper.getAttributeValueOfNode("read", "/bbsboa/brd", index);
-		String count = xmlParsingHelper.getAttributeValueOfNode("count", "/bbsboa/brd", index);
+		String content = domParsingHelper.getTextValueOfNode(xpathExpression, index);
+		
+		int idx = 1; //content.indexOf(" "); 
+		String sectionId = content.substring(0, idx);
+		String sectionDesc = content.substring(idx + 1);
+		
+		
+		SectionMetaData metaData = new SectionMetaData();
+		metaData.setSectionId(sectionId);
+		metaData.setSectionDesc(sectionDesc);
+		
+		return metaData;
+	}
+	
+	
+	private Board constructBoard(DOMParsingHelper domParsingHelper, String xpathExpression, int index) {
+		
+		String dir = domParsingHelper.getAttributeTextValueOfNode("dir", xpathExpression, index);
+		String title = domParsingHelper.getAttributeTextValueOfNode("title", xpathExpression, index);
+		String category = domParsingHelper.getAttributeTextValueOfNode("cate", xpathExpression, index);
+		String boardDesc = domParsingHelper.getAttributeTextValueOfNode("desc", xpathExpression, index);
+		String bm = domParsingHelper.getAttributeTextValueOfNode("bm", xpathExpression, index);
+		String read = domParsingHelper.getAttributeTextValueOfNode("read", xpathExpression, index);
+		String count = domParsingHelper.getAttributeTextValueOfNode("count", xpathExpression, index);
 		
 		
 		Board board = new Board();
