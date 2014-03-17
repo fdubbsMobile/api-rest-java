@@ -1,8 +1,6 @@
 package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.resource;
 
-import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -21,7 +19,6 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.dom4j.DocumentException;
 import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +63,7 @@ public class SectionManager {
 	@GET
 	@Path("/{section_id}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response /*Section*/ getSectionDetail(@PathParam("section_id") String sectionId) {
+	public Response getSectionDetail(@PathParam("section_id") String sectionId) {
 		logger.info(">>>>>>>>>>>>> Start getSectionDetail <<<<<<<<<<<<<<");
 		
 		logger.debug("section id : " + sectionId);
@@ -95,7 +92,7 @@ public class SectionManager {
 	}
 	
 	
-	private List<SectionMetaData> getAllSectionsMetaDataFromServer() throws IOException {
+	private List<SectionMetaData> getAllSectionsMetaDataFromServer() throws Exception {
 		
 		
 		
@@ -105,8 +102,8 @@ public class SectionManager {
 		HttpEntity responseEntity = response.getEntity();
 		String contentAsString = EntityUtils.toString(responseEntity);
 		
-		String xpathOfBoard = "ul.sec > li > a";
-		HtmlParsingHelper htmlParsingHelper = HtmlParsingHelper.parseText(contentAsString);
+		String xpathOfBoard = "//ul[@class='sec']/li/a";
+		DOMParsingHelper htmlParsingHelper = HtmlParsingHelper.parseText(contentAsString);
 		int nodeCount = htmlParsingHelper.getNumberOfNodes(xpathOfBoard);
 		List<SectionMetaData> sections = new ArrayList<SectionMetaData>();
 		
@@ -121,8 +118,7 @@ public class SectionManager {
 	
 	
 	private Section getSectionDetailFromServer(String sectionId) 
-			throws IOException, InvalidParameterException, 
-					URISyntaxException, DocumentException {
+			throws Exception {
 		
 		URI uri = new URIBuilder().setScheme("http").setHost("bbs.fudan.edu.cn")
 				.setPath("/bbs/boa").setParameter("s", sectionId).build();
@@ -136,6 +132,7 @@ public class SectionManager {
 		
 		
 		if(HttpStatus.OK_200 != status) {
+			logger.debug("status : " + status);
 			String errorMessage = HttpParsingHelper.getErrorMessageFromResponse(response);
 			if(ErrorMessage.INVALID_PARAMETER_ERROR_MESSAGE.equals(errorMessage)) {
 				throw new InvalidParameterException(ErrorMessage.INVALID_PARAMETER_ERROR_MESSAGE);
@@ -150,9 +147,9 @@ public class SectionManager {
 		return parseSectionDetail(sectionId, contentAsString);
 	}
 	
-	private Section parseSectionDetail(String sectionId, String contentAsString) throws DocumentException {
+	private Section parseSectionDetail(String sectionId, String contentAsString) throws Exception {
 		
-		XMLParsingHelper xmlParsingHelper = XMLParsingHelper.parseText(contentAsString);
+		DOMParsingHelper xmlParsingHelper = XMLParsingHelper.parseText(contentAsString);
 		
 		String xpathOfBoard = "/bbsboa/brd";
 		int nodeCount = xmlParsingHelper.getNumberOfNodes(xpathOfBoard);

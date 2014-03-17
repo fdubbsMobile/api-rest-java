@@ -6,6 +6,7 @@ public interface DOMParsingHelper {
 	 * 
 	 * @param xpathExpression
 	 * @return the text value of the node specified by 'xpathExpression', or 'null' if the node not exist
+	 * @throws Exception 
 	 */
 	public String getTextValueOfSingleNode(String xpathExpression);
 	

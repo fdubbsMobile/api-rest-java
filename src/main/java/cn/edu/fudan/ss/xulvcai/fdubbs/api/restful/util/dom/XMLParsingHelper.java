@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.dom4j.Document;
-import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
@@ -22,11 +21,11 @@ public class XMLParsingHelper implements DOMParsingHelper{
 	private HashMap<String, List<Node>> nodesCache = new HashMap<String, List<Node>>();
 	
 	
-	private XMLParsingHelper(String xmlContent) throws DocumentException {
+	private XMLParsingHelper(String xmlContent) throws Exception {
 		doc = DocumentHelper.parseText(xmlContent);
 	}
 	
-	public static XMLParsingHelper parseText(String xmlContent) throws DocumentException {
+	public static XMLParsingHelper parseText(String xmlContent) throws Exception {
 		return new XMLParsingHelper(xmlContent);
 	}
 	

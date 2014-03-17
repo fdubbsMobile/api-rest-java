@@ -1,6 +1,5 @@
 package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.resource;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -72,7 +71,7 @@ public class LoginSession{
 	}	
 
 	
-	private LoginResponse postLoginRequest(String user_id, String passwd) throws IOException {
+	private LoginResponse postLoginRequest(String user_id, String passwd) throws Exception {
 		LoginResponse result = new LoginResponse();
 		
 		List<NameValuePair> formparams = new ArrayList<NameValuePair>();

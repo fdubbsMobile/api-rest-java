@@ -1,13 +1,12 @@
 package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 
 
+
 import org.apache.http.HttpEntity;
-import org.apache.http.ParseException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.cookie.Cookie;
@@ -19,14 +18,14 @@ import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.HtmlParsingHelper;
 public class HttpParsingHelper {
 
 	public static String getErrorMessageFromResponse(CloseableHttpResponse response) 
-			throws ParseException, IOException {
+			throws Exception {
 		
 		HttpEntity responseEntity = response.getEntity();
 		
 		if(responseEntity == null)	return "";
 		
 		String contentAsString = EntityUtils.toString(responseEntity);
-		return HtmlParsingHelper.parseText(contentAsString).getTextValueOfSingleNode("body > div");
+		return HtmlParsingHelper.parseText(contentAsString).getTextValueOfSingleNode("/html/body/div");
 
 	}
 	
