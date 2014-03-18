@@ -67,9 +67,6 @@ public class SectionManager {
 	public Response getSectionDetail(@PathParam("section_id") String sectionId) {
 		logger.info(">>>>>>>>>>>>> Start getSectionDetail <<<<<<<<<<<<<<");
 		
-		logger.debug("section id : " + sectionId);
-		
-		Response response;
 		Section section = null;
 		
 		try {
@@ -82,6 +79,7 @@ public class SectionManager {
 			return Response.status(ResponseStatus.SERVER_INTERNAL_ERROR_STATUS).build();
 		}
 		
+		Response response;
 		if(section == null) {
 			response = Response.status(ResponseStatus.SERVER_INTERNAL_ERROR_STATUS).build();
 		} else {
@@ -94,8 +92,6 @@ public class SectionManager {
 	
 	
 	private List<SectionMetaData> getAllSectionsMetaDataFromServer() throws Exception {
-		
-		
 		
 		HttpGet httpGet = new HttpGet("http://bbs.fudan.edu.cn/m/bbs/sec");
 		

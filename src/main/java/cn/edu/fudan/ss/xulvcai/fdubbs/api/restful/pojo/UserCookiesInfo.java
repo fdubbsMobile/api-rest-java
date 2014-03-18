@@ -1,9 +1,12 @@
 
 package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.Generated;
+import javax.validation.Valid;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -15,65 +18,66 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /**
- * section meta data
+ * user id and cookies info
  * 
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
-    "section_id",
-    "section_desc"
+    "user_id",
+    "cookies"
 })
-public class MetaData {
+public class UserCookiesInfo {
 
     /**
-     * section id
+     * user_id
      * 
      */
-    @JsonProperty("section_id")
-    private Double sectionId;
+    @JsonProperty("user_id")
+    private String userId;
     /**
-     * section description
+     * cookies
      * 
      */
-    @JsonProperty("section_desc")
-    private String sectionDesc;
+    @JsonProperty("cookies")
+    @Valid
+    private List<CookieKeyValuePair> cookies = new ArrayList<CookieKeyValuePair>();
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     /**
-     * section id
+     * user_id
      * 
      */
-    @JsonProperty("section_id")
-    public Double getSectionId() {
-        return sectionId;
+    @JsonProperty("user_id")
+    public String getUserId() {
+        return userId;
     }
 
     /**
-     * section id
+     * user_id
      * 
      */
-    @JsonProperty("section_id")
-    public void setSectionId(Double sectionId) {
-        this.sectionId = sectionId;
+    @JsonProperty("user_id")
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     /**
-     * section description
+     * cookies
      * 
      */
-    @JsonProperty("section_desc")
-    public String getSectionDesc() {
-        return sectionDesc;
+    @JsonProperty("cookies")
+    public List<CookieKeyValuePair> getCookies() {
+        return cookies;
     }
 
     /**
-     * section description
+     * cookies
      * 
      */
-    @JsonProperty("section_desc")
-    public void setSectionDesc(String sectionDesc) {
-        this.sectionDesc = sectionDesc;
+    @JsonProperty("cookies")
+    public void setCookies(List<CookieKeyValuePair> cookies) {
+        this.cookies = cookies;
     }
 
     @Override

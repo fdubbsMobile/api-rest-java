@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -23,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.exception.InvalidParameterException;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.exception.ServerInternalException;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.Board;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.UserCookiesInfo;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.ErrorMessage;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.HttpParsingHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.ResponseStatus;
@@ -55,6 +58,26 @@ public class BoardManager {
 		return Response.ok().entity(boards).build();
 	}
 	
+	@POST
+	@Path("/favor")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getUserFavorBoardsDetail(UserCookiesInfo request) {
+		
+		logger.info(">>>>>>>>>>>>> Start getUserFavorBoardsDetail <<<<<<<<<<<<<<");
+		
+		if(request != null) {
+			logger.debug("user_cookies_info : " + request.toString());
+		} else {
+			logger.debug("user_cookies_info is null");
+		}
+		
+		List<Board> boards = null;
+		
+		logger.info(">>>>>>>>>>>>> End getUserFavorBoardsDetail <<<<<<<<<<<<<<");
+		return Response.ok().entity(boards).build();
+	}
+	
 	private List<Board> getAllBoardsDetailFromServer() throws Exception {
 		
 		HttpGet httpGet = new HttpGet("http://bbs.fudan.edu.cn/bbs/all");
@@ -68,7 +91,6 @@ public class BoardManager {
 		HttpEntity responseEntity = response.getEntity();
 		
 		String contentAsString = EntityUtils.toString(responseEntity);
-		logger.debug(contentAsString);	
 		DomParsingHelper xmlParsingHelper = XMLParsingHelper.parseText(contentAsString);
 			
 		String xpathOfBoard = "/bbsall/brd";
