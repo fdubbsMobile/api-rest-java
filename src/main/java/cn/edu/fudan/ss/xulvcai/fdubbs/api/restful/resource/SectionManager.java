@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.exception.InvalidParameterException;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.exception.ServerInternalException;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.Board;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.Section;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.SectionMetaData;
@@ -99,6 +100,11 @@ public class SectionManager {
 		HttpGet httpGet = new HttpGet("http://bbs.fudan.edu.cn/m/bbs/sec");
 		
 		CloseableHttpResponse response = httpclient.execute(httpGet);
+		
+		if(HttpStatus.OK_200 != response.getStatusLine().getStatusCode()) {
+			throw new ServerInternalException(ErrorMessage.SERVER_INTERNAL_ERROR_MESSAGE);	
+		}
+		
 		HttpEntity responseEntity = response.getEntity();
 		String contentAsString = EntityUtils.toString(responseEntity);
 		
@@ -128,16 +134,13 @@ public class SectionManager {
 		
 		CloseableHttpResponse response = httpclient.execute(httpGet);
 		
-		int status = response.getStatusLine().getStatusCode();
 		
-		
-		if(HttpStatus.OK_200 != status) {
-			logger.debug("status : " + status);
+		if(HttpStatus.OK_200 != response.getStatusLine().getStatusCode()) {
 			String errorMessage = HttpParsingHelper.getErrorMessageFromResponse(response);
 			if(ErrorMessage.INVALID_PARAMETER_ERROR_MESSAGE.equals(errorMessage)) {
 				throw new InvalidParameterException(ErrorMessage.INVALID_PARAMETER_ERROR_MESSAGE);
 			}
-			return null;	
+			throw new ServerInternalException(ErrorMessage.SERVER_INTERNAL_ERROR_MESSAGE);	
 		}
 		
 		
