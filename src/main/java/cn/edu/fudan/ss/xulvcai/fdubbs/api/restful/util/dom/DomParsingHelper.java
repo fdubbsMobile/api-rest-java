@@ -1,6 +1,6 @@
 package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom;
 
-public interface DOMParsingHelper {
+public interface DomParsingHelper {
 
 	/**
 	 * 

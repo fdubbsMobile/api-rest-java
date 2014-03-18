@@ -30,7 +30,7 @@ import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.SectionMetaData;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.ErrorMessage;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.HttpParsingHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.ResponseStatus;
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.DOMParsingHelper;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.DomParsingHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.HtmlParsingHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.XMLParsingHelper;
 
@@ -103,7 +103,7 @@ public class SectionManager {
 		String contentAsString = EntityUtils.toString(responseEntity);
 		
 		String xpathOfBoard = "//ul[@class='sec']/li/a";
-		DOMParsingHelper htmlParsingHelper = HtmlParsingHelper.parseText(contentAsString);
+		DomParsingHelper htmlParsingHelper = HtmlParsingHelper.parseText(contentAsString);
 		int nodeCount = htmlParsingHelper.getNumberOfNodes(xpathOfBoard);
 		List<SectionMetaData> sections = new ArrayList<SectionMetaData>();
 		
@@ -149,7 +149,7 @@ public class SectionManager {
 	
 	private Section parseSectionDetail(String sectionId, String contentAsString) throws Exception {
 		
-		DOMParsingHelper xmlParsingHelper = XMLParsingHelper.parseText(contentAsString);
+		DomParsingHelper xmlParsingHelper = XMLParsingHelper.parseText(contentAsString);
 		
 		String xpathOfBoard = "/bbsboa/brd";
 		int nodeCount = xmlParsingHelper.getNumberOfNodes(xpathOfBoard);
@@ -174,7 +174,7 @@ public class SectionManager {
 	}
 	
 	
-	private SectionMetaData constructSectionMetaData(DOMParsingHelper domParsingHelper, String xpathExpression, int index) {
+	private SectionMetaData constructSectionMetaData(DomParsingHelper domParsingHelper, String xpathExpression, int index) {
 		
 		String content = domParsingHelper.getTextValueOfNode(xpathExpression, index);
 		
@@ -191,7 +191,7 @@ public class SectionManager {
 	}
 	
 	
-	private Board constructBoard(DOMParsingHelper domParsingHelper, String xpathExpression, int index) {
+	private Board constructBoard(DomParsingHelper domParsingHelper, String xpathExpression, int index) {
 		
 		String dir = domParsingHelper.getAttributeTextValueOfNode("dir", xpathExpression, index);
 		String title = domParsingHelper.getAttributeTextValueOfNode("title", xpathExpression, index);

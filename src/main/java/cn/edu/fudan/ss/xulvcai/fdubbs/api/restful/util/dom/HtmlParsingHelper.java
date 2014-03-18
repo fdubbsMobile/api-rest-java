@@ -14,7 +14,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 
-public class HtmlParsingHelper implements DOMParsingHelper{
+public class HtmlParsingHelper implements DomParsingHelper{
 
 	private Document doc;
 	private HashMap<String, NodeList> nodesCache = new HashMap<String, NodeList>();
@@ -95,3 +95,4 @@ public class HtmlParsingHelper implements DOMParsingHelper{
 	}
 
 }
+

@@ -1,5 +1,5 @@
+/*
 package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom;
-
 
 import java.util.HashMap;
 import java.util.List;
@@ -8,41 +8,41 @@ import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
+import org.htmlcleaner.HtmlCleaner;
 
+public class UnitedDomParsingHelper implements DomParsingHelper {
 
-
-public class XMLParsingHelper implements DomParsingHelper{
-
-	//private static Logger logger = LoggerFactory.getLogger(XMLParsingHelper.class);
-	
-	
 	private Document doc;
-	
 	private HashMap<String, List<Node>> nodesCache = new HashMap<String, List<Node>>();
 	
-	
-	private XMLParsingHelper(String xmlContent) throws Exception {
-		doc = DocumentHelper.parseText(xmlContent);
+	private UnitedDomParsingHelper(String contentAsString) throws Exception {
+		doc = DocumentHelper.parseText(contentAsString);
 	}
 	
-	public static XMLParsingHelper parseText(String xmlContent) throws Exception {
-		return new XMLParsingHelper(xmlContent);
+	public static UnitedDomParsingHelper parseText(String contentAsString, boolean isHtmlFormat) throws Exception {
+		if(isHtmlFormat) {
+			HtmlCleaner htmlCleaner = new HtmlCleaner();
+			contentAsString = htmlCleaner.getInnerHtml(htmlCleaner.clean(contentAsString));
+		}
+		return new UnitedDomParsingHelper(contentAsString);
 	}
+	
 	
 	@Override
 	public String getTextValueOfSingleNode(String xpathExpression) {
 		Node node = doc.selectSingleNode(xpathExpression);
 		return node == null ? null : node.getText();
 	}
-	
+
 	@Override
 	public int getNumberOfNodes(String xpathExpression) {
 		List<Node> nodes = getNodesFromCacheOrDocument(xpathExpression);
 		return nodes == null ? 0 : nodes.size();
 	}
-	
+
 	@Override
-	public String getAttributeTextValueOfNode(String attributName, String xpathOfNode, int index) {
+	public String getAttributeTextValueOfNode(String attributName,
+			String xpathOfNode, int index) {
 		
 		List<Node> nodes = getNodesFromCacheOrDocument(xpathOfNode);
 		
@@ -57,11 +57,11 @@ public class XMLParsingHelper implements DomParsingHelper{
 		}
 		
 		return null;
-
 	}
-	
+
 	@Override
 	public String getTextValueOfNode(String xpathExpression, int index) {
+		
 		List<Node> nodes = getNodesFromCacheOrDocument(xpathExpression);
 		
 		if(nodes == null || index < 0 || index >= nodes.size()) 
@@ -70,7 +70,6 @@ public class XMLParsingHelper implements DomParsingHelper{
 		Node node = nodes.get(index);
 		return node.getText();
 	}
-	
 	
 	@SuppressWarnings("unchecked")
 	private List<Node> getNodesFromCacheOrDocument(String xpathExpression) {
@@ -85,5 +84,5 @@ public class XMLParsingHelper implements DomParsingHelper{
 		return nodes;
 	}
 
-
 }
+*/
