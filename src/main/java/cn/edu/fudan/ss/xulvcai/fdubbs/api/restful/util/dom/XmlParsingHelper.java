@@ -11,7 +11,7 @@ import org.dom4j.Node;
 
 
 
-public class XMLParsingHelper implements DomParsingHelper{
+public class XmlParsingHelper implements DomParsingHelper{
 
 	//private static Logger logger = LoggerFactory.getLogger(XMLParsingHelper.class);
 	
@@ -21,12 +21,12 @@ public class XMLParsingHelper implements DomParsingHelper{
 	private HashMap<String, List<Node>> nodesCache = new HashMap<String, List<Node>>();
 	
 	
-	private XMLParsingHelper(String xmlContent) throws Exception {
+	private XmlParsingHelper(String xmlContent) throws Exception {
 		doc = DocumentHelper.parseText(xmlContent);
 	}
 	
-	public static XMLParsingHelper parseText(String xmlContent) throws Exception {
-		return new XMLParsingHelper(xmlContent);
+	public static XmlParsingHelper parseText(String xmlContent) throws Exception {
+		return new XmlParsingHelper(xmlContent);
 	}
 	
 	@Override

@@ -29,11 +29,12 @@ import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.Board;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.Section;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.SectionMetaData;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.ErrorMessage;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.HttpExecutionHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.HttpParsingHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.ResponseStatus;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.DomParsingHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.HtmlParsingHelper;
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.XMLParsingHelper;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.XmlParsingHelper;
 
 
 @Path("/section")
@@ -92,14 +93,10 @@ public class SectionManager {
 	
 	
 	private List<SectionMetaData> getAllSectionsMetaDataFromServer() throws Exception {
+		URI uri = new URIBuilder().setScheme("http").setHost("bbs.fudan.edu.cn")
+				.setPath("/m/bbs/sec").build();
 		
-		HttpGet httpGet = new HttpGet("http://bbs.fudan.edu.cn/m/bbs/sec");
-		
-		CloseableHttpResponse response = httpclient.execute(httpGet);
-		
-		if(HttpStatus.OK_200 != response.getStatusLine().getStatusCode()) {
-			throw new ServerInternalException(ErrorMessage.SERVER_INTERNAL_ERROR_MESSAGE);	
-		}
+		CloseableHttpResponse response = HttpExecutionHelper.executeGetRequest(getHttpClient(), uri);
 		
 		HttpEntity responseEntity = response.getEntity();
 		String contentAsString = EntityUtils.toString(responseEntity);
@@ -125,19 +122,7 @@ public class SectionManager {
 		URI uri = new URIBuilder().setScheme("http").setHost("bbs.fudan.edu.cn")
 				.setPath("/bbs/boa").setParameter("s", sectionId).build();
 		
-		HttpGet httpGet = new HttpGet(uri);
-		
-		
-		CloseableHttpResponse response = httpclient.execute(httpGet);
-		
-		
-		if(HttpStatus.OK_200 != response.getStatusLine().getStatusCode()) {
-			String errorMessage = HttpParsingHelper.getErrorMessageFromResponse(response);
-			if(ErrorMessage.INVALID_PARAMETER_ERROR_MESSAGE.equals(errorMessage)) {
-				throw new InvalidParameterException(ErrorMessage.INVALID_PARAMETER_ERROR_MESSAGE);
-			}
-			throw new ServerInternalException(ErrorMessage.SERVER_INTERNAL_ERROR_MESSAGE);	
-		}
+		CloseableHttpResponse response = HttpExecutionHelper.executeGetRequest(getHttpClient(), uri);
 		
 		
 		HttpEntity responseEntity = response.getEntity();
@@ -148,7 +133,7 @@ public class SectionManager {
 	
 	private Section parseSectionDetail(String sectionId, String contentAsString) throws Exception {
 		
-		DomParsingHelper xmlParsingHelper = XMLParsingHelper.parseText(contentAsString);
+		DomParsingHelper xmlParsingHelper = XmlParsingHelper.parseText(contentAsString);
 		
 		String xpathOfBoard = "/bbsboa/brd";
 		int nodeCount = xmlParsingHelper.getNumberOfNodes(xpathOfBoard);
@@ -213,7 +198,10 @@ public class SectionManager {
 		return board;
 	}
 	
-	
+	// TODO May change according to perfermance tuning
+	private CloseableHttpClient getHttpClient() {
+		return httpclient;
+	}
 	
 	
 }

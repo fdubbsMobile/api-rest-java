@@ -1,5 +1,6 @@
 package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.resource;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -12,25 +13,28 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.apache.http.HttpEntity;
+import org.apache.http.client.CookieStore;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.cookie.Cookie;
+import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.util.EntityUtils;
-import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.exception.InvalidParameterException;
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.exception.ServerInternalException;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.Board;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.UserCookiesInfo;
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.ErrorMessage;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.HttpExecutionHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.HttpParsingHelper;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.HttpParsingHelper.HttpContentType;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.ResponseStatus;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.DomParsingHelper;
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.XMLParsingHelper;
+
 
 
 @Path("/board")
@@ -66,39 +70,65 @@ public class BoardManager {
 		
 		logger.info(">>>>>>>>>>>>> Start getUserFavorBoardsDetail <<<<<<<<<<<<<<");
 		
-		if(request != null) {
-			logger.debug("user_cookies_info : " + request.toString());
-		} else {
-			logger.debug("user_cookies_info is null");
-		}
+		/*if(request == null || request.getCookies() == null) {
+			logger.info("user_cookies_info is null");
+			return Response.status(ResponseStatus.REQUEST_CONTENT_ERROR_STATUS).build();
+		}*/
 		
 		List<Board> boards = null;
+		try {
+			boards = getUserFavorBoardsFromServer();
+		} catch (Exception e) {
+			logger.error("Exception occurs in getUserFavorBoardsDetail!", e);
+			return Response.status(ResponseStatus.SERVER_INTERNAL_ERROR_STATUS).build();
+		}
 		
 		logger.info(">>>>>>>>>>>>> End getUserFavorBoardsDetail <<<<<<<<<<<<<<");
 		return Response.ok().entity(boards).build();
 	}
 	
+	private List<Board> getUserFavorBoardsFromServer() throws Exception {
+		
+		URI uri = new URIBuilder().setScheme("http").setHost("bbs.fudan.edu.cn").setPath("/bbs/fav").build();
+		HttpGet httpGet = new HttpGet(uri);
+		
+		CloseableHttpClient client = getHttpClient();
+		HttpClientContext context = HttpClientContext.create();
+		
+		BasicClientCookie cookie1 = new BasicClientCookie("utmpnum", "728");
+		BasicClientCookie cookie2 = new BasicClientCookie("utmpkey", "73239007");
+		BasicClientCookie cookie3 = new BasicClientCookie("utmpuserid", "hidennis");
+		CookieStore cookieStore = new BasicCookieStore();
+		cookieStore.addCookie(cookie1);
+		cookieStore.addCookie(cookie1);
+		cookieStore.addCookie(cookie2);
+		context.setCookieStore(cookieStore);;
+		
+		CloseableHttpResponse response = client.execute(httpGet, context);
+		
+		String contentAsString = EntityUtils.toString(response.getEntity());
+		logger.debug("contentAsString : " + contentAsString);
+		HttpContentType httpContentType = HttpParsingHelper.getContentType(response);
+		DomParsingHelper domParsingHelper = HttpParsingHelper.getDomParsingHelper(response, httpContentType);
+		
+		return null;
+	}
+	
 	private List<Board> getAllBoardsDetailFromServer() throws Exception {
 		
-		HttpGet httpGet = new HttpGet("http://bbs.fudan.edu.cn/bbs/all");
+		URI uri = new URIBuilder().setScheme("http").setHost("bbs.fudan.edu.cn").setPath("/bbs/all").build();
 		
-		CloseableHttpResponse response = httpclient.execute(httpGet);
+		CloseableHttpResponse response = HttpExecutionHelper.executeGetRequest(getHttpClient(), uri);
 		
-		if(HttpStatus.OK_200 != response.getStatusLine().getStatusCode()) {
-			throw new ServerInternalException(ErrorMessage.SERVER_INTERNAL_ERROR_MESSAGE);	
-		}
-		
-		HttpEntity responseEntity = response.getEntity();
-		
-		String contentAsString = EntityUtils.toString(responseEntity);
-		DomParsingHelper xmlParsingHelper = XMLParsingHelper.parseText(contentAsString);
+		HttpContentType httpContentType = HttpParsingHelper.getContentType(response);
+		DomParsingHelper domParsingHelper = HttpParsingHelper.getDomParsingHelper(response, httpContentType);
 			
 		String xpathOfBoard = "/bbsall/brd";
-		int nodeCount = xmlParsingHelper.getNumberOfNodes(xpathOfBoard);
+		int nodeCount = domParsingHelper.getNumberOfNodes(xpathOfBoard);
 		List<Board> boards = new ArrayList<Board>();
 		
 		for(int index = 0; index < nodeCount; index++) {
-			Board board = constructBoard(xmlParsingHelper, xpathOfBoard, index);
+			Board board = constructBoard(domParsingHelper, xpathOfBoard, index);
 			boards.add(board);
 		}
 		
@@ -125,4 +155,10 @@ public class BoardManager {
 		
 		return board;
 	}
+	
+	// TODO May change according to perfermance tuning
+	private CloseableHttpClient getHttpClient() {
+		return httpclient;
+	}
+		
 }
