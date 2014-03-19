@@ -1,4 +1,4 @@
-package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util;
+package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http;
 
 import java.net.URI;
 
@@ -9,6 +9,7 @@ import org.eclipse.jetty.http.HttpStatus;
 
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.exception.InvalidParameterException;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.exception.ServerInternalException;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.ErrorMessage;
 
 public class HttpExecutionHelper {
 

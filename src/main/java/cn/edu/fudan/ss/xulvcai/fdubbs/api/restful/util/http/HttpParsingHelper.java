@@ -1,7 +1,9 @@
-package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util;
+package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http;
 
 import java.util.ArrayList;
 import java.util.List;
+
+
 
 
 
@@ -17,6 +19,7 @@ import org.apache.http.util.EntityUtils;
 
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.exception.ServerInternalException;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.CookieKeyValuePair;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.ErrorMessage;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.DomParsingHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.HtmlParsingHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.XmlParsingHelper;

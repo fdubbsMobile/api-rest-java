@@ -28,13 +28,13 @@ import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.exception.ServerInternalExcept
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.Board;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.Section;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.SectionMetaData;
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.ErrorMessage;
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.HttpExecutionHelper;
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.HttpParsingHelper;
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.ResponseStatus;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.ErrorMessage;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.ResponseStatus;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.DomParsingHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.HtmlParsingHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.XmlParsingHelper;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpExecutionHelper;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpParsingHelper;
 
 
 @Path("/section")

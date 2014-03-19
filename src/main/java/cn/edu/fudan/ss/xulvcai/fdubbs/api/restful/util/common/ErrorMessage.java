@@ -1,4 +1,4 @@
-package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util;
+package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common;
 
 public class ErrorMessage {
 

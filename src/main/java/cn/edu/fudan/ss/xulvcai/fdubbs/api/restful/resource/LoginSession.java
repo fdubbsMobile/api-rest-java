@@ -25,8 +25,8 @@ import org.slf4j.LoggerFactory;
 
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.CookieKeyValuePair;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.LoginResponse;
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.ErrorMessage;
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.HttpParsingHelper;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.ErrorMessage;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpParsingHelper;
 
 @Path("/user")
 public class LoginSession{

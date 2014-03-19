@@ -5,10 +5,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.ws.rs.Consumes;
+import javax.ws.rs.CookieParam;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -29,11 +29,11 @@ import org.slf4j.LoggerFactory;
 
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.Board;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.UserCookiesInfo;
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.HttpExecutionHelper;
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.HttpParsingHelper;
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.HttpParsingHelper.HttpContentType;
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.ResponseStatus;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.ResponseStatus;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.DomParsingHelper;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpExecutionHelper;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpParsingHelper;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpParsingHelper.HttpContentType;
 
 
 
@@ -62,18 +62,19 @@ public class BoardManager {
 		return Response.ok().entity(boards).build();
 	}
 	
-	@POST
-	@Path("/favor")
-	@Consumes(MediaType.APPLICATION_JSON)
+	@GET
+	@Path("/favor/{user_id}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getUserFavorBoardsDetail(UserCookiesInfo request) {
+	public Response getUserFavorBoardsDetail(@PathParam("user_id") String userId,  @CookieParam("auth_code") String authCode) {
 		
 		logger.info(">>>>>>>>>>>>> Start getUserFavorBoardsDetail <<<<<<<<<<<<<<");
 		
-		/*if(request == null || request.getCookies() == null) {
-			logger.info("user_cookies_info is null");
+		if(userId == null || authCode == null) {
+			logger.info("userId or authCode is null");
 			return Response.status(ResponseStatus.REQUEST_CONTENT_ERROR_STATUS).build();
-		}*/
+		}
+		
+		logger.debug("userId : "+ userId + "; authCode : " + authCode);
 		
 		List<Board> boards = null;
 		try {
@@ -88,7 +89,7 @@ public class BoardManager {
 	}
 	
 	private List<Board> getUserFavorBoardsFromServer() throws Exception {
-		
+		/*
 		URI uri = new URIBuilder().setScheme("http").setHost("bbs.fudan.edu.cn").setPath("/bbs/fav").build();
 		HttpGet httpGet = new HttpGet(uri);
 		
@@ -110,7 +111,7 @@ public class BoardManager {
 		logger.debug("contentAsString : " + contentAsString);
 		HttpContentType httpContentType = HttpParsingHelper.getContentType(response);
 		DomParsingHelper domParsingHelper = HttpParsingHelper.getDomParsingHelper(response, httpContentType);
-		
+		*/
 		return null;
 	}
 	
