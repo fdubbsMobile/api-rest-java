@@ -26,7 +26,9 @@ import org.slf4j.LoggerFactory;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.CookieKeyValuePair;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.LoginResponse;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.ErrorMessage;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpClientManager;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpParsingHelper;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.ReusableHttpClient;
 
 @Path("/user")
 public class LoginSession{
@@ -84,16 +86,24 @@ public class LoginSession{
 		httpPost.setEntity(entity);
 		
 		HttpClientContext context = HttpClientContext.create();
-		CloseableHttpResponse postResponse = httpclient.execute(httpPost, context);
+		
+		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getAnonymousClient();
+		
+		//CloseableHttpResponse postResponse = httpclient.execute(httpPost, context);
+		CloseableHttpResponse postResponse = reusableClient.executePost(httpPost, context);
 		
 		boolean loginSuccess = isLoginSuccess(postResponse);
 		logger.debug("Login successful : " + loginSuccess);
 		
 		if(loginSuccess) {
-			List<CookieKeyValuePair> cookies = HttpParsingHelper.getCookiePairsFromContext(context);
+			//List<CookieKeyValuePair> cookies = HttpParsingHelper.getCookiePairsFromContext(context);
+			String authCode = "hidennis-53i283048";
 			result.setResultCode(LoginResponse.ResultCode.SUCCESS);
-			result.setAuthCode("hidennis-53i283048");
+			result.setAuthCode(authCode);
+			HttpClientManager.getInstance().markClientAsAuth(authCode, reusableClient);
 		}else{
+			HttpClientManager.getInstance().returnAnonymousClient(reusableClient);
+			
 			String errorMessage = HttpParsingHelper.getErrorMessageFromResponse(postResponse);
 			if(ErrorMessage.USER_NOT_EXIST_ERROR_MESSAGE.equals(errorMessage)) {
 				result.setResultCode(LoginResponse.ResultCode.USER_NOT_EXIST);

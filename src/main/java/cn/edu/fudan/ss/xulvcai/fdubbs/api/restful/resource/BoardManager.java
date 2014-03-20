@@ -27,12 +27,15 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.exception.InvalidParameterException;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.Board;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.UserCookiesInfo;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.ResponseStatus;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.DomParsingHelper;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpClientManager;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpExecutionHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpParsingHelper;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.ReusableHttpClient;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpParsingHelper.HttpContentType;
 
 
@@ -63,22 +66,22 @@ public class BoardManager {
 	}
 	
 	@GET
-	@Path("/favor/{user_id}")
+	@Path("/favor/")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getUserFavorBoardsDetail(@PathParam("user_id") String userId,  @CookieParam("auth_code") String authCode) {
+	public Response getUserFavorBoardsDetail(@CookieParam("auth_code") String authCode) {
 		
 		logger.info(">>>>>>>>>>>>> Start getUserFavorBoardsDetail <<<<<<<<<<<<<<");
 		
-		if(userId == null || authCode == null) {
-			logger.info("userId or authCode is null");
+		if(authCode == null) {
+			logger.info("authCode is null");
 			return Response.status(ResponseStatus.REQUEST_CONTENT_ERROR_STATUS).build();
 		}
 		
-		logger.debug("userId : "+ userId + "; authCode : " + authCode);
+		logger.debug("authCode : " + authCode);
 		
 		List<Board> boards = null;
 		try {
-			boards = getUserFavorBoardsFromServer();
+			boards = getUserFavorBoardsFromServer(authCode);
 		} catch (Exception e) {
 			logger.error("Exception occurs in getUserFavorBoardsDetail!", e);
 			return Response.status(ResponseStatus.SERVER_INTERNAL_ERROR_STATUS).build();
@@ -88,11 +91,21 @@ public class BoardManager {
 		return Response.ok().entity(boards).build();
 	}
 	
-	private List<Board> getUserFavorBoardsFromServer() throws Exception {
-		/*
+	private List<Board> getUserFavorBoardsFromServer(String authCode) throws Exception {
+		
 		URI uri = new URIBuilder().setScheme("http").setHost("bbs.fudan.edu.cn").setPath("/bbs/fav").build();
 		HttpGet httpGet = new HttpGet(uri);
 		
+		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getAuthClient(authCode);
+		if(reusableClient == null) {
+			logger.error("reusableClient is null! You need to login");
+			throw new InvalidParameterException("Invalid AuthCode!");
+		}
+		
+		CloseableHttpResponse response = reusableClient.excuteGet(httpGet);
+		String contentAsString = EntityUtils.toString(response.getEntity());
+		logger.debug("contentAsString : " + contentAsString);
+		/*
 		CloseableHttpClient client = getHttpClient();
 		HttpClientContext context = HttpClientContext.create();
 		
