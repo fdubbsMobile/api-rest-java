@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.ws.rs.CookieParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -16,43 +17,37 @@ import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.exception.InvalidParameterException;
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.exception.ServerInternalException;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.Board;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.Section;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.SectionMetaData;
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.ErrorMessage;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.ResponseStatus;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.DomParsingHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.HtmlParsingHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.XmlParsingHelper;
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpExecutionHelper;
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpParsingHelper;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpClientManager;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.ReusableHttpClient;
 
 
 @Path("/section")
 public class SectionManager {
 
 	private static Logger logger = LoggerFactory.getLogger(SectionManager.class);
-	private static CloseableHttpClient httpclient = HttpClients.createDefault();
 		
 	
 	@GET
 	@Path("/all")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getAllSectionsMetaData() {
+	public Response getAllSectionsMetaData(@CookieParam("auth_code") String authCode) {
 		logger.info(">>>>>>>>>>>>> Start getAllSectionsMetaData <<<<<<<<<<<<<<");
 		
 		List<SectionMetaData> sections = null;
 		try {
-			sections = getAllSectionsMetaDataFromServer();
+			sections = getAllSectionsMetaDataFromServer(authCode);
 		} catch (Exception e) {
 			logger.error("Exception occurs in getAllSectionsMetaData!", e);
 			return Response.status(ResponseStatus.SERVER_INTERNAL_ERROR_STATUS).build();
@@ -65,13 +60,13 @@ public class SectionManager {
 	@GET
 	@Path("/{section_id}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getSectionDetail(@PathParam("section_id") String sectionId) {
+	public Response getSectionDetail(@CookieParam("auth_code") String authCode, @PathParam("section_id") String sectionId) {
 		logger.info(">>>>>>>>>>>>> Start getSectionDetail <<<<<<<<<<<<<<");
 		
 		Section section = null;
 		
 		try {
-			section = getSectionDetailFromServer(sectionId);
+			section = getSectionDetailFromServer(authCode, sectionId);
 		} catch (InvalidParameterException e) {
 			logger.error("InvalidParameterException occurs in getAllSectionsMetaData!", e);
 			return Response.status(ResponseStatus.PAMAMETER_ERROR_STATUS).build();
@@ -92,11 +87,23 @@ public class SectionManager {
 	}
 	
 	
-	private List<SectionMetaData> getAllSectionsMetaDataFromServer() throws Exception {
+	private List<SectionMetaData> getAllSectionsMetaDataFromServer(String authCode) throws Exception {
 		URI uri = new URIBuilder().setScheme("http").setHost("bbs.fudan.edu.cn")
 				.setPath("/m/bbs/sec").build();
 		
-		CloseableHttpResponse response = HttpExecutionHelper.executeGetRequest(getHttpClient(), uri);
+		ReusableHttpClient reusableClient = null;
+		
+		if(authCode != null) {
+			reusableClient = HttpClientManager.getInstance().getAuthClient(authCode);
+		}
+		
+		if(reusableClient == null) {
+			reusableClient = HttpClientManager.getInstance().getAnonymousClient();
+		}
+		
+		CloseableHttpResponse response = reusableClient.excuteGet(new HttpGet(uri));
+		
+		HttpClientManager.getInstance().releaseReusableHttpClient(reusableClient);
 		
 		HttpEntity responseEntity = response.getEntity();
 		String contentAsString = EntityUtils.toString(responseEntity);
@@ -111,22 +118,39 @@ public class SectionManager {
 			sections.add(metaData);
 		}
 		
+		response.close();
+		
 		return sections;
 	}
 	
 	
 	
-	private Section getSectionDetailFromServer(String sectionId) 
+	private Section getSectionDetailFromServer(String authCode, String sectionId) 
 			throws Exception {
 		
 		URI uri = new URIBuilder().setScheme("http").setHost("bbs.fudan.edu.cn")
 				.setPath("/bbs/boa").setParameter("s", sectionId).build();
+
+
+		ReusableHttpClient reusableClient = null;
 		
-		CloseableHttpResponse response = HttpExecutionHelper.executeGetRequest(getHttpClient(), uri);
+		if(authCode != null) {
+			reusableClient = HttpClientManager.getInstance().getAuthClient(authCode);
+		}
+		
+		if(reusableClient == null) {
+			reusableClient = HttpClientManager.getInstance().getAnonymousClient();
+		}
+		
+		CloseableHttpResponse response = reusableClient.excuteGet(new HttpGet(uri));
+		
+		HttpClientManager.getInstance().releaseReusableHttpClient(reusableClient);
 		
 		
 		HttpEntity responseEntity = response.getEntity();
 		String contentAsString = EntityUtils.toString(responseEntity);
+		
+		response.close();
 		
 		return parseSectionDetail(sectionId, contentAsString);
 	}
@@ -196,11 +220,6 @@ public class SectionManager {
 		board.setManagers(bm == null ? null : Arrays.asList(bm.split(" ")));
 		
 		return board;
-	}
-	
-	// TODO May change according to perfermance tuning
-	private CloseableHttpClient getHttpClient() {
-		return httpclient;
 	}
 	
 	

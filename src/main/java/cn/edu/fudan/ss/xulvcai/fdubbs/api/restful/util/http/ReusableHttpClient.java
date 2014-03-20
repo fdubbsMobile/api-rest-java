@@ -13,6 +13,7 @@ import org.apache.http.impl.client.HttpClients;
 
 public class ReusableHttpClient {
 
+	private static long EXPIRE_INTERVAL = 15 * 60 * 1000; // 15 mins
 	private CloseableHttpClient httpclient;
 	private long lastUsedTimestamp;
 	private int usedCount;
@@ -25,17 +26,23 @@ public class ReusableHttpClient {
 		isExclusive = false;
 	}
 	
-	public CloseableHttpResponse executePost(HttpPost postRequest, HttpClientContext context) throws ClientProtocolException, IOException {
+	public CloseableHttpResponse executePost(HttpPost postRequest, HttpClientContext context) 
+			throws ClientProtocolException, IOException {
+		
+		touch();
 		return httpclient.execute(postRequest, context);
 	}
 	
-	public CloseableHttpResponse excuteGet(HttpGet getRequest) throws ClientProtocolException, IOException {
+	public CloseableHttpResponse excuteGet(HttpGet getRequest) 
+			throws ClientProtocolException, IOException {
+		
+		touch();
 		return httpclient.execute(getRequest);
 	}
 	
-	private void touch() {
-		lastUsedTimestamp = System.currentTimeMillis();
-		usedCount++;
+	public boolean isExpired() {
+		long currentTime = System.currentTimeMillis();
+		return currentTime > lastUsedTimestamp + EXPIRE_INTERVAL;
 	}
 	
 	public void markAsExclusive() {
@@ -45,5 +52,14 @@ public class ReusableHttpClient {
 	
 	public boolean isExclusive() {
 		return isExclusive;
+	}
+	
+	public int getTotalUsedCount() {
+		return usedCount;
+	}
+	
+	private void touch() {
+		lastUsedTimestamp = System.currentTimeMillis();
+		usedCount++;
 	}
 }

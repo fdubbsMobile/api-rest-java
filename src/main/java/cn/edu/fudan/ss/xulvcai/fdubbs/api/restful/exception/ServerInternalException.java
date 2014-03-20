@@ -1,6 +1,6 @@
 package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.exception;
 
-public class ServerInternalException extends Exception {
+public class ServerInternalException extends RuntimeException {
 
 	/**
 	 * 

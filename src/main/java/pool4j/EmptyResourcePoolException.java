@@ -30,7 +30,11 @@ package pool4j;
  */
 public class EmptyResourcePoolException extends RuntimeException {
    
-    private static final String TYPED_MSG = "Resource pool of type %s is empty";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -9090962064664090351L;
+	private static final String TYPED_MSG = "Resource pool of type %s is empty";
     private static final String TYPED_NAMED_MSG = "Resource pool %s of type %s is empty";
 
     /**
