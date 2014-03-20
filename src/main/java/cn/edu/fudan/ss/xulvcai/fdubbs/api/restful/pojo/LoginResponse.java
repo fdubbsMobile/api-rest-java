@@ -1,12 +1,9 @@
 
 package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import javax.annotation.Generated;
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
@@ -29,7 +26,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 @JsonPropertyOrder({
     "result_code",
     "error_message",
-    "cookies"
+    "auth_code"
 })
 public class LoginResponse {
 
@@ -48,12 +45,11 @@ public class LoginResponse {
     @JsonProperty("error_message")
     private String errorMessage;
     /**
-     * cookies
+     * error message
      * 
      */
-    @JsonProperty("cookies")
-    @Valid
-    private List<CookieKeyValuePair> cookies = new ArrayList<CookieKeyValuePair>();
+    @JsonProperty("auth_code")
+    private String authCode;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     /**
@@ -95,21 +91,21 @@ public class LoginResponse {
     }
 
     /**
-     * cookies
+     * error message
      * 
      */
-    @JsonProperty("cookies")
-    public List<CookieKeyValuePair> getCookies() {
-        return cookies;
+    @JsonProperty("auth_code")
+    public String getAuthCode() {
+        return authCode;
     }
 
     /**
-     * cookies
+     * error message
      * 
      */
-    @JsonProperty("cookies")
-    public void setCookies(List<CookieKeyValuePair> cookies) {
-        this.cookies = cookies;
+    @JsonProperty("auth_code")
+    public void setAuthCode(String authCode) {
+        this.authCode = authCode;
     }
 
     @Override

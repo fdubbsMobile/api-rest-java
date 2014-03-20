@@ -92,7 +92,7 @@ public class LoginSession{
 		if(loginSuccess) {
 			List<CookieKeyValuePair> cookies = HttpParsingHelper.getCookiePairsFromContext(context);
 			result.setResultCode(LoginResponse.ResultCode.SUCCESS);
-			result.setCookies(cookies);
+			result.setAuthCode("hidennis-53i283048");
 		}else{
 			String errorMessage = HttpParsingHelper.getErrorMessageFromResponse(postResponse);
 			if(ErrorMessage.USER_NOT_EXIST_ERROR_MESSAGE.equals(errorMessage)) {
