@@ -11,6 +11,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.http.Consts;
@@ -27,15 +28,16 @@ import org.slf4j.LoggerFactory;
 
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.LoginResponse;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.ErrorMessage;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.ResponseStatus;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpClientManager;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpParsingHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.ReusableHttpClient;
 
 @Path("/user")
-public class LoginSession{
+public class UserManager{
 
 	
-	private static Logger logger = LoggerFactory.getLogger(LoginSession.class);
+	private static Logger logger = LoggerFactory.getLogger(UserManager.class);
 	private static final int RANDOM_AUTH_CODE_LENGTH = 32;
 
 	@POST
@@ -70,7 +72,27 @@ public class LoginSession{
 		
 		logger.info(">>>>>>>>>>>>> End doUserLogin <<<<<<<<<<<<<<");
 		return loginResponse;
-	}	
+	}
+	
+	@POST
+	@Path("/logout")
+	public Response doUserLogout(@CookieParam("auth_code") String authCode) {
+		logger.info(">>>>>>>>>>>>> Start doUserLogout <<<<<<<<<<<<<<");
+		if(authCode == null) {
+			logger.info("authCode is null");
+			return Response.status(ResponseStatus.REQUEST_CONTENT_ERROR_STATUS).build();
+		}
+		
+		postLogoutRequest(authCode);
+		
+		
+		logger.info(">>>>>>>>>>>>> End doUserLogout <<<<<<<<<<<<<<");
+		return Response.ok().build();
+	}
+	
+	private void postLogoutRequest(String authCode) {
+		
+	}
 
 	
 	private LoginResponse postLoginRequest(String authCode, String user_id, String passwd) throws Exception {

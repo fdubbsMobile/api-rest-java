@@ -93,8 +93,6 @@ public class BoardManager {
 		}
 		
 		CloseableHttpResponse response = reusableClient.excuteGet(httpGet);
-		//String contentAsString = EntityUtils.toString(response.getEntity());
-		//logger.debug("contentAsString : " + contentAsString);
 		
 		HttpContentType httpContentType = HttpParsingHelper.getContentType(response);
 		DomParsingHelper domParsingHelper = HttpParsingHelper.getDomParsingHelper(response, httpContentType);
