@@ -3,13 +3,18 @@ package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http;
 
 import java.io.IOException;
 
+import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.protocol.HttpContext;
 
 public class ReusableHttpClient {
 
@@ -26,6 +31,62 @@ public class ReusableHttpClient {
 		isExclusive = false;
 	}
 	
+	public CloseableHttpResponse execute(final HttpHost target, final HttpRequest request,
+            final HttpContext context) throws IOException, ClientProtocolException {
+		touch();
+        return httpclient.execute(target, request, context);
+    }
+	
+	public CloseableHttpResponse execute(
+            final HttpUriRequest request,
+            final HttpContext context) throws IOException, ClientProtocolException {
+		touch();
+        return httpclient.execute(request, context);
+    }
+	
+	public CloseableHttpResponse execute(
+            final HttpUriRequest request) throws IOException, ClientProtocolException {
+		touch();
+        return httpclient.execute(request, (HttpContext) null);
+    }
+	
+	public CloseableHttpResponse execute(
+            final HttpHost target,
+            final HttpRequest request) throws IOException, ClientProtocolException {
+		touch();
+        return httpclient.execute(target, request, (HttpContext) null);
+    }
+	
+	public <T> T execute(final HttpUriRequest request,
+            final ResponseHandler<? extends T> responseHandler) throws IOException,
+            ClientProtocolException {
+		touch();
+        return httpclient.execute(request, responseHandler, null);
+    }
+	
+	public <T> T execute(final HttpUriRequest request,
+            final ResponseHandler<? extends T> responseHandler, final HttpContext context)
+            throws IOException, ClientProtocolException {
+		touch();
+        return httpclient.execute(request, responseHandler, context);
+    }
+	
+	
+	public <T> T execute(final HttpHost target, final HttpRequest request,
+            final ResponseHandler<? extends T> responseHandler) throws IOException,
+            ClientProtocolException {
+		touch();
+        return httpclient.execute(target, request, responseHandler, null);
+    }
+	
+	public <T> T execute(final HttpHost target, final HttpRequest request,
+            final ResponseHandler<? extends T> responseHandler, final HttpContext context)
+            throws IOException, ClientProtocolException {
+		touch();
+		return httpclient.execute(target, request, responseHandler, context);
+    }
+	
+	
 	public CloseableHttpResponse executePost(HttpPost postRequest, HttpClientContext context) 
 			throws ClientProtocolException, IOException {
 		
@@ -38,6 +99,15 @@ public class ReusableHttpClient {
 		
 		touch();
 		return httpclient.execute(getRequest);
+	}
+	
+	public void close() {
+		try {
+			httpclient.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public boolean isExpired() {

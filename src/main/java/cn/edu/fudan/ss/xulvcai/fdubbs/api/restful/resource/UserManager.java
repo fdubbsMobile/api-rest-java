@@ -1,6 +1,7 @@
 package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.resource;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +19,7 @@ import org.apache.http.Consts;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.client.utils.URIBuilder;
@@ -26,6 +28,8 @@ import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.exception.ServerInternalException;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.exception.SessionExpiredException;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.LoginResponse;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.ErrorMessage;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.ResponseStatus;
@@ -83,14 +87,35 @@ public class UserManager{
 			return Response.status(ResponseStatus.REQUEST_CONTENT_ERROR_STATUS).build();
 		}
 		
-		postLogoutRequest(authCode);
+		try {
+			postLogoutRequest(authCode);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		
 		logger.info(">>>>>>>>>>>>> End doUserLogout <<<<<<<<<<<<<<");
 		return Response.ok().build();
 	}
 	
-	private void postLogoutRequest(String authCode) {
+	private void postLogoutRequest(String authCode) throws Exception {
+		// Only allow Auth Cilent
+		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getAuthClient(authCode);
+		if(reusableClient == null) {
+			logger.error("reusableClient is null! You need to login");
+			throw new SessionExpiredException("Session associated with authCode<"+ authCode+"> has been expired!");
+		}
+		
+		URI uri = new URIBuilder().setScheme("http").setHost("bbs.fudan.edu.cn").setPath("/bbs/all").build();
+		
+		CloseableHttpResponse response = reusableClient.excuteGet(new HttpGet(uri));
+		HttpClientManager.getInstance().finalizeAuthCilent(authCode, reusableClient);
+		
+		boolean logoutSuccess = isLoginOrLogoutSuccess(response);
+		if(!logoutSuccess) {
+			throw new ServerInternalException(ErrorMessage.SERVER_INTERNAL_ERROR_MESSAGE);
+		}
 		
 	}
 
@@ -104,8 +129,7 @@ public class UserManager{
 		
 		UrlEncodedFormEntity entity = new UrlEncodedFormEntity(formparams, Consts.UTF_8);
 		
-		URI uri = new URIBuilder().setScheme("http").setHost("bbs.fudan.edu.cn")
-				.setPath("/bbs/login").build();
+		URI uri = new URIBuilder().setScheme("http").setHost("bbs.fudan.edu.cn").setPath("/bbs/login").build();
 		
 		HttpPost httpPost = new HttpPost(uri);
 		httpPost.setEntity(entity);
@@ -124,7 +148,7 @@ public class UserManager{
 		
 		CloseableHttpResponse postResponse = reusableClient.executePost(httpPost, context);
 		
-		boolean loginSuccess = isLoginSuccess(postResponse);
+		boolean loginSuccess = isLoginOrLogoutSuccess(postResponse);
 		logger.debug("Login successful : " + loginSuccess);
 		
 		if(loginSuccess) {
@@ -156,7 +180,7 @@ public class UserManager{
 		return result;
 	}
 	
-	private boolean isLoginSuccess(CloseableHttpResponse response) {
+	private boolean isLoginOrLogoutSuccess(CloseableHttpResponse response) {
 		int status = response.getStatusLine().getStatusCode();
 		
 		if(HttpStatus.MOVED_TEMPORARILY_302 == status) {

@@ -15,7 +15,6 @@ import javax.ws.rs.core.Response;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,15 +81,15 @@ public class BoardManager {
 	
 	private List<Board> getUserFavorBoardsFromServer(String authCode) throws Exception {
 		
-		URI uri = new URIBuilder().setScheme("http").setHost("bbs.fudan.edu.cn").setPath("/bbs/fav").build();
-		HttpGet httpGet = new HttpGet(uri);
-		
 		// Only allow Auth Cilent
 		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getAuthClient(authCode);
 		if(reusableClient == null) {
 			logger.error("reusableClient is null! You need to login");
 			throw new SessionExpiredException("Session associated with authCode<"+ authCode+"> has been expired!");
 		}
+		
+		URI uri = new URIBuilder().setScheme("http").setHost("bbs.fudan.edu.cn").setPath("/bbs/fav").build();
+		HttpGet httpGet = new HttpGet(uri);
 		
 		CloseableHttpResponse response = reusableClient.excuteGet(httpGet);
 		
@@ -113,7 +112,6 @@ public class BoardManager {
 	
 	private List<Board> getAllBoardsDetailFromServer(String authCode) throws Exception {
 		
-		URI uri = new URIBuilder().setScheme("http").setHost("bbs.fudan.edu.cn").setPath("/bbs/all").build();
 		ReusableHttpClient reusableClient = null;
 		
 		if(authCode != null) {
@@ -123,6 +121,8 @@ public class BoardManager {
 		if(reusableClient == null) {
 			reusableClient = HttpClientManager.getInstance().getAnonymousClient();
 		}
+		
+		URI uri = new URIBuilder().setScheme("http").setHost("bbs.fudan.edu.cn").setPath("/bbs/all").build();
 		
 		CloseableHttpResponse response = reusableClient.excuteGet(new HttpGet(uri));
 		
