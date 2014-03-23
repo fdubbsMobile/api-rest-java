@@ -3,19 +3,13 @@ package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http;
 import java.util.ArrayList;
 import java.util.List;
 
-
-
-
-
-
-
-
-
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.util.EntityUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.exception.ServerInternalException;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.CookieKeyValuePair;
@@ -25,6 +19,8 @@ import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.HtmlParsingHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.XmlParsingHelper;
 
 public class HttpParsingHelper {
+	
+	private static Logger logger = LoggerFactory.getLogger(HttpParsingHelper.class);
 	
 	public enum HttpContentType {
 		HTML_TYPE("html"),
@@ -107,7 +103,7 @@ public class HttpParsingHelper {
 		DomParsingHelper domParsingHelper = null;
 		
 		String contentAsString = EntityUtils.toString(response.getEntity());
-		
+
 		switch(httpContentType) {
 		case HTML_TYPE:
 			domParsingHelper = HtmlParsingHelper.parseText(contentAsString);
