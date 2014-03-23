@@ -17,7 +17,8 @@ import org.apache.http.client.utils.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.TopPost;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.PostMetaData;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.PostSummary;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.ResponseStatus;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.DomParsingHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpClientManager;
@@ -37,7 +38,7 @@ public class PostManager {
 		
 		logger.info(">>>>>>>>>>>>> Start getTop10Posts <<<<<<<<<<<<<<");
 		
-		List<TopPost> topPosts = null;
+		List<PostSummary> topPosts = null;
 		
 		try {
 			topPosts = getTopPostsFromServer(authCode);
@@ -50,7 +51,7 @@ public class PostManager {
 		return Response.ok().entity(topPosts).build();
 	}
 	
-	private List<TopPost> getTopPostsFromServer(String authCode) throws Exception {
+	private List<PostSummary> getTopPostsFromServer(String authCode) throws Exception {
 		
 		ReusableHttpClient reusableClient = null;
 		
@@ -75,17 +76,17 @@ public class PostManager {
 		
 		String xpathOfBoard = "/bbstop10/top";
 		int nodeCount = domParsingHelper.getNumberOfNodes(xpathOfBoard);
-		List<TopPost> toPosts = new ArrayList<TopPost>();
+		List<PostSummary> toPosts = new ArrayList<PostSummary>();
 		
 		for(int index = 0; index < nodeCount; index++) {
-			TopPost topPost = constructTopPost(domParsingHelper, xpathOfBoard, index);
+			PostSummary topPost = constructTopPost(domParsingHelper, xpathOfBoard, index);
 			toPosts.add(topPost);
 		}
 		
 		return toPosts;
 	}
 	
-	private TopPost constructTopPost(DomParsingHelper domParsingHelper, String xpathExpression, int index) {
+	private PostSummary constructTopPost(DomParsingHelper domParsingHelper, String xpathExpression, int index) {
 		
 		
 		String board = domParsingHelper.getAttributeTextValueOfNode("board", xpathExpression, index);
@@ -94,12 +95,15 @@ public class PostManager {
 		String postId = domParsingHelper.getAttributeTextValueOfNode("gid", xpathExpression, index);
 		String title = domParsingHelper.getTextValueOfNode(xpathExpression, index);
 		
-		TopPost topPost = new TopPost();
-		topPost.setBoard(board);
-		topPost.setOwner(owner);
+		PostMetaData metaData = new PostMetaData();
+		metaData.setBoard(board);
+		metaData.setOwner(owner);
+		metaData.setPostId(postId);
+		metaData.setTitle(title);
+		
+		PostSummary topPost = new PostSummary();
+		topPost.setPostMetaData(metaData);
 		topPost.setCount(count);
-		topPost.setPostId(postId);
-		topPost.setTitle(title);
 
 		return topPost;
 	}

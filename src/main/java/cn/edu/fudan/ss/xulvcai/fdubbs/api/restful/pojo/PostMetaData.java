@@ -21,59 +21,134 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
-    "section_id",
-    "section_desc"
+    "post_id",
+    "title",
+    "owner",
+    "date",
+    "board"
 })
 public class PostMetaData {
 
     /**
-     * section id
+     * post id
      * 
      */
-    @JsonProperty("section_id")
-    private String sectionId;
+    @JsonProperty("post_id")
+    private String postId;
     /**
-     * section description
+     * post id
      * 
      */
-    @JsonProperty("section_desc")
-    private String sectionDesc;
+    @JsonProperty("title")
+    private String title;
+    /**
+     * owner
+     * 
+     */
+    @JsonProperty("owner")
+    private String owner;
+    /**
+     * time
+     * 
+     */
+    @JsonProperty("date")
+    private String date;
+    /**
+     * board
+     * 
+     */
+    @JsonProperty("board")
+    private String board;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     /**
-     * section id
+     * post id
      * 
      */
-    @JsonProperty("section_id")
-    public String getSectionId() {
-        return sectionId;
+    @JsonProperty("post_id")
+    public String getPostId() {
+        return postId;
     }
 
     /**
-     * section id
+     * post id
      * 
      */
-    @JsonProperty("section_id")
-    public void setSectionId(String sectionId) {
-        this.sectionId = sectionId;
+    @JsonProperty("post_id")
+    public void setPostId(String postId) {
+        this.postId = postId;
     }
 
     /**
-     * section description
+     * post id
      * 
      */
-    @JsonProperty("section_desc")
-    public String getSectionDesc() {
-        return sectionDesc;
+    @JsonProperty("title")
+    public String getTitle() {
+        return title;
     }
 
     /**
-     * section description
+     * post id
      * 
      */
-    @JsonProperty("section_desc")
-    public void setSectionDesc(String sectionDesc) {
-        this.sectionDesc = sectionDesc;
+    @JsonProperty("title")
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    /**
+     * owner
+     * 
+     */
+    @JsonProperty("owner")
+    public String getOwner() {
+        return owner;
+    }
+
+    /**
+     * owner
+     * 
+     */
+    @JsonProperty("owner")
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
+    /**
+     * time
+     * 
+     */
+    @JsonProperty("date")
+    public String getDate() {
+        return date;
+    }
+
+    /**
+     * time
+     * 
+     */
+    @JsonProperty("date")
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    /**
+     * board
+     * 
+     */
+    @JsonProperty("board")
+    public String getBoard() {
+        return board;
+    }
+
+    /**
+     * board
+     * 
+     */
+    @JsonProperty("board")
+    public void setBoard(String board) {
+        this.board = board;
     }
 
     @Override

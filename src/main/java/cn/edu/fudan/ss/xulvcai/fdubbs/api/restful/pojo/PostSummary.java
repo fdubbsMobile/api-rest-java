@@ -4,6 +4,7 @@ package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Generated;
+import javax.validation.Valid;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -21,116 +22,56 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
-    "post_id",
-    "title",
-    "board",
-    "owner",
-    "count"
+    "post_meta_data",
+    "count",
+    "is_sticky",
+    "mark_sign"
 })
-public class TopPost {
+public class PostSummary {
 
     /**
-     * post id
+     * post meta data
      * 
      */
-    @JsonProperty("post_id")
-    private String postId;
-    /**
-     * post id
-     * 
-     */
-    @JsonProperty("title")
-    private String title;
-    /**
-     * board name
-     * 
-     */
-    @JsonProperty("board")
-    private String board;
-    /**
-     * owner
-     * 
-     */
-    @JsonProperty("owner")
-    private String owner;
+    @JsonProperty("post_meta_data")
+    @Valid
+    private PostMetaData postMetaData;
     /**
      * count
      * 
      */
     @JsonProperty("count")
     private String count;
+    /**
+     * is sticky
+     * 
+     */
+    @JsonProperty("is_sticky")
+    private Boolean isSticky;
+    /**
+     * mark sign
+     * 
+     */
+    @JsonProperty("mark_sign")
+    private String markSign;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     /**
-     * post id
+     * post meta data
      * 
      */
-    @JsonProperty("post_id")
-    public String getPostId() {
-        return postId;
+    @JsonProperty("post_meta_data")
+    public PostMetaData getPostMetaData() {
+        return postMetaData;
     }
 
     /**
-     * post id
+     * post meta data
      * 
      */
-    @JsonProperty("post_id")
-    public void setPostId(String postId) {
-        this.postId = postId;
-    }
-
-    /**
-     * post id
-     * 
-     */
-    @JsonProperty("title")
-    public String getTitle() {
-        return title;
-    }
-
-    /**
-     * post id
-     * 
-     */
-    @JsonProperty("title")
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    /**
-     * board name
-     * 
-     */
-    @JsonProperty("board")
-    public String getBoard() {
-        return board;
-    }
-
-    /**
-     * board name
-     * 
-     */
-    @JsonProperty("board")
-    public void setBoard(String board) {
-        this.board = board;
-    }
-
-    /**
-     * owner
-     * 
-     */
-    @JsonProperty("owner")
-    public String getOwner() {
-        return owner;
-    }
-
-    /**
-     * owner
-     * 
-     */
-    @JsonProperty("owner")
-    public void setOwner(String owner) {
-        this.owner = owner;
+    @JsonProperty("post_meta_data")
+    public void setPostMetaData(PostMetaData postMetaData) {
+        this.postMetaData = postMetaData;
     }
 
     /**
@@ -149,6 +90,42 @@ public class TopPost {
     @JsonProperty("count")
     public void setCount(String count) {
         this.count = count;
+    }
+
+    /**
+     * is sticky
+     * 
+     */
+    @JsonProperty("is_sticky")
+    public Boolean getIsSticky() {
+        return isSticky;
+    }
+
+    /**
+     * is sticky
+     * 
+     */
+    @JsonProperty("is_sticky")
+    public void setIsSticky(Boolean isSticky) {
+        this.isSticky = isSticky;
+    }
+
+    /**
+     * mark sign
+     * 
+     */
+    @JsonProperty("mark_sign")
+    public String getMarkSign() {
+        return markSign;
+    }
+
+    /**
+     * mark sign
+     * 
+     */
+    @JsonProperty("mark_sign")
+    public void setMarkSign(String markSign) {
+        this.markSign = markSign;
     }
 
     @Override
