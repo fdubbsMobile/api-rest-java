@@ -19,7 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.exception.SessionExpiredException;
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.Board;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.BoardDetail;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.BoardMetaData;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.ResponseStatus;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.DomParsingHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpClientManager;
@@ -41,7 +42,7 @@ public class BoardManager {
 		
 		logger.info(">>>>>>>>>>>>> Start getAllBoardsDetail <<<<<<<<<<<<<<");
 		
-		List<Board> boards = null;
+		List<BoardDetail> boards = null;
 		try {
 			boards = getAllBoardsDetailFromServer(authCode);
 		} catch (Exception e) {
@@ -67,7 +68,7 @@ public class BoardManager {
 		
 		logger.debug("authCode : " + authCode);
 		
-		List<Board> boards = null;
+		List<BoardDetail> boards = null;
 		try {
 			boards = getUserFavorBoardsFromServer(authCode);
 		} catch (Exception e) {
@@ -79,7 +80,7 @@ public class BoardManager {
 		return Response.ok().entity(boards).build();
 	}
 	
-	private List<Board> getUserFavorBoardsFromServer(String authCode) throws Exception {
+	private List<BoardDetail> getUserFavorBoardsFromServer(String authCode) throws Exception {
 		
 		// Only allow Auth Cilent
 		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getAuthClient(authCode);
@@ -98,10 +99,10 @@ public class BoardManager {
 		
 		String xpathOfBoard = "/bbsfav/brd";
 		int nodeCount = domParsingHelper.getNumberOfNodes(xpathOfBoard);
-		List<Board> boards = new ArrayList<Board>();
+		List<BoardDetail> boards = new ArrayList<BoardDetail>();
 		
 		for(int index = 0; index < nodeCount; index++) {
-			Board board = constructFavoriteBoards(domParsingHelper, xpathOfBoard, index);
+			BoardDetail board = constructFavoriteBoards(domParsingHelper, xpathOfBoard, index);
 			boards.add(board);
 		}
 		
@@ -110,7 +111,7 @@ public class BoardManager {
 		return boards;
 	}
 	
-	private List<Board> getAllBoardsDetailFromServer(String authCode) throws Exception {
+	private List<BoardDetail> getAllBoardsDetailFromServer(String authCode) throws Exception {
 		
 		ReusableHttpClient reusableClient = null;
 		
@@ -134,10 +135,10 @@ public class BoardManager {
 			
 		String xpathOfBoard = "/bbsall/brd";
 		int nodeCount = domParsingHelper.getNumberOfNodes(xpathOfBoard);
-		List<Board> boards = new ArrayList<Board>();
+		List<BoardDetail> boards = new ArrayList<BoardDetail>();
 		
 		for(int index = 0; index < nodeCount; index++) {
-			Board board = constructAllBoards(domParsingHelper, xpathOfBoard, index);
+			BoardDetail board = constructAllBoards(domParsingHelper, xpathOfBoard, index);
 			boards.add(board);
 		}
 		
@@ -147,7 +148,7 @@ public class BoardManager {
 	}
 	
 
-	private Board constructAllBoards(DomParsingHelper domParsingHelper, String xpathExpression, int index) {
+	private BoardDetail constructAllBoards(DomParsingHelper domParsingHelper, String xpathExpression, int index) {
 		
 		String dir = domParsingHelper.getAttributeTextValueOfNode("dir", xpathExpression, index);
 		String title = domParsingHelper.getAttributeTextValueOfNode("title", xpathExpression, index);
@@ -155,33 +156,40 @@ public class BoardManager {
 		String boardDesc = domParsingHelper.getAttributeTextValueOfNode("desc", xpathExpression, index);
 		String bm = domParsingHelper.getAttributeTextValueOfNode("bm", xpathExpression, index);
 		
-		Board board = new Board();
-		board.setTitle(title);
-		board.setBoardDesc(boardDesc);
+		BoardMetaData metaData = new BoardMetaData();
+		metaData.setTitle(title);
+		metaData.setBoardDesc(boardDesc);
+		metaData.setManagers(bm == null ? null : Arrays.asList(bm.split(" ")));
+		
+		BoardDetail board = new BoardDetail();
+		board.setBoardMetaData(metaData);
 		board.setCategory(category);
 		board.setIsDirectory("1".equals(dir));
 
-		board.setManagers(bm == null ? null : Arrays.asList(bm.split(" ")));
+		
 		
 		return board;
 	}
 	
 
-	private Board constructFavoriteBoards(DomParsingHelper domParsingHelper, String xpathExpression, int index) {
+	private BoardDetail constructFavoriteBoards(DomParsingHelper domParsingHelper, String xpathExpression, int index) {
 		
 		String bid = domParsingHelper.getAttributeTextValueOfNode("bid", xpathExpression, index);
 		String title = domParsingHelper.getAttributeTextValueOfNode("brd", xpathExpression, index);
 		String boardDesc = domParsingHelper.getTextValueOfNode(xpathExpression, index);
 		
-		Board board = new Board();
-		board.setTitle(title);
-		board.setBoardDesc(boardDesc);
+		BoardMetaData metaData = new BoardMetaData();
+		metaData.setTitle(title);
+		metaData.setBoardDesc(boardDesc);
 		
 		if(bid != null) {
 			int boardId = 0;
 			try { boardId = Integer.parseInt(bid); } catch(Exception e) {}
-			board.setBoardId(boardId);
+			metaData.setBoardId(boardId);
 		}
+		
+		BoardDetail board = new BoardDetail();
+		board.setBoardMetaData(metaData);
 		
 		return board;
 	}

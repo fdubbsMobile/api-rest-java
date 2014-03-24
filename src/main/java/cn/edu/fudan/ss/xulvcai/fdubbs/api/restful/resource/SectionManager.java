@@ -22,7 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.exception.InvalidParameterException;
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.Board;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.BoardDetail;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.BoardMetaData;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.Section;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.SectionMetaData;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.ResponseStatus;
@@ -161,10 +162,10 @@ public class SectionManager {
 		
 		String xpathOfBoard = "/bbsboa/brd";
 		int nodeCount = xmlParsingHelper.getNumberOfNodes(xpathOfBoard);
-		List<Board> boards = new ArrayList<Board>();
+		List<BoardDetail> boards = new ArrayList<BoardDetail>();
 		
 		for(int index = 0; index < nodeCount; index++) {
-			Board board = constructBoard(xmlParsingHelper, xpathOfBoard, index);
+			BoardDetail board = constructBoard(xmlParsingHelper, xpathOfBoard, index);
 			boards.add(board);
 		}
 		
@@ -199,7 +200,7 @@ public class SectionManager {
 	}
 	
 	
-	private Board constructBoard(DomParsingHelper domParsingHelper, String xpathExpression, int index) {
+	private BoardDetail constructBoard(DomParsingHelper domParsingHelper, String xpathExpression, int index) {
 		
 		String dir = domParsingHelper.getAttributeTextValueOfNode("dir", xpathExpression, index);
 		String title = domParsingHelper.getAttributeTextValueOfNode("title", xpathExpression, index);
@@ -209,15 +210,17 @@ public class SectionManager {
 		String read = domParsingHelper.getAttributeTextValueOfNode("read", xpathExpression, index);
 		String count = domParsingHelper.getAttributeTextValueOfNode("count", xpathExpression, index);
 		
+		BoardMetaData metaData = new BoardMetaData();
+		metaData.setTitle(title);
+		metaData.setBoardDesc(boardDesc);
+		metaData.setPostNumber(Integer.parseInt(count));
+		metaData.setManagers(bm == null ? null : Arrays.asList(bm.split(" ")));
 		
-		Board board = new Board();
-		board.setTitle(title);
-		board.setBoardDesc(boardDesc);
+		BoardDetail board = new BoardDetail();
+		board.setBoardMetaData(metaData);
 		board.setCategory(category);
 		board.setIsDirectory("1".equals(dir));
 		board.setHasUnreadPost("1".equals(read));
-		board.setPostNumber(Integer.parseInt(count));
-		board.setManagers(bm == null ? null : Arrays.asList(bm.split(" ")));
 		
 		return board;
 	}

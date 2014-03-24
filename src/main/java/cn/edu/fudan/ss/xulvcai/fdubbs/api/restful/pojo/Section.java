@@ -42,7 +42,7 @@ public class Section {
      */
     @JsonProperty("boards")
     @Valid
-    private List<Board> boards = new ArrayList<Board>();
+    private List<BoardDetail> boards = new ArrayList<BoardDetail>();
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     /**
@@ -68,7 +68,7 @@ public class Section {
      * 
      */
     @JsonProperty("boards")
-    public List<Board> getBoards() {
+    public List<BoardDetail> getBoards() {
         return boards;
     }
 
@@ -77,7 +77,7 @@ public class Section {
      * 
      */
     @JsonProperty("boards")
-    public void setBoards(List<Board> boards) {
+    public void setBoards(List<BoardDetail> boards) {
         this.boards = boards;
     }
 

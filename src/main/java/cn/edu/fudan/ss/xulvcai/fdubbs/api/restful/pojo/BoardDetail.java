@@ -1,12 +1,10 @@
 
 package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import javax.annotation.Generated;
-import javax.validation.constraints.NotNull;
+import javax.validation.Valid;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -24,59 +22,26 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
-    "board_id",
-    "title",
+    "board_meta_data",
     "category",
-    "board_desc",
-    "managers",
-    "post_number",
     "is_directory",
     "has_unread_post"
 })
-public class Board {
+public class BoardDetail {
 
     /**
-     * board id, sometimes there is no way to get this
+     * board meta data
      * 
      */
-    @JsonProperty("board_id")
-    private Integer boardId;
-    /**
-     * board title
-     * (Required)
-     * 
-     */
-    @JsonProperty("title")
-    @NotNull
-    private String title;
+    @JsonProperty("board_meta_data")
+    @Valid
+    private BoardMetaData boardMetaData;
     /**
      * board category
      * 
      */
     @JsonProperty("category")
     private String category;
-    /**
-     * board description
-     * (Required)
-     * 
-     */
-    @JsonProperty("board_desc")
-    @NotNull
-    private String boardDesc;
-    /**
-     * board managers
-     * (Required)
-     * 
-     */
-    @JsonProperty("managers")
-    @NotNull
-    private List<String> managers = new ArrayList<String>();
-    /**
-     * total number of postes in the board
-     * 
-     */
-    @JsonProperty("post_number")
-    private Integer postNumber;
     /**
      * if the board is a directory which contains sub-board
      * 
@@ -92,41 +57,21 @@ public class Board {
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     /**
-     * board id, sometimes there is no way to get this
+     * board meta data
      * 
      */
-    @JsonProperty("board_id")
-    public Integer getBoardId() {
-        return boardId;
+    @JsonProperty("board_meta_data")
+    public BoardMetaData getBoardMetaData() {
+        return boardMetaData;
     }
 
     /**
-     * board id, sometimes there is no way to get this
+     * board meta data
      * 
      */
-    @JsonProperty("board_id")
-    public void setBoardId(Integer boardId) {
-        this.boardId = boardId;
-    }
-
-    /**
-     * board title
-     * (Required)
-     * 
-     */
-    @JsonProperty("title")
-    public String getTitle() {
-        return title;
-    }
-
-    /**
-     * board title
-     * (Required)
-     * 
-     */
-    @JsonProperty("title")
-    public void setTitle(String title) {
-        this.title = title;
+    @JsonProperty("board_meta_data")
+    public void setBoardMetaData(BoardMetaData boardMetaData) {
+        this.boardMetaData = boardMetaData;
     }
 
     /**
@@ -145,64 +90,6 @@ public class Board {
     @JsonProperty("category")
     public void setCategory(String category) {
         this.category = category;
-    }
-
-    /**
-     * board description
-     * (Required)
-     * 
-     */
-    @JsonProperty("board_desc")
-    public String getBoardDesc() {
-        return boardDesc;
-    }
-
-    /**
-     * board description
-     * (Required)
-     * 
-     */
-    @JsonProperty("board_desc")
-    public void setBoardDesc(String boardDesc) {
-        this.boardDesc = boardDesc;
-    }
-
-    /**
-     * board managers
-     * (Required)
-     * 
-     */
-    @JsonProperty("managers")
-    public List<String> getManagers() {
-        return managers;
-    }
-
-    /**
-     * board managers
-     * (Required)
-     * 
-     */
-    @JsonProperty("managers")
-    public void setManagers(List<String> managers) {
-        this.managers = managers;
-    }
-
-    /**
-     * total number of postes in the board
-     * 
-     */
-    @JsonProperty("post_number")
-    public Integer getPostNumber() {
-        return postNumber;
-    }
-
-    /**
-     * total number of postes in the board
-     * 
-     */
-    @JsonProperty("post_number")
-    public void setPostNumber(Integer postNumber) {
-        this.postNumber = postNumber;
     }
 
     /**

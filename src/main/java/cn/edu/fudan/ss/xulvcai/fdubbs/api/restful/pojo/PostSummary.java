@@ -25,7 +25,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
     "post_meta_data",
     "count",
     "is_sticky",
-    "mark_sign"
+    "mark_sign",
+    "is_no_reply"
 })
 public class PostSummary {
 
@@ -54,6 +55,12 @@ public class PostSummary {
      */
     @JsonProperty("mark_sign")
     private String markSign;
+    /**
+     * is noreply
+     * 
+     */
+    @JsonProperty("is_no_reply")
+    private Boolean isNoReply;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     /**
@@ -126,6 +133,24 @@ public class PostSummary {
     @JsonProperty("mark_sign")
     public void setMarkSign(String markSign) {
         this.markSign = markSign;
+    }
+
+    /**
+     * is noreply
+     * 
+     */
+    @JsonProperty("is_no_reply")
+    public Boolean getIsNoReply() {
+        return isNoReply;
+    }
+
+    /**
+     * is noreply
+     * 
+     */
+    @JsonProperty("is_no_reply")
+    public void setIsNoReply(Boolean isNoReply) {
+        this.isNoReply = isNoReply;
     }
 
     @Override
