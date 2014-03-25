@@ -1,7 +1,6 @@
 package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.resource;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
