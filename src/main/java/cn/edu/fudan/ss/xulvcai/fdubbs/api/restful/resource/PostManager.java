@@ -63,10 +63,10 @@ public class PostManager {
 	@GET
 	@Path("/{list_mode}/name/{board_name}/{start_num}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getPostsInBoardByStartNum(@CookieParam("auth_code") String authCode, @PathParam("list_mode") String listMode, 
+	public Response getPostsByBoardNameWithStartNum(@CookieParam("auth_code") String authCode, @PathParam("list_mode") String listMode, 
 			@PathParam("board_name") String boardName, @PathParam("start_num") int startNum) {
 		
-		logger.info(">>>>>>>>>>>>> Start getPostsInBoard <<<<<<<<<<<<<<");
+		logger.info(">>>>>>>>>>>>> Start getPostsByBoardNameWithStartNum <<<<<<<<<<<<<<");
 		
 		logger.debug("auth_code : "+authCode+"; list_mode : "+listMode+"; board_name : "+boardName+"; start_num : "+startNum);
 		
@@ -79,17 +79,17 @@ public class PostManager {
 			e.printStackTrace();
 		}
 		
-		logger.info(">>>>>>>>>>>>> End getPostsInBoard <<<<<<<<<<<<<<");
+		logger.info(">>>>>>>>>>>>> End getPostsByBoardNameWithStartNum <<<<<<<<<<<<<<");
 		return Response.ok().entity(posts).build();
 	}
 	
 	@GET
 	@Path("/{list_mode}/name/{board_name}/")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getPostsInBoard(@CookieParam("auth_code") String authCode, @PathParam("list_mode") String listMode, 
+	public Response getPostsByBoardName(@CookieParam("auth_code") String authCode, @PathParam("list_mode") String listMode, 
 			@PathParam("board_name") String boardName) {
 		
-		logger.info(">>>>>>>>>>>>> Start getPostsInBoard <<<<<<<<<<<<<<");
+		logger.info(">>>>>>>>>>>>> Start getPostsByBoardName <<<<<<<<<<<<<<");
 		
 		logger.debug("auth_code : "+authCode+"; list_mode : "+listMode+"; board_name : "+boardName);
 		
@@ -102,8 +102,97 @@ public class PostManager {
 			e.printStackTrace();
 		}
 		
-		logger.info(">>>>>>>>>>>>> End getPostsInBoard <<<<<<<<<<<<<<");
+		logger.info(">>>>>>>>>>>>> End getPostsByBoardName <<<<<<<<<<<<<<");
 		return Response.ok().entity(posts).build();
+	}
+	
+	@GET
+	@Path("/{list_mode}/id/{board_id}/")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getPostsByBoardId(@CookieParam("auth_code") String authCode, @PathParam("list_mode") String listMode, 
+			@PathParam("board_id") int boardId) {
+		
+		logger.info(">>>>>>>>>>>>> Start getPostsByBoardId <<<<<<<<<<<<<<");
+		
+		logger.debug("auth_code : "+authCode+"; list_mode : "+listMode+"; board_id : "+boardId);
+		
+		PostSummaryInBoard posts = null;
+		
+		try {
+			posts = getPostsByBoardIdFromServer(authCode, listMode, boardId, 0);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		logger.info(">>>>>>>>>>>>> End getPostsByBoardId <<<<<<<<<<<<<<");
+		return Response.ok().entity(posts).build();
+	}
+	
+	@GET
+	@Path("/{list_mode}/id/{board_id}/{start_num}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getPostsByBoardIdWithStartNum(@CookieParam("auth_code") String authCode, @PathParam("list_mode") String listMode, 
+			@PathParam("board_id") int boardId, @PathParam("start_num") int startNum) {
+		
+		logger.info(">>>>>>>>>>>>> Start getPostsByBoardIdWithStartNum <<<<<<<<<<<<<<");
+		
+		logger.debug("auth_code : "+authCode+"; list_mode : "+listMode+"; board_id : "+boardId+"; start_num : "+startNum);
+		
+		PostSummaryInBoard posts = null;
+		
+		try {
+			posts = getPostsByBoardIdFromServer(authCode, listMode, boardId, startNum);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		logger.info(">>>>>>>>>>>>> End getPostsByBoardIdWithStartNum <<<<<<<<<<<<<<");
+		return Response.ok().entity(posts).build();
+	}
+	
+	private PostSummaryInBoard getPostsByBoardIdFromServer(String authCode, 
+			String listMode, int boardId, int startNum) throws Exception {
+		
+		ReusableHttpClient reusableClient = null;
+		
+		if(authCode != null) {
+			reusableClient = HttpClientManager.getInstance().getAuthClient(authCode);
+		}
+		
+		if(reusableClient == null) {
+			reusableClient = HttpClientManager.getInstance().getAnonymousClient();
+		}
+		
+		
+		URIBuilder uriBuilder = new URIBuilder().setScheme("http").setHost("bbs.fudan.edu.cn");
+		if(NORMAL_LIST_MODE.equalsIgnoreCase(listMode)) {
+			uriBuilder.setPath("/bbs/doc").setParameter("bid", ""+boardId);
+		} else if(TOPIC_LIST_MODE.equalsIgnoreCase(listMode)) {
+			uriBuilder.setPath("/bbs/tdoc").setParameter("bid", ""+boardId);
+		} else {
+			throw new InvalidParameterException("Invalid list_mode : "+listMode); 
+		}
+		
+		if(startNum > 0) {
+			uriBuilder.setParameter("start", ""+startNum);
+		}
+		
+		URI uri = uriBuilder.build();
+		CloseableHttpResponse response = reusableClient.excuteGet(new HttpGet(uri));
+		
+		HttpClientManager.getInstance().releaseReusableHttpClient(reusableClient);
+		
+		
+		HttpContentType httpContentType = HttpParsingHelper.getContentType(response);
+		DomParsingHelper domParsingHelper = HttpParsingHelper.getDomParsingHelper(response, httpContentType);
+		response.close();
+		
+		PostSummaryInBoard posts = constructPostInBoard(domParsingHelper);
+		validateAndAdjustPostList(posts, startNum);
+		
+		return posts;
 	}
 	
 	private PostSummaryInBoard getPostsByBoardNameFromServer(String authCode, 
