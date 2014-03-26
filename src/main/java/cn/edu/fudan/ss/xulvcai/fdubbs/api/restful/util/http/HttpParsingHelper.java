@@ -104,6 +104,8 @@ public class HttpParsingHelper {
 		
 		String contentAsString = EntityUtils.toString(response.getEntity());
 
+		logger.debug(contentAsString);
+		
 		switch(httpContentType) {
 		case HTML_TYPE:
 			domParsingHelper = HtmlParsingHelper.parseText(contentAsString);

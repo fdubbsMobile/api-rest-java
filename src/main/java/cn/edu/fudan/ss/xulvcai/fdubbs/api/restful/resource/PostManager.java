@@ -36,6 +36,7 @@ public class PostManager {
 
 	private static final String NORMAL_LIST_MODE = "normal";
 	private static final String TOPIC_LIST_MODE = "topic";
+	private static final int POST_NUMBER_PER_REQUEST = 20;
 	
 	private static Logger logger = LoggerFactory.getLogger(PostManager.class);
 	
@@ -60,10 +61,32 @@ public class PostManager {
 	}
 	
 	@GET
-	@Path("/{list_mode}/name/{board_name}")
+	@Path("/{list_mode}/name/{board_name}/{start_num}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getPostsInBoard(@CookieParam("auth_code") String authCode, 
-			@PathParam("list_mode") String listMode, 
+	public Response getPostsInBoardByStartNum(@CookieParam("auth_code") String authCode, @PathParam("list_mode") String listMode, 
+			@PathParam("board_name") String boardName, @PathParam("start_num") int startNum) {
+		
+		logger.info(">>>>>>>>>>>>> Start getPostsInBoard <<<<<<<<<<<<<<");
+		
+		logger.debug("auth_code : "+authCode+"; list_mode : "+listMode+"; board_name : "+boardName+"; start_num : "+startNum);
+		
+		PostSummaryInBoard posts = null;
+		
+		try {
+			posts = getPostsByBoardNameFromServer(authCode, listMode, boardName, startNum);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		logger.info(">>>>>>>>>>>>> End getPostsInBoard <<<<<<<<<<<<<<");
+		return Response.ok().entity(posts).build();
+	}
+	
+	@GET
+	@Path("/{list_mode}/name/{board_name}/")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getPostsInBoard(@CookieParam("auth_code") String authCode, @PathParam("list_mode") String listMode, 
 			@PathParam("board_name") String boardName) {
 		
 		logger.info(">>>>>>>>>>>>> Start getPostsInBoard <<<<<<<<<<<<<<");
@@ -73,7 +96,7 @@ public class PostManager {
 		PostSummaryInBoard posts = null;
 		
 		try {
-			posts = getPostsByBoardNameFromServer(authCode, listMode, boardName);
+			posts = getPostsByBoardNameFromServer(authCode, listMode, boardName, 0);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -84,7 +107,7 @@ public class PostManager {
 	}
 	
 	private PostSummaryInBoard getPostsByBoardNameFromServer(String authCode, 
-			String listMode, String boardName) throws Exception {
+			String listMode, String boardName, int startNum) throws Exception {
 		
 		ReusableHttpClient reusableClient = null;
 		
@@ -96,18 +119,21 @@ public class PostManager {
 			reusableClient = HttpClientManager.getInstance().getAnonymousClient();
 		}
 		
-		URI uri;
 		
+		URIBuilder uriBuilder = new URIBuilder().setScheme("http").setHost("bbs.fudan.edu.cn");
 		if(NORMAL_LIST_MODE.equalsIgnoreCase(listMode)) {
-			uri = new URIBuilder().setScheme("http").setHost("bbs.fudan.edu.cn")
-					.setPath("/bbs/doc").setParameter("board", boardName).build();
+			uriBuilder.setPath("/bbs/doc").setParameter("board", boardName);
 		} else if(TOPIC_LIST_MODE.equalsIgnoreCase(listMode)) {
-			uri = new URIBuilder().setScheme("http").setHost("bbs.fudan.edu.cn")
-					.setPath("/bbs/tdoc").setParameter("board", boardName).build();
+			uriBuilder.setPath("/bbs/tdoc").setParameter("board", boardName);
 		} else {
 			throw new InvalidParameterException("Invalid list_mode : "+listMode); 
 		}
 		
+		if(startNum > 0) {
+			uriBuilder.setParameter("start", ""+startNum);
+		}
+		
+		URI uri = uriBuilder.build();
 		CloseableHttpResponse response = reusableClient.excuteGet(new HttpGet(uri));
 		
 		HttpClientManager.getInstance().releaseReusableHttpClient(reusableClient);
@@ -118,7 +144,28 @@ public class PostManager {
 		response.close();
 		
 		PostSummaryInBoard posts = constructPostInBoard(domParsingHelper);
+		validateAndAdjustPostList(posts, startNum);
+		
 		return posts;
+	}
+	
+	private void validateAndAdjustPostList(PostSummaryInBoard posts, int startNum) {
+		int postStartNum = posts.getStartPostNum();
+		if(startNum > postStartNum + POST_NUMBER_PER_REQUEST) {
+			throw new InvalidParameterException("Invalid start_num : "+startNum); 
+		}
+		
+		if(startNum > postStartNum) {
+			int redundantNum = startNum - postStartNum;
+			RemoveRedundantPosts(posts.getPostSummaryList(), redundantNum);
+			posts.setStartPostNum(startNum);
+		}
+	}
+	
+	private void RemoveRedundantPosts(List<PostSummary> postSummaryList, int redundantNum) {
+		for(int index = 0; index < redundantNum; index++) {
+			postSummaryList.remove(0);//remove the head
+		}
 	}
 	
 	private PostSummaryInBoard constructPostInBoard(DomParsingHelper domParsingHelper) {
