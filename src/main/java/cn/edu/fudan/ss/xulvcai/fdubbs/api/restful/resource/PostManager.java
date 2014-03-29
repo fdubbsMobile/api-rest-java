@@ -1,8 +1,10 @@
 package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.resource;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.ws.rs.CookieParam;
@@ -21,6 +23,8 @@ import org.slf4j.LoggerFactory;
 
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.exception.InvalidParameterException;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.BoardMetaData;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.Paragraph;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.PostDetail;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.PostMetaData;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.PostSummary;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.PostSummaryInBoard;
@@ -150,6 +154,145 @@ public class PostManager {
 		
 		logger.info(">>>>>>>>>>>>> End getPostsByBoardIdWithStartNum <<<<<<<<<<<<<<");
 		return Response.ok().entity(posts).build();
+	}
+	
+	@GET
+	@Path("/{list_mode}/id/{board_id}/detail/{post_id}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getPostDetailByBoardIdAndPostId(@CookieParam("auth_code") String authCode, @PathParam("list_mode") String listMode, 
+			@PathParam("board_id") int boardId, @PathParam("post_id") int postId) {
+		
+		logger.info(">>>>>>>>>>>>> Start getPostDetailByBoardIdAndPostId <<<<<<<<<<<<<<");
+		
+		logger.debug("auth_code : "+authCode+"; list_mode : "+listMode+"; board_id : "+boardId+"; post_id : "+postId);
+		
+		PostDetail postDetail = null;
+		
+		try {
+			postDetail = getPostDetailByBoardIdAndPostIdFromServer(authCode, listMode, boardId, postId);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		logger.info(">>>>>>>>>>>>> End getPostDetailByBoardIdAndPostId <<<<<<<<<<<<<<");
+		return Response.ok().entity(postDetail).build();
+	}
+	
+	private PostDetail getPostDetailByBoardIdAndPostIdFromServer(String authCode, String listMode, 
+			int boardId, int postId) throws Exception {
+
+		ReusableHttpClient reusableClient = null;
+		
+		if(authCode != null) {
+			reusableClient = HttpClientManager.getInstance().getAuthClient(authCode);
+		}
+		
+		if(reusableClient == null) {
+			reusableClient = HttpClientManager.getInstance().getAnonymousClient();
+		}
+		
+		String path = null;
+		boolean isTopicMode = false;
+		if(NORMAL_LIST_MODE.equalsIgnoreCase(listMode)) {
+			path = "/bbs/con";
+		} else if(TOPIC_LIST_MODE.equalsIgnoreCase(listMode)) {
+			path = "/bbs/tcon";
+			isTopicMode = true;
+		} else {
+			throw new InvalidParameterException("Invalid list_mode : "+listMode); 
+		}
+		
+		URI uri = new URIBuilder().setScheme("http").setHost("bbs.fudan.edu.cn")
+				.setPath(path).setParameter("new", "1")
+				.setParameter("bid", ""+boardId).setParameter("f", ""+postId).build();
+		
+		CloseableHttpResponse response = reusableClient.excuteGet(new HttpGet(uri));
+		
+		HttpClientManager.getInstance().releaseReusableHttpClient(reusableClient);
+		
+		
+		HttpContentType httpContentType = HttpParsingHelper.getContentType(response);
+		DomParsingHelper domParsingHelper = HttpParsingHelper.getDomParsingHelper(response, httpContentType);
+		response.close();
+		
+		return constructPostDetail(domParsingHelper, isTopicMode);
+	}
+	
+	private PostDetail constructPostDetail(DomParsingHelper domParsingHelper, boolean isTopicMode) {
+		
+		String xpathExpression;
+		
+		if(isTopicMode) {
+			xpathExpression = "bbstcon/po";
+		} else {
+			xpathExpression = "bbscon/po";
+		}
+		
+		PostDetail postDetail = constructPostDetail(domParsingHelper, xpathExpression, 0);
+		
+		if(isTopicMode) {
+			int nodeCount = domParsingHelper.getNumberOfNodes(xpathExpression);
+			List<PostDetail> replyList = new LinkedList<PostDetail>();
+			for(int index = 1; index < nodeCount; index++) {
+				
+				PostDetail reply = constructPostDetail(domParsingHelper, xpathExpression, index);
+				replyList.add(reply);
+			}
+			
+			postDetail.setReplies(replyList);
+		}
+		
+		return postDetail;
+	}
+	
+	private PostDetail constructPostDetail(DomParsingHelper domParsingHelper, 
+			String xpathExpression, int index) {
+		
+		String postId = domParsingHelper.getAttributeTextValueOfNode("fid", xpathExpression, index);
+		String owner = domParsingHelper.getAttributeTextValueOfNode("owner", xpathExpression, index);
+		String nick = domParsingHelper.getTextValueOfNode(xpathExpression+"/nick", index);
+		String board = domParsingHelper.getTextValueOfNode(xpathExpression+"/board", index);
+		String title = domParsingHelper.getTextValueOfNode(xpathExpression+"/title", index);
+		String date = domParsingHelper.getTextValueOfNode(xpathExpression+"/date", index);
+		
+		PostMetaData metaData = new PostMetaData();
+		metaData.setBoard(board);
+		metaData.setOwner(owner);
+		metaData.setNick(nick);
+		metaData.setPostId(postId);
+		metaData.setTitle(title);
+		metaData.setDate(date);
+		
+		PostDetail postDetail = new PostDetail();
+		postDetail.setPostMetaData(metaData);
+		
+		String xpathOfParagraph = xpathExpression+"["+(index+1)+"]/pa";
+		
+		int paraNum = domParsingHelper.getNumberOfNodes(xpathOfParagraph);
+		for(int paraCount = 0; paraCount < paraNum; paraCount++) {
+			List<Paragraph> paragraphs = new LinkedList<Paragraph>();
+			String xpathOfParaContent = xpathOfParagraph+"["+(paraCount+1)+"]/p";
+			int paraCountNum = domParsingHelper.getNumberOfNodes(xpathOfParaContent);
+			for(int paraContentCount = 0; paraContentCount < paraCountNum; paraContentCount++) {
+				Paragraph paragraph = new Paragraph();
+				String content = domParsingHelper.getTextValueOfNode(xpathOfParaContent, paraContentCount);
+				paragraph.setContent(content);
+				paragraphs.add(paragraph);
+			}
+			
+			String type  = domParsingHelper.getAttributeTextValueOfNode("m", xpathOfParagraph, paraCount);
+			if("t".equalsIgnoreCase(type)) {
+				postDetail.setBody(paragraphs);
+			} else if("q".equalsIgnoreCase(type)) {
+				postDetail.setQoute(paragraphs);
+			} else if("s".equalsIgnoreCase(type)) {
+				postDetail.setSign(paragraphs);
+			}
+			
+		}
+		
+		return postDetail;
 	}
 	
 	private PostSummaryInBoard getPostsByBoardIdFromServer(String authCode, 

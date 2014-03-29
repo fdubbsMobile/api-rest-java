@@ -24,6 +24,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
     "post_id",
     "title",
     "owner",
+    "nick",
     "date",
     "board"
 })
@@ -47,6 +48,12 @@ public class PostMetaData {
      */
     @JsonProperty("owner")
     private String owner;
+    /**
+     * nick
+     * 
+     */
+    @JsonProperty("nick")
+    private String nick;
     /**
      * time
      * 
@@ -113,6 +120,24 @@ public class PostMetaData {
     @JsonProperty("owner")
     public void setOwner(String owner) {
         this.owner = owner;
+    }
+
+    /**
+     * nick
+     * 
+     */
+    @JsonProperty("nick")
+    public String getNick() {
+        return nick;
+    }
+
+    /**
+     * nick
+     * 
+     */
+    @JsonProperty("nick")
+    public void setNick(String nick) {
+        this.nick = nick;
     }
 
     /**
