@@ -4,7 +4,6 @@ package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Generated;
-import javax.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -35,7 +34,6 @@ public class Detail {
      * 
      */
     @JsonProperty("field")
-    @NotNull
     private String field;
     /**
      * Reason for the error.
@@ -43,7 +41,6 @@ public class Detail {
      * 
      */
     @JsonProperty("issue")
-    @NotNull
     private String issue;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
@@ -67,6 +64,11 @@ public class Detail {
         this.field = field;
     }
 
+    public Detail withField(String field) {
+        this.field = field;
+        return this;
+    }
+
     /**
      * Reason for the error.
      * (Required)
@@ -85,6 +87,11 @@ public class Detail {
     @JsonProperty("issue")
     public void setIssue(String issue) {
         this.issue = issue;
+    }
+
+    public Detail withIssue(String issue) {
+        this.issue = issue;
+        return this;
     }
 
     @Override

@@ -86,6 +86,11 @@ public class PostMetaData {
         this.postId = postId;
     }
 
+    public PostMetaData withPostId(String postId) {
+        this.postId = postId;
+        return this;
+    }
+
     /**
      * post id
      * 
@@ -102,6 +107,11 @@ public class PostMetaData {
     @JsonProperty("title")
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public PostMetaData withTitle(String title) {
+        this.title = title;
+        return this;
     }
 
     /**
@@ -122,6 +132,11 @@ public class PostMetaData {
         this.owner = owner;
     }
 
+    public PostMetaData withOwner(String owner) {
+        this.owner = owner;
+        return this;
+    }
+
     /**
      * nick
      * 
@@ -138,6 +153,11 @@ public class PostMetaData {
     @JsonProperty("nick")
     public void setNick(String nick) {
         this.nick = nick;
+    }
+
+    public PostMetaData withNick(String nick) {
+        this.nick = nick;
+        return this;
     }
 
     /**
@@ -158,6 +178,11 @@ public class PostMetaData {
         this.date = date;
     }
 
+    public PostMetaData withDate(String date) {
+        this.date = date;
+        return this;
+    }
+
     /**
      * board
      * 
@@ -174,6 +199,11 @@ public class PostMetaData {
     @JsonProperty("board")
     public void setBoard(String board) {
         this.board = board;
+    }
+
+    public PostMetaData withBoard(String board) {
+        this.board = board;
+        return this;
     }
 
     @Override

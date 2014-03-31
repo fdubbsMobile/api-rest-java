@@ -4,7 +4,6 @@ package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Generated;
-import javax.validation.Valid;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -35,7 +34,6 @@ public class PostSummary {
      * 
      */
     @JsonProperty("post_meta_data")
-    @Valid
     private PostMetaData postMetaData;
     /**
      * count
@@ -81,6 +79,11 @@ public class PostSummary {
         this.postMetaData = postMetaData;
     }
 
+    public PostSummary withPostMetaData(PostMetaData postMetaData) {
+        this.postMetaData = postMetaData;
+        return this;
+    }
+
     /**
      * count
      * 
@@ -97,6 +100,11 @@ public class PostSummary {
     @JsonProperty("count")
     public void setCount(String count) {
         this.count = count;
+    }
+
+    public PostSummary withCount(String count) {
+        this.count = count;
+        return this;
     }
 
     /**
@@ -117,6 +125,11 @@ public class PostSummary {
         this.isSticky = isSticky;
     }
 
+    public PostSummary withIsSticky(Boolean isSticky) {
+        this.isSticky = isSticky;
+        return this;
+    }
+
     /**
      * mark sign
      * 
@@ -135,6 +148,11 @@ public class PostSummary {
         this.markSign = markSign;
     }
 
+    public PostSummary withMarkSign(String markSign) {
+        this.markSign = markSign;
+        return this;
+    }
+
     /**
      * is noreply
      * 
@@ -151,6 +169,11 @@ public class PostSummary {
     @JsonProperty("is_no_reply")
     public void setIsNoReply(Boolean isNoReply) {
         this.isNoReply = isNoReply;
+    }
+
+    public PostSummary withIsNoReply(Boolean isNoReply) {
+        this.isNoReply = isNoReply;
+        return this;
     }
 
     @Override

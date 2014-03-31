@@ -15,74 +15,104 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /**
- * section meta data
+ * paragraph_content
  * 
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
-    "section_id",
-    "section_desc"
+    "is_link",
+    "is_image",
+    "content"
 })
-public class SectionMetaData {
+public class ParagraphContent {
 
     /**
-     * section id
+     * link
      * 
      */
-    @JsonProperty("section_id")
-    private String sectionId;
+    @JsonProperty("is_link")
+    private Boolean isLink;
     /**
-     * section description
+     * image
      * 
      */
-    @JsonProperty("section_desc")
-    private String sectionDesc;
+    @JsonProperty("is_image")
+    private Boolean isImage;
+    /**
+     * content
+     * 
+     */
+    @JsonProperty("content")
+    private String content;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     /**
-     * section id
+     * link
      * 
      */
-    @JsonProperty("section_id")
-    public String getSectionId() {
-        return sectionId;
+    @JsonProperty("is_link")
+    public Boolean getIsLink() {
+        return isLink;
     }
 
     /**
-     * section id
+     * link
      * 
      */
-    @JsonProperty("section_id")
-    public void setSectionId(String sectionId) {
-        this.sectionId = sectionId;
+    @JsonProperty("is_link")
+    public void setIsLink(Boolean isLink) {
+        this.isLink = isLink;
     }
 
-    public SectionMetaData withSectionId(String sectionId) {
-        this.sectionId = sectionId;
+    public ParagraphContent withIsLink(Boolean isLink) {
+        this.isLink = isLink;
         return this;
     }
 
     /**
-     * section description
+     * image
      * 
      */
-    @JsonProperty("section_desc")
-    public String getSectionDesc() {
-        return sectionDesc;
+    @JsonProperty("is_image")
+    public Boolean getIsImage() {
+        return isImage;
     }
 
     /**
-     * section description
+     * image
      * 
      */
-    @JsonProperty("section_desc")
-    public void setSectionDesc(String sectionDesc) {
-        this.sectionDesc = sectionDesc;
+    @JsonProperty("is_image")
+    public void setIsImage(Boolean isImage) {
+        this.isImage = isImage;
     }
 
-    public SectionMetaData withSectionDesc(String sectionDesc) {
-        this.sectionDesc = sectionDesc;
+    public ParagraphContent withIsImage(Boolean isImage) {
+        this.isImage = isImage;
+        return this;
+    }
+
+    /**
+     * content
+     * 
+     */
+    @JsonProperty("content")
+    public String getContent() {
+        return content;
+    }
+
+    /**
+     * content
+     * 
+     */
+    @JsonProperty("content")
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public ParagraphContent withContent(String content) {
+        this.content = content;
         return this;
     }
 

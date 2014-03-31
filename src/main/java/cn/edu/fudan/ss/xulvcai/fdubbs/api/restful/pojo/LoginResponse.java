@@ -4,7 +4,6 @@ package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Generated;
-import javax.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -36,7 +35,6 @@ public class LoginResponse {
      * 
      */
     @JsonProperty("result_code")
-    @NotNull
     private LoginResponse.ResultCode resultCode;
     /**
      * error message
@@ -72,6 +70,11 @@ public class LoginResponse {
         this.resultCode = resultCode;
     }
 
+    public LoginResponse withResultCode(LoginResponse.ResultCode resultCode) {
+        this.resultCode = resultCode;
+        return this;
+    }
+
     /**
      * error message
      * 
@@ -90,6 +93,11 @@ public class LoginResponse {
         this.errorMessage = errorMessage;
     }
 
+    public LoginResponse withErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+        return this;
+    }
+
     /**
      * error message
      * 
@@ -106,6 +114,11 @@ public class LoginResponse {
     @JsonProperty("auth_code")
     public void setAuthCode(String authCode) {
         this.authCode = authCode;
+    }
+
+    public LoginResponse withAuthCode(String authCode) {
+        this.authCode = authCode;
+        return this;
     }
 
     @Override

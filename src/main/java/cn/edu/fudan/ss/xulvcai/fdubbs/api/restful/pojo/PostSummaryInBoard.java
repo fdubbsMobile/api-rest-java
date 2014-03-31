@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Generated;
-import javax.validation.Valid;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -36,7 +35,6 @@ public class PostSummaryInBoard {
      * 
      */
     @JsonProperty("board_meta_data")
-    @Valid
     private BoardMetaData boardMetaData;
     /**
      * start post number
@@ -55,7 +53,6 @@ public class PostSummaryInBoard {
      * 
      */
     @JsonProperty("post_summary_list")
-    @Valid
     private List<PostSummary> postSummaryList = new ArrayList<PostSummary>();
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
@@ -77,6 +74,11 @@ public class PostSummaryInBoard {
         this.boardMetaData = boardMetaData;
     }
 
+    public PostSummaryInBoard withBoardMetaData(BoardMetaData boardMetaData) {
+        this.boardMetaData = boardMetaData;
+        return this;
+    }
+
     /**
      * start post number
      * 
@@ -93,6 +95,11 @@ public class PostSummaryInBoard {
     @JsonProperty("start_post_num")
     public void setStartPostNum(Integer startPostNum) {
         this.startPostNum = startPostNum;
+    }
+
+    public PostSummaryInBoard withStartPostNum(Integer startPostNum) {
+        this.startPostNum = startPostNum;
+        return this;
     }
 
     /**
@@ -113,6 +120,11 @@ public class PostSummaryInBoard {
         this.postCount = postCount;
     }
 
+    public PostSummaryInBoard withPostCount(Integer postCount) {
+        this.postCount = postCount;
+        return this;
+    }
+
     /**
      * post summary list
      * 
@@ -129,6 +141,11 @@ public class PostSummaryInBoard {
     @JsonProperty("post_summary_list")
     public void setPostSummaryList(List<PostSummary> postSummaryList) {
         this.postSummaryList = postSummaryList;
+    }
+
+    public PostSummaryInBoard withPostSummaryList(List<PostSummary> postSummaryList) {
+        this.postSummaryList = postSummaryList;
+        return this;
     }
 
     @Override

@@ -6,8 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Generated;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -40,7 +38,6 @@ public class Error {
      * 
      */
     @JsonProperty("name")
-    @NotNull
     private String name;
     /**
      * Message describing the error.
@@ -48,7 +45,6 @@ public class Error {
      * 
      */
     @JsonProperty("message")
-    @NotNull
     private String message;
     /**
      * URI for detailed information related to this error for the developer.
@@ -56,14 +52,12 @@ public class Error {
      * 
      */
     @JsonProperty("information_link")
-    @NotNull
     private String informationLink;
     /**
      * Additional details of the error
      * 
      */
     @JsonProperty("details")
-    @Valid
     private List<Detail> details = new ArrayList<Detail>();
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
@@ -87,6 +81,11 @@ public class Error {
         this.name = name;
     }
 
+    public Error withName(String name) {
+        this.name = name;
+        return this;
+    }
+
     /**
      * Message describing the error.
      * (Required)
@@ -105,6 +104,11 @@ public class Error {
     @JsonProperty("message")
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public Error withMessage(String message) {
+        this.message = message;
+        return this;
     }
 
     /**
@@ -127,6 +131,11 @@ public class Error {
         this.informationLink = informationLink;
     }
 
+    public Error withInformationLink(String informationLink) {
+        this.informationLink = informationLink;
+        return this;
+    }
+
     /**
      * Additional details of the error
      * 
@@ -143,6 +152,11 @@ public class Error {
     @JsonProperty("details")
     public void setDetails(List<Detail> details) {
         this.details = details;
+    }
+
+    public Error withDetails(List<Detail> details) {
+        this.details = details;
+        return this;
     }
 
     @Override

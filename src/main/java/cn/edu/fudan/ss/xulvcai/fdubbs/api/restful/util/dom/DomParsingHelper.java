@@ -1,5 +1,9 @@
 package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom;
 
+import java.util.List;
+
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.ParagraphContent;
+
 public interface DomParsingHelper {
 
 	/**
@@ -34,4 +38,6 @@ public interface DomParsingHelper {
 	 * @return the text value of the node specified by 'xpathExpression' and 'index', or 'null' if the nodes not exist
 	 */
 	public String getTextValueOfNode(String xpathExpression, int index);
+	
+	public List<ParagraphContent> getContentValueofNode(String xpathExpression, int index);
 }

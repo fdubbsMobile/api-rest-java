@@ -58,6 +58,11 @@ public class CookieKeyValuePair {
         this.cookieName = cookieName;
     }
 
+    public CookieKeyValuePair withCookieName(String cookieName) {
+        this.cookieName = cookieName;
+        return this;
+    }
+
     /**
      * cookie_value
      * 
@@ -74,6 +79,11 @@ public class CookieKeyValuePair {
     @JsonProperty("cookie_value")
     public void setCookieValue(String cookieValue) {
         this.cookieValue = cookieValue;
+    }
+
+    public CookieKeyValuePair withCookieValue(String cookieValue) {
+        this.cookieValue = cookieValue;
+        return this;
     }
 
     @Override

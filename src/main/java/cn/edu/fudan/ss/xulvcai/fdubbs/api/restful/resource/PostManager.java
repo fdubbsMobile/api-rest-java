@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.exception.InvalidParameterException;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.BoardMetaData;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.Paragraph;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.ParagraphContent;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.PostDetail;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.PostMetaData;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.PostSummary;
@@ -276,8 +277,8 @@ public class PostManager {
 			int paraCountNum = domParsingHelper.getNumberOfNodes(xpathOfParaContent);
 			for(int paraContentCount = 0; paraContentCount < paraCountNum; paraContentCount++) {
 				Paragraph paragraph = new Paragraph();
-				String content = domParsingHelper.getTextValueOfNode(xpathOfParaContent, paraContentCount);
-				paragraph.setContent(content);
+				List<ParagraphContent> contents = domParsingHelper.getContentValueofNode(xpathOfParaContent, paraContentCount);
+				paragraph.getParagraphContent().addAll(contents);
 				paragraphs.add(paragraph);
 			}
 			

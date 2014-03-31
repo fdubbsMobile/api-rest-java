@@ -1,19 +1,26 @@
 package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom;
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.ParagraphContent;
+
 
 
 
 public class XmlParsingHelper implements DomParsingHelper{
 
-	//private static Logger logger = LoggerFactory.getLogger(XMLParsingHelper.class);
+	private static Logger logger = LoggerFactory.getLogger(XmlParsingHelper.class);
 	
 	
 	private Document doc;
@@ -44,14 +51,9 @@ public class XmlParsingHelper implements DomParsingHelper{
 	@Override
 	public String getAttributeTextValueOfNode(String attributName, String xpathOfNode, int index) {
 		
-		List<Node> nodes = getNodesFromCacheOrDocument(xpathOfNode);
+		Node node = getNodeByXpathAndIndex(xpathOfNode, index);
 		
-		if(nodes == null || index < 0 || index >= nodes.size()) 
-			return null;
-		
-		Node node = nodes.get(index);
-		
-		if(node instanceof Element) {
+		if(node != null && node instanceof Element) {
 			Element element = (Element)node;
 			return element.attributeValue(attributName);
 		}
@@ -62,13 +64,17 @@ public class XmlParsingHelper implements DomParsingHelper{
 	
 	@Override
 	public String getTextValueOfNode(String xpathExpression, int index) {
+		Node node = getNodeByXpathAndIndex(xpathExpression, index);
+		return node == null ? null : node.getText();
+	}
+	
+	private Node getNodeByXpathAndIndex(String xpathExpression, int index) {
 		List<Node> nodes = getNodesFromCacheOrDocument(xpathExpression);
 		
 		if(nodes == null || index < 0 || index >= nodes.size()) 
 			return null;
 		
-		Node node = nodes.get(index);
-		return node.getText();
+		return nodes.get(index);
 	}
 	
 	
@@ -83,6 +89,38 @@ public class XmlParsingHelper implements DomParsingHelper{
 			nodesCache.put(xpathExpression, nodes);
 		}
 		return nodes;
+	}
+
+	@Override
+	public List<ParagraphContent> getContentValueofNode(String xpathExpression, int index) {
+		
+		List<ParagraphContent> values = new ArrayList<ParagraphContent>();
+		Node node = getNodeByXpathAndIndex(xpathExpression, index);
+		if(node == null) 
+			return values;
+		
+		
+		if(node.hasContent()) {
+			if(node instanceof Element) {
+				Element element = (Element)node;
+				if(element.isTextOnly()) {
+					ParagraphContent content = new ParagraphContent().withContent(element.getText());
+					values.add(content);
+				}
+				else {
+					
+					Iterator it = element.elementIterator();
+					while(it.hasNext()) {
+						Element child = (Element)it.next();
+						logger.debug(child.asXML());
+					}
+				}
+			}
+		}/* else {
+			ParagraphContent content = new ParagraphContent().withContent(node.getText());
+			values.add(content);
+		}*/
+		return values;
 	}
 
 

@@ -4,7 +4,6 @@ package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Generated;
-import javax.validation.Valid;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -34,7 +33,6 @@ public class BoardDetail {
      * 
      */
     @JsonProperty("board_meta_data")
-    @Valid
     private BoardMetaData boardMetaData;
     /**
      * board category
@@ -74,6 +72,11 @@ public class BoardDetail {
         this.boardMetaData = boardMetaData;
     }
 
+    public BoardDetail withBoardMetaData(BoardMetaData boardMetaData) {
+        this.boardMetaData = boardMetaData;
+        return this;
+    }
+
     /**
      * board category
      * 
@@ -90,6 +93,11 @@ public class BoardDetail {
     @JsonProperty("category")
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public BoardDetail withCategory(String category) {
+        this.category = category;
+        return this;
     }
 
     /**
@@ -110,6 +118,11 @@ public class BoardDetail {
         this.isDirectory = isDirectory;
     }
 
+    public BoardDetail withIsDirectory(Boolean isDirectory) {
+        this.isDirectory = isDirectory;
+        return this;
+    }
+
     /**
      * if the board contains any unread post to the user
      * 
@@ -126,6 +139,11 @@ public class BoardDetail {
     @JsonProperty("has_unread_post")
     public void setHasUnreadPost(Boolean hasUnreadPost) {
         this.hasUnreadPost = hasUnreadPost;
+    }
+
+    public BoardDetail withHasUnreadPost(Boolean hasUnreadPost) {
+        this.hasUnreadPost = hasUnreadPost;
+        return this;
     }
 
     @Override

@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Generated;
-import javax.validation.Valid;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -34,14 +33,12 @@ public class Section {
      * 
      */
     @JsonProperty("section_meta_data")
-    @Valid
     private SectionMetaData sectionMetaData;
     /**
      * boards in the section
      * 
      */
     @JsonProperty("boards")
-    @Valid
     private List<BoardDetail> boards = new ArrayList<BoardDetail>();
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
@@ -63,6 +60,11 @@ public class Section {
         this.sectionMetaData = sectionMetaData;
     }
 
+    public Section withSectionMetaData(SectionMetaData sectionMetaData) {
+        this.sectionMetaData = sectionMetaData;
+        return this;
+    }
+
     /**
      * boards in the section
      * 
@@ -79,6 +81,11 @@ public class Section {
     @JsonProperty("boards")
     public void setBoards(List<BoardDetail> boards) {
         this.boards = boards;
+    }
+
+    public Section withBoards(List<BoardDetail> boards) {
+        this.boards = boards;
+        return this;
     }
 
     @Override

@@ -1,7 +1,9 @@
 
 package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.Generated;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
@@ -22,7 +24,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
     "is_newline",
-    "content"
+    "paragraph_content"
 })
 public class Paragraph {
 
@@ -36,8 +38,8 @@ public class Paragraph {
      * content in the paragraph
      * 
      */
-    @JsonProperty("content")
-    private String content;
+    @JsonProperty("paragraph_content")
+    private List<ParagraphContent> paragraphContent = new ArrayList<ParagraphContent>();
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     /**
@@ -58,22 +60,32 @@ public class Paragraph {
         this.isNewline = isNewline;
     }
 
-    /**
-     * content in the paragraph
-     * 
-     */
-    @JsonProperty("content")
-    public String getContent() {
-        return content;
+    public Paragraph withIsNewline(Boolean isNewline) {
+        this.isNewline = isNewline;
+        return this;
     }
 
     /**
      * content in the paragraph
      * 
      */
-    @JsonProperty("content")
-    public void setContent(String content) {
-        this.content = content;
+    @JsonProperty("paragraph_content")
+    public List<ParagraphContent> getParagraphContent() {
+        return paragraphContent;
+    }
+
+    /**
+     * content in the paragraph
+     * 
+     */
+    @JsonProperty("paragraph_content")
+    public void setParagraphContent(List<ParagraphContent> paragraphContent) {
+        this.paragraphContent = paragraphContent;
+    }
+
+    public Paragraph withParagraphContent(List<ParagraphContent> paragraphContent) {
+        this.paragraphContent = paragraphContent;
+        return this;
     }
 
     @Override

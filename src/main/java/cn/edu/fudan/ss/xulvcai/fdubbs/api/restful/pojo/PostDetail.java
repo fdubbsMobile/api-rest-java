@@ -6,8 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Generated;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -38,7 +36,6 @@ public class PostDetail {
      * 
      */
     @JsonProperty("post_meta_data")
-    @Valid
     private PostMetaData postMetaData;
     /**
      * body
@@ -46,29 +43,24 @@ public class PostDetail {
      * 
      */
     @JsonProperty("body")
-    @NotNull
-    @Valid
     private List<Paragraph> body = new ArrayList<Paragraph>();
     /**
      * qoute
      * 
      */
     @JsonProperty("qoute")
-    @Valid
     private List<Paragraph> qoute = new ArrayList<Paragraph>();
     /**
      * sign
      * 
      */
     @JsonProperty("sign")
-    @Valid
     private List<Paragraph> sign = new ArrayList<Paragraph>();
     /**
      * replies
      * 
      */
     @JsonProperty("replies")
-    @Valid
     private List<PostDetail> replies = new ArrayList<PostDetail>();
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
@@ -88,6 +80,11 @@ public class PostDetail {
     @JsonProperty("post_meta_data")
     public void setPostMetaData(PostMetaData postMetaData) {
         this.postMetaData = postMetaData;
+    }
+
+    public PostDetail withPostMetaData(PostMetaData postMetaData) {
+        this.postMetaData = postMetaData;
+        return this;
     }
 
     /**
@@ -110,6 +107,11 @@ public class PostDetail {
         this.body = body;
     }
 
+    public PostDetail withBody(List<Paragraph> body) {
+        this.body = body;
+        return this;
+    }
+
     /**
      * qoute
      * 
@@ -126,6 +128,11 @@ public class PostDetail {
     @JsonProperty("qoute")
     public void setQoute(List<Paragraph> qoute) {
         this.qoute = qoute;
+    }
+
+    public PostDetail withQoute(List<Paragraph> qoute) {
+        this.qoute = qoute;
+        return this;
     }
 
     /**
@@ -146,6 +153,11 @@ public class PostDetail {
         this.sign = sign;
     }
 
+    public PostDetail withSign(List<Paragraph> sign) {
+        this.sign = sign;
+        return this;
+    }
+
     /**
      * replies
      * 
@@ -162,6 +174,11 @@ public class PostDetail {
     @JsonProperty("replies")
     public void setReplies(List<PostDetail> replies) {
         this.replies = replies;
+    }
+
+    public PostDetail withReplies(List<PostDetail> replies) {
+        this.replies = replies;
+        return this;
     }
 
     @Override

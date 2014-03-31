@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Generated;
-import javax.validation.Valid;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -40,7 +39,6 @@ public class UserCookiesInfo {
      * 
      */
     @JsonProperty("cookies")
-    @Valid
     private List<CookieKeyValuePair> cookies = new ArrayList<CookieKeyValuePair>();
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
@@ -62,6 +60,11 @@ public class UserCookiesInfo {
         this.userId = userId;
     }
 
+    public UserCookiesInfo withUserId(String userId) {
+        this.userId = userId;
+        return this;
+    }
+
     /**
      * cookies
      * 
@@ -78,6 +81,11 @@ public class UserCookiesInfo {
     @JsonProperty("cookies")
     public void setCookies(List<CookieKeyValuePair> cookies) {
         this.cookies = cookies;
+    }
+
+    public UserCookiesInfo withCookies(List<CookieKeyValuePair> cookies) {
+        this.cookies = cookies;
+        return this;
     }
 
     @Override

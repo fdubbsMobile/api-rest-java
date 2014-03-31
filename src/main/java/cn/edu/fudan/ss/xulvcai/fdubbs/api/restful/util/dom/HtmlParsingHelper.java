@@ -1,6 +1,7 @@
 package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom;
 
 import java.util.HashMap;
+import java.util.List;
 
 import javax.xml.transform.TransformerException;
 
@@ -12,6 +13,9 @@ import org.htmlcleaner.TagNode;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.ParagraphContent;
+
 
 
 public class HtmlParsingHelper implements DomParsingHelper{
@@ -92,6 +96,12 @@ public class HtmlParsingHelper implements DomParsingHelper{
 		}
 		
 		return nodes;
+	}
+
+	@Override
+	public List<ParagraphContent> getContentValueofNode(String xpathExpression, int index) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
