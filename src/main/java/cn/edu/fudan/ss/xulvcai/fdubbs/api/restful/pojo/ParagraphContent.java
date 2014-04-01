@@ -21,12 +21,20 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
+    "is_newline",
     "is_link",
     "is_image",
+    "link_ref",
     "content"
 })
 public class ParagraphContent {
 
+    /**
+     * newline
+     * 
+     */
+    @JsonProperty("is_newline")
+    private Boolean isNewline;
     /**
      * link
      * 
@@ -40,12 +48,41 @@ public class ParagraphContent {
     @JsonProperty("is_image")
     private Boolean isImage;
     /**
+     * link ref
+     * 
+     */
+    @JsonProperty("link_ref")
+    private String linkRef;
+    /**
      * content
      * 
      */
     @JsonProperty("content")
     private String content;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+
+    /**
+     * newline
+     * 
+     */
+    @JsonProperty("is_newline")
+    public Boolean getIsNewline() {
+        return isNewline;
+    }
+
+    /**
+     * newline
+     * 
+     */
+    @JsonProperty("is_newline")
+    public void setIsNewline(Boolean isNewline) {
+        this.isNewline = isNewline;
+    }
+
+    public ParagraphContent withIsNewline(Boolean isNewline) {
+        this.isNewline = isNewline;
+        return this;
+    }
 
     /**
      * link
@@ -90,6 +127,29 @@ public class ParagraphContent {
 
     public ParagraphContent withIsImage(Boolean isImage) {
         this.isImage = isImage;
+        return this;
+    }
+
+    /**
+     * link ref
+     * 
+     */
+    @JsonProperty("link_ref")
+    public String getLinkRef() {
+        return linkRef;
+    }
+
+    /**
+     * link ref
+     * 
+     */
+    @JsonProperty("link_ref")
+    public void setLinkRef(String linkRef) {
+        this.linkRef = linkRef;
+    }
+
+    public ParagraphContent withLinkRef(String linkRef) {
+        this.linkRef = linkRef;
         return this;
     }
 

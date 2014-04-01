@@ -23,17 +23,10 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
-    "is_newline",
     "paragraph_content"
 })
 public class Paragraph {
 
-    /**
-     * the paragrah only contains newline in the section
-     * 
-     */
-    @JsonProperty("is_newline")
-    private Boolean isNewline;
     /**
      * content in the paragraph
      * 
@@ -41,29 +34,6 @@ public class Paragraph {
     @JsonProperty("paragraph_content")
     private List<ParagraphContent> paragraphContent = new ArrayList<ParagraphContent>();
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
-
-    /**
-     * the paragrah only contains newline in the section
-     * 
-     */
-    @JsonProperty("is_newline")
-    public Boolean getIsNewline() {
-        return isNewline;
-    }
-
-    /**
-     * the paragrah only contains newline in the section
-     * 
-     */
-    @JsonProperty("is_newline")
-    public void setIsNewline(Boolean isNewline) {
-        this.isNewline = isNewline;
-    }
-
-    public Paragraph withIsNewline(Boolean isNewline) {
-        this.isNewline = isNewline;
-        return this;
-    }
 
     /**
      * content in the paragraph

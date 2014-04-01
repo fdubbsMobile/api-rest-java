@@ -10,6 +10,8 @@ import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
+import org.htmlcleaner.HtmlCleaner;
+import org.htmlcleaner.TagNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,7 +95,7 @@ public class XmlParsingHelper implements DomParsingHelper{
 
 	@Override
 	public List<ParagraphContent> getContentValueofNode(String xpathExpression, int index) {
-		
+		logger.debug("getContentValueofNode : " + xpathExpression + ", "+index);
 		List<ParagraphContent> values = new ArrayList<ParagraphContent>();
 		Node node = getNodeByXpathAndIndex(xpathExpression, index);
 		if(node == null) 
@@ -103,16 +105,33 @@ public class XmlParsingHelper implements DomParsingHelper{
 		if(node.hasContent()) {
 			if(node instanceof Element) {
 				Element element = (Element)node;
-				if(element.isTextOnly()) {
+				if(element.hasMixedContent()) {
+					logger.debug("MIXED : "+element.asXML());
+					
+				}
+				else if (element.isTextOnly()) {
 					ParagraphContent content = new ParagraphContent().withContent(element.getText());
 					values.add(content);
 				}
 				else {
+					String elementName = element.getName();
 					
-					Iterator it = element.elementIterator();
-					while(it.hasNext()) {
-						Element child = (Element)it.next();
-						logger.debug(child.asXML());
+					if ("br".equalsIgnoreCase(elementName)) {
+						ParagraphContent content = new ParagraphContent().withIsNewline(true);
+						values.add(content);
+					}
+					else if ("a".equalsIgnoreCase(elementName)) {
+						String imageTag = element.attributeValue("i");
+						String linkRef = element.attributeValue("href");
+						ParagraphContent content = new ParagraphContent()
+							.withIsLink(true)
+							.withLinkRef(linkRef)
+							.withIsImage("i".equals(imageTag));
+						values.add(content);
+					}
+					else {
+						logger.info("Unrecognize Tag : " + elementName);
+						logger.info("Origin xml value : " + element.asXML());
 					}
 				}
 			}
