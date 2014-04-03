@@ -93,6 +93,7 @@ public class XmlParsingHelper implements DomParsingHelper{
 		return nodes;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<ParagraphContent> getContentValueofNode(String xpathExpression, int index) {
 		logger.debug("getContentValueofNode : " + xpathExpression + ", "+index);
@@ -102,44 +103,76 @@ public class XmlParsingHelper implements DomParsingHelper{
 			return values;
 		
 		
-		if(node.hasContent()) {
-			if(node instanceof Element) {
-				Element element = (Element)node;
-				if(element.hasMixedContent()) {
-					logger.debug("MIXED : "+element.asXML());
-					
-				}
-				else if (element.isTextOnly()) {
-					ParagraphContent content = new ParagraphContent().withContent(element.getText());
-					values.add(content);
-				}
-				else {
-					String elementName = element.getName();
-					
-					if ("br".equalsIgnoreCase(elementName)) {
-						ParagraphContent content = new ParagraphContent().withIsNewline(true);
-						values.add(content);
-					}
-					else if ("a".equalsIgnoreCase(elementName)) {
-						String imageTag = element.attributeValue("i");
-						String linkRef = element.attributeValue("href");
-						ParagraphContent content = new ParagraphContent()
-							.withIsLink(true)
-							.withLinkRef(linkRef)
-							.withIsImage("i".equals(imageTag));
-						values.add(content);
-					}
-					else {
-						logger.info("Unrecognize Tag : " + elementName);
-						logger.info("Origin xml value : " + element.asXML());
-					}
-				}
+		if(node.hasContent() && node instanceof Element) {
+			Element element = (Element)node;
+			if(element.hasMixedContent()) {
+				parseParagraphOnMixedNode(values, element);
 			}
-		}/* else {
-			ParagraphContent content = new ParagraphContent().withContent(node.getText());
-			values.add(content);
-		}*/
+			else if (element.isTextOnly()) {
+				parseParagraphOnTextNode(values, element);
+			}
+			else {
+				parseParagraphOnElementNode(values, element);
+					
+			}
+		}
+		
 		return values;
+	}
+	
+	private void parseParagraphOnMixedNode(List<ParagraphContent> values,
+			Element element) {
+		logger.debug("MIXED : "+element.asXML());
+		List<Node> nodes = element.content();
+		for (Node node : nodes) {
+			logger.debug("Node : "+node.asXML());
+		}
+		if (!"".equals(element.getText())) {
+			ParagraphContent content = new ParagraphContent().withContent(element.getText());
+			values.add(content);
+		}
+	}
+
+	private void parseParagraphOnTextNode(List<ParagraphContent> values,
+			Element element) {
+		if (!"".equals(element.getText())) {
+			ParagraphContent content = new ParagraphContent().withContent(element.getText());
+			values.add(content);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private void parseParagraphOnElementNode(List<ParagraphContent> values,
+			Element element) {
+		List<Element> childNodes = element.elements();
+		for (Element child : childNodes) {
+			String elementName = child.getName();
+			logger.info("elementName : " + elementName);
+			logger.info("Origin xml value : " + child.asXML());
+			if ("br".equalsIgnoreCase(elementName)) {
+				ParagraphContent content = new ParagraphContent().withIsNewline(true);
+				values.add(content);
+			}
+			else if ("a".equalsIgnoreCase(elementName)) {
+				parseParagraphOnLinkNode(values, element);
+			}
+			else {
+				parseParagraphOnTextNode(values, child);
+			}
+		}
+	}
+
+	private void parseParagraphOnLinkNode(List<ParagraphContent> values,
+			Element element) {
+		String imageTag = element.attributeValue("i");
+		String linkRef = element.attributeValue("href");
+		logger.debug("attr number : "+element.attributeCount());
+		logger.debug("imageTag : "+imageTag+", linkRef : "+linkRef);
+		ParagraphContent content = new ParagraphContent()
+			.withIsLink(true)
+			.withLinkRef(linkRef)
+			.withIsImage("i".equals(imageTag));
+		values.add(content);
 	}
 
 
