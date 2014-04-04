@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
@@ -93,7 +94,6 @@ public class XmlParsingHelper implements DomParsingHelper{
 		return nodes;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<ParagraphContent> getContentValueofNode(String xpathExpression, int index) {
 		logger.debug("getContentValueofNode : " + xpathExpression + ", "+index);
@@ -104,28 +104,43 @@ public class XmlParsingHelper implements DomParsingHelper{
 		
 		
 		if(node.hasContent() && node instanceof Element) {
-			Element element = (Element)node;
-			if(element.hasMixedContent()) {
-				parseParagraphOnMixedNode(values, element);
-			}
-			else if (element.isTextOnly()) {
-				parseParagraphOnTextNode(values, element);
-			}
-			else {
-				parseParagraphOnElementNode(values, element);
-					
-			}
+			getContentValueofElementNode(values, (Element)node);
 		}
 		
 		return values;
 	}
 	
+	private void getContentValueofElementNode(List<ParagraphContent> values,
+													Element element) {
+		if(element.hasMixedContent()) {
+			parseParagraphOnMixedNode(values, element);
+		}
+		else if (element.getNodeType() == Node.TEXT_NODE) {
+			logger.debug("Process text only node : "+element.asXML());
+			parseParagraphOnTextNode(values, element);
+		}
+		else {
+			parseParagraphOnElementNode(values, element);
+				
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
 	private void parseParagraphOnMixedNode(List<ParagraphContent> values,
 			Element element) {
 		logger.debug("MIXED : "+element.asXML());
 		List<Node> nodes = element.content();
 		for (Node node : nodes) {
-			logger.debug("Node : "+node.asXML());
+			switch(node.getNodeType()){  
+            case Node.ELEMENT_NODE:
+            	logger.debug("ELEMENT_NODE : " + node.asXML());
+            	parseParagraphOnElementNode(values, (Element)node);
+                break;  
+            case Node.TEXT_NODE:
+            	logger.debug("TEXT_NODE : " + node.asXML());
+            	parseParagraphOnTextNode(values, node);
+                break;  
+            }
 		}
 		if (!"".equals(element.getText())) {
 			ParagraphContent content = new ParagraphContent().withContent(element.getText());
@@ -134,9 +149,9 @@ public class XmlParsingHelper implements DomParsingHelper{
 	}
 
 	private void parseParagraphOnTextNode(List<ParagraphContent> values,
-			Element element) {
-		if (!"".equals(element.getText())) {
-			ParagraphContent content = new ParagraphContent().withContent(element.getText());
+			Node node) {
+		if (!"".equals(node.getText())) {
+			ParagraphContent content = new ParagraphContent().withContent(node.getText());
 			values.add(content);
 		}
 	}
@@ -144,28 +159,30 @@ public class XmlParsingHelper implements DomParsingHelper{
 	@SuppressWarnings("unchecked")
 	private void parseParagraphOnElementNode(List<ParagraphContent> values,
 			Element element) {
+		
+		String elementName = element.getName();
+		logger.info("elementName : " + elementName);
+		logger.info("Origin xml value : " + element.asXML());
+		if ("br".equalsIgnoreCase(elementName)) {
+			ParagraphContent content = new ParagraphContent().withIsNewline(true);
+			values.add(content);
+		}
+		else if ("a".equalsIgnoreCase(elementName)) {
+			parseParagraphOnLinkNode(values, element);
+		}
+		
+		
 		List<Element> childNodes = element.elements();
 		for (Element child : childNodes) {
-			String elementName = child.getName();
-			logger.info("elementName : " + elementName);
-			logger.info("Origin xml value : " + child.asXML());
-			if ("br".equalsIgnoreCase(elementName)) {
-				ParagraphContent content = new ParagraphContent().withIsNewline(true);
-				values.add(content);
-			}
-			else if ("a".equalsIgnoreCase(elementName)) {
-				parseParagraphOnLinkNode(values, element);
-			}
-			else {
-				parseParagraphOnTextNode(values, child);
-			}
+			getContentValueofElementNode(values, child);
 		}
 	}
 
 	private void parseParagraphOnLinkNode(List<ParagraphContent> values,
 			Element element) {
-		String imageTag = element.attributeValue("i");
-		String linkRef = element.attributeValue("href");
+		
+		String imageTag = getAttributeValueOnLinkNode(element, "i");
+		String linkRef = getAttributeValueOnLinkNode(element, "href");
 		logger.debug("attr number : "+element.attributeCount());
 		logger.debug("imageTag : "+imageTag+", linkRef : "+linkRef);
 		ParagraphContent content = new ParagraphContent()
@@ -173,6 +190,29 @@ public class XmlParsingHelper implements DomParsingHelper{
 			.withLinkRef(linkRef)
 			.withIsImage("i".equals(imageTag));
 		values.add(content);
+	}
+	
+	private String getAttributeValueOnLinkNode(Element element, String attributName) {
+		
+		String xmlString = element.asXML();
+		
+		int attr_index = xmlString.indexOf(attributName+"=");
+		if (attr_index == -1)
+			return null;
+		
+		int first_index = xmlString.indexOf("\"", attr_index);
+		if (first_index == -1) {
+			return null;
+		}
+		
+		int second_index = xmlString.indexOf("\"", first_index+1);
+		if (second_index == -1) {
+			return null;
+		}
+		logger.debug("first_index : "+ first_index + " , second_index : "+second_index);
+		String attributeValue = xmlString.substring(first_index+1, second_index);
+		logger.debug("attribute "+ attributName + " : "+attributeValue);
+		return attributeValue;
 	}
 
 
