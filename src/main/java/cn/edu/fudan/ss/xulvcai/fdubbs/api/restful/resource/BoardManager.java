@@ -18,7 +18,6 @@ import org.apache.http.client.utils.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.exception.SessionExpiredException;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.BoardDetail;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.BoardMetaData;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.ResponseStatus;
@@ -83,11 +82,7 @@ public class BoardManager {
 	private List<BoardDetail> getUserFavorBoardsFromServer(String authCode) throws Exception {
 		
 		// Only allow Auth Cilent
-		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getAuthClient(authCode);
-		if(reusableClient == null) {
-			logger.error("reusableClient is null! You need to login");
-			throw new SessionExpiredException("Session associated with authCode<"+ authCode+"> has been expired!");
-		}
+		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getReusableClient(authCode, false);
 		
 		URI uri = new URIBuilder().setScheme("http").setHost("bbs.fudan.edu.cn").setPath("/bbs/fav").build();
 		HttpGet httpGet = new HttpGet(uri);
@@ -113,15 +108,7 @@ public class BoardManager {
 	
 	private List<BoardDetail> getAllBoardsDetailFromServer(String authCode) throws Exception {
 		
-		ReusableHttpClient reusableClient = null;
-		
-		if(authCode != null) {
-			reusableClient = HttpClientManager.getInstance().getAuthClient(authCode);
-		}
-		
-		if(reusableClient == null) {
-			reusableClient = HttpClientManager.getInstance().getAnonymousClient();
-		}
+		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getReusableClient(authCode, true);
 		
 		URI uri = new URIBuilder().setScheme("http").setHost("bbs.fudan.edu.cn").setPath("/bbs/all").build();
 		

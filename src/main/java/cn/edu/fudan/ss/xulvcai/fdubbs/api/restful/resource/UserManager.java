@@ -1,198 +1,136 @@
 package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.resource;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.CookieParam;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.POST;
+import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.apache.commons.lang.RandomStringUtils;
-import org.apache.http.Consts;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
+
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.message.BasicNameValuePair;
-import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.exception.ServerInternalException;
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.exception.SessionExpiredException;
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.LoginResponse;
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.ErrorMessage;
+import static cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.StringConvertHelper.convertToInteger;
+
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.UserInfo;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.UserMetaData;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.UserPerformance;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.UserSignature;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.ResponseStatus;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.DomParsingHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpClientManager;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpParsingHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.ReusableHttpClient;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpParsingHelper.HttpContentType;
+
 
 @Path("/user")
-public class UserManager{
+public class UserManager {
 
-	
 	private static Logger logger = LoggerFactory.getLogger(UserManager.class);
-	private static final int RANDOM_AUTH_CODE_LENGTH = 32;
-
-	@POST
-	@Path("/login")
-	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-	@Produces(MediaType.APPLICATION_JSON)
-	public LoginResponse doUserLogin(@CookieParam("auth_code") String authCode, @FormParam("user_id") String user_id,
-			@FormParam("passwd") String passwd) {
-		logger.info(">>>>>>>>>>>>> Start doUserLogin <<<<<<<<<<<<<<");
-		
-		
-		LoginResponse loginResponse = new LoginResponse();
-		
-		if(user_id == null || user_id.isEmpty()) {
-			loginResponse.setResultCode(LoginResponse.ResultCode.USER_ID_EMPTY);
-			loginResponse.setErrorMessage("User Id should not be empty!");
-		}
-		else if(passwd == null || passwd.isEmpty()) {
-			loginResponse.setResultCode(LoginResponse.ResultCode.PASSWD_EMPTY);
-			loginResponse.setErrorMessage("Password should not be empty!");
-		}
-		else {
-			try {
-				loginResponse = postLoginRequest(authCode, user_id, passwd);
-			} catch (Exception e) {
-				logger.error("Exception ouucrs in doUserLogin : " + e);
-				loginResponse.setResultCode(LoginResponse.ResultCode.INTERNAL_ERROR);
-				loginResponse.setErrorMessage("Internal Error!");
-			}
-		}
-		
-		
-		logger.info(">>>>>>>>>>>>> End doUserLogin <<<<<<<<<<<<<<");
-		return loginResponse;
-	}
 	
-	@POST
-	@Path("/logout")
-	public Response doUserLogout(@CookieParam("auth_code") String authCode) {
-		logger.info(">>>>>>>>>>>>> Start doUserLogout <<<<<<<<<<<<<<");
+	@GET
+	@Path("/info/{user_id}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getUserInfo(@CookieParam("auth_code") String authCode, @PathParam("user_id") String userId) {
+
+		logger.info(">>>>>>>>>>>>> Start getUserInfo <<<<<<<<<<<<<<");
+		logger.debug("user_id : " + userId);
+		
 		if(authCode == null) {
 			logger.info("authCode is null");
 			return Response.status(ResponseStatus.REQUEST_CONTENT_ERROR_STATUS).build();
 		}
 		
+		UserInfo userInfo = null;
+		
 		try {
-			postLogoutRequest(authCode);
+			userInfo = getUserInfoFromServer(authCode, userId);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Exception occurs in getUserInfo!", e);
+			return Response.status(ResponseStatus.SERVER_INTERNAL_ERROR_STATUS).build();
 		}
 		
 		
-		logger.info(">>>>>>>>>>>>> End doUserLogout <<<<<<<<<<<<<<");
-		return Response.ok().build();
+		logger.info(">>>>>>>>>>>>> End getUserInfo <<<<<<<<<<<<<<");
+		return Response.ok().entity(userInfo).build();
 	}
 	
-	private void postLogoutRequest(String authCode) throws Exception {
-		// Only allow Auth Cilent
-		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getAuthClient(authCode);
-		if(reusableClient == null) {
-			logger.error("reusableClient is null! You need to login");
-			throw new SessionExpiredException("Session associated with authCode<"+ authCode+"> has been expired!");
-		}
+	private UserInfo getUserInfoFromServer(String authCode, String userId) throws Exception {
 		
-		URI uri = new URIBuilder().setScheme("http").setHost("bbs.fudan.edu.cn").setPath("/bbs/all").build();
+		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getReusableClient(authCode, false);
 		
-		CloseableHttpResponse response = reusableClient.excuteGet(new HttpGet(uri));
-		HttpClientManager.getInstance().finalizeAuthCilent(authCode, reusableClient);
+		URI uri = new URIBuilder().setScheme("http").setHost("bbs.fudan.edu.cn")
+				.setPath("/bbs/qry").setParameter("u", userId).build();
+		HttpGet httpGet = new HttpGet(uri);
 		
-		boolean logoutSuccess = isLoginOrLogoutSuccess(response);
-		if(!logoutSuccess) {
-			throw new ServerInternalException(ErrorMessage.SERVER_INTERNAL_ERROR_MESSAGE);
-		}
+		CloseableHttpResponse response = reusableClient.excuteGet(httpGet);
 		
-	}
-
-	
-	private LoginResponse postLoginRequest(String authCode, String user_id, String passwd) throws Exception {
-		LoginResponse result = new LoginResponse();
+		HttpContentType httpContentType = HttpParsingHelper.getContentType(response);
+		DomParsingHelper domParsingHelper = HttpParsingHelper.getDomParsingHelper(response, httpContentType);
+		response.close();
 		
-		List<NameValuePair> formparams = new ArrayList<NameValuePair>();
-		formparams.add(new BasicNameValuePair("id", user_id));
-		formparams.add(new BasicNameValuePair("pw", passwd));
+		String xpathOfUserInfo = "/bbsqry";
 		
-		UrlEncodedFormEntity entity = new UrlEncodedFormEntity(formparams, Consts.UTF_8);
-		
-		URI uri = new URIBuilder().setScheme("http").setHost("bbs.fudan.edu.cn").setPath("/bbs/login").build();
-		
-		HttpPost httpPost = new HttpPost(uri);
-		httpPost.setEntity(entity);
-		
-		HttpClientContext context = HttpClientContext.create();
-		
-		ReusableHttpClient reusableClient = null;
-		
-		if(authCode != null) {
-			reusableClient = HttpClientManager.getInstance().getAuthClient(authCode);
-		}
-		
-		if(reusableClient == null) {
-			reusableClient = HttpClientManager.getInstance().getAnonymousClient();
-		}
-		
-		CloseableHttpResponse postResponse = reusableClient.executePost(httpPost, context);
-		
-		boolean loginSuccess = isLoginOrLogoutSuccess(postResponse);
-		logger.debug("Login successful : " + loginSuccess);
-		
-		if(loginSuccess) {
-			HttpClientManager.getInstance().disableClientForAuthCode(authCode);
-			authCode = RandomStringUtils.randomAlphanumeric(RANDOM_AUTH_CODE_LENGTH);
-			result.setResultCode(LoginResponse.ResultCode.SUCCESS);
-			result.setAuthCode(authCode);
-			HttpClientManager.getInstance().markClientAsAuth(authCode, reusableClient);
-		}else{
-			
-			String errorMessage = HttpParsingHelper.getErrorMessageFromResponse(postResponse);
-			if(ErrorMessage.USER_NOT_EXIST_ERROR_MESSAGE.equals(errorMessage)) {
-				result.setResultCode(LoginResponse.ResultCode.USER_NOT_EXIST);
-				result.setErrorMessage(ErrorMessage.USER_NOT_EXIST_ERROR_MESSAGE);
-			}
-			else if(ErrorMessage.PASSWD_INCORRECT_ERROR_MESSAGE.equals(errorMessage)) {
-				result.setResultCode(LoginResponse.ResultCode.PASSWD_INCORRECT);
-				result.setErrorMessage(ErrorMessage.PASSWD_INCORRECT_ERROR_MESSAGE);
-			}
-			else {
-				result.setResultCode(LoginResponse.ResultCode.INTERNAL_ERROR);
-				result.setErrorMessage("Internal Error!");
-			}
-		}
-		
-		HttpClientManager.getInstance().releaseReusableHttpClient(reusableClient);
-		postResponse.close();
-		
-		return result;
+		return constructUserInfo(domParsingHelper, xpathOfUserInfo);
 	}
 	
-	private boolean isLoginOrLogoutSuccess(CloseableHttpResponse response) {
-		int status = response.getStatusLine().getStatusCode();
+	private UserInfo constructUserInfo(DomParsingHelper domParsingHelper, String xpathExpression) {
 		
-		if(HttpStatus.MOVED_TEMPORARILY_302 == status) {
-			return true;
-		}
+		String userId = domParsingHelper.getAttributeTextValueOfNode("id", xpathExpression, 0);
+		String loginCount = domParsingHelper.getAttributeTextValueOfNode("login", xpathExpression, 0);
+		String lastLoginTime = domParsingHelper.getAttributeTextValueOfNode("lastlogin", xpathExpression, 0);
+		String perf = domParsingHelper.getAttributeTextValueOfNode("perf", xpathExpression, 0);
+		String postCount = domParsingHelper.getAttributeTextValueOfNode("post", xpathExpression, 0);
+		String hp = domParsingHelper.getAttributeTextValueOfNode("hp", xpathExpression, 0);
+		String level = domParsingHelper.getAttributeTextValueOfNode("level", xpathExpression, 0);
+		String repeat = domParsingHelper.getAttributeTextValueOfNode("repeat", xpathExpression, 0);
+		String contrib = domParsingHelper.getAttributeTextValueOfNode("contrib", xpathExpression, 0);
+		String rank = domParsingHelper.getAttributeTextValueOfNode("rank", xpathExpression, 0);
+		String horoscope = domParsingHelper.getAttributeTextValueOfNode("horo", xpathExpression, 0);
+		String gender = domParsingHelper.getAttributeTextValueOfNode("gender", xpathExpression, 0);
 		
-		/*
-		if(HttpStatus.OK_200 == status) {
-			return false;
-		}
-		*/
-		return false;
+		String lastLoginIp = domParsingHelper.getTextValueOfSingleNode(xpathExpression+"/ip");
+		String nick = domParsingHelper.getTextValueOfSingleNode(xpathExpression+"/nick");
+		String ident = domParsingHelper.getTextValueOfSingleNode(xpathExpression+"/ident");
+		String smd = domParsingHelper.getTextValueOfSingleNode(xpathExpression+"/smd");
+		
+		String xpathOfVisit = xpathExpression + "/st";
+		String idle = domParsingHelper.getAttributeTextValueOfNode("idle", xpathOfVisit, 0);
+		String desc = domParsingHelper.getAttributeTextValueOfNode("desc", xpathOfVisit, 0);
+		String vis = domParsingHelper.getAttributeTextValueOfNode("vis", xpathOfVisit, 0);
+		String web = domParsingHelper.getAttributeTextValueOfNode("web", xpathOfVisit, 0);
+		
+		boolean isVisible = "1".equals(vis);
+		boolean isWeb = "1".equals(web);
+		
+		
+		UserMetaData userMetaData = new UserMetaData().withGender(gender)
+				.withHoroscope(horoscope).withLastLoginIp(lastLoginIp)
+				.withLastLoginTime(lastLoginTime.replace('T', ' '))
+				.withLoginCount(convertToInteger(loginCount))
+				.withPostCount(convertToInteger(postCount))
+				.withNick(nick).withUserId(userId);
+		UserPerformance userPerformance = new UserPerformance().withContrib(convertToInteger(contrib))
+				.withHp(convertToInteger(hp)).withLevel(convertToInteger(level))
+				.withRepeat(convertToInteger(repeat)).withPerformance(perf).withRank(rank);
+		
+		UserSignature userSignature = new UserSignature().withSignature(smd);
+		
+		UserInfo userInfo = new UserInfo().withUserMetaData(userMetaData)
+				.withUserPerformance(userPerformance).withUserSignature(userSignature)
+				.withDesc(desc).withIdent(ident).withIdleTime(convertToInteger(idle))
+				.withIsVisible(isVisible).withIsWeb(isWeb);
+		
+		return userInfo;
 	}
 	
-
+	
 }

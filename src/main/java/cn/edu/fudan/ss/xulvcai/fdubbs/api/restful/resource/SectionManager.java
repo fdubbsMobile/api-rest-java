@@ -92,15 +92,7 @@ public class SectionManager {
 		URI uri = new URIBuilder().setScheme("http").setHost("bbs.fudan.edu.cn")
 				.setPath("/m/bbs/sec").build();
 		
-		ReusableHttpClient reusableClient = null;
-		
-		if(authCode != null) {
-			reusableClient = HttpClientManager.getInstance().getAuthClient(authCode);
-		}
-		
-		if(reusableClient == null) {
-			reusableClient = HttpClientManager.getInstance().getAnonymousClient();
-		}
+		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getReusableClient(authCode, true);
 		
 		CloseableHttpResponse response = reusableClient.excuteGet(new HttpGet(uri));
 		
@@ -133,15 +125,8 @@ public class SectionManager {
 				.setPath("/bbs/boa").setParameter("s", sectionId).build();
 
 
-		ReusableHttpClient reusableClient = null;
-		
-		if(authCode != null) {
-			reusableClient = HttpClientManager.getInstance().getAuthClient(authCode);
-		}
-		
-		if(reusableClient == null) {
-			reusableClient = HttpClientManager.getInstance().getAnonymousClient();
-		}
+
+		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getReusableClient(authCode, true);
 		
 		CloseableHttpResponse response = reusableClient.excuteGet(new HttpGet(uri));
 		

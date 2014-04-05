@@ -1,7 +1,6 @@
 package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.resource;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -183,15 +182,7 @@ public class PostManager {
 	private PostDetail getPostDetailByBoardIdAndPostIdFromServer(String authCode, String listMode, 
 			int boardId, int postId) throws Exception {
 
-		ReusableHttpClient reusableClient = null;
-		
-		if(authCode != null) {
-			reusableClient = HttpClientManager.getInstance().getAuthClient(authCode);
-		}
-		
-		if(reusableClient == null) {
-			reusableClient = HttpClientManager.getInstance().getAnonymousClient();
-		}
+		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getReusableClient(authCode, true);
 		
 		String path = null;
 		boolean isTopicMode = false;
@@ -299,15 +290,7 @@ public class PostManager {
 	private PostSummaryInBoard getPostsByBoardIdFromServer(String authCode, 
 			String listMode, int boardId, int startNum) throws Exception {
 		
-		ReusableHttpClient reusableClient = null;
-		
-		if(authCode != null) {
-			reusableClient = HttpClientManager.getInstance().getAuthClient(authCode);
-		}
-		
-		if(reusableClient == null) {
-			reusableClient = HttpClientManager.getInstance().getAnonymousClient();
-		}
+		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getReusableClient(authCode, true);
 		
 		
 		URIBuilder uriBuilder = new URIBuilder().setScheme("http").setHost("bbs.fudan.edu.cn");
@@ -342,15 +325,7 @@ public class PostManager {
 	private PostSummaryInBoard getPostsByBoardNameFromServer(String authCode, 
 			String listMode, String boardName, int startNum) throws Exception {
 		
-		ReusableHttpClient reusableClient = null;
-		
-		if(authCode != null) {
-			reusableClient = HttpClientManager.getInstance().getAuthClient(authCode);
-		}
-		
-		if(reusableClient == null) {
-			reusableClient = HttpClientManager.getInstance().getAnonymousClient();
-		}
+		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getReusableClient(authCode, true);
 		
 		
 		URIBuilder uriBuilder = new URIBuilder().setScheme("http").setHost("bbs.fudan.edu.cn");
@@ -478,15 +453,7 @@ public class PostManager {
 	
 	private List<PostSummary> getTopPostsFromServer(String authCode) throws Exception {
 		
-		ReusableHttpClient reusableClient = null;
-		
-		if(authCode != null) {
-			reusableClient = HttpClientManager.getInstance().getAuthClient(authCode);
-		}
-		
-		if(reusableClient == null) {
-			reusableClient = HttpClientManager.getInstance().getAnonymousClient();
-		}
+		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getReusableClient(authCode, true);
 		
 		URI uri = new URIBuilder().setScheme("http").setHost("bbs.fudan.edu.cn").setPath("/bbs/top10").build();
 		

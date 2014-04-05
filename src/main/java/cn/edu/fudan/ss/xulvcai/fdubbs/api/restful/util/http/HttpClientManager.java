@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.exception.SessionExpiredException;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.pool.ReusableHttpClientFactory;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.pool.ReusableHttpClientPool;
 
@@ -40,7 +41,7 @@ public /*enum*/ class HttpClientManager {
 		return SINGLE_INSTANCE;
 	}
 	
-	public ReusableHttpClient getAnonymousClient() {
+	private ReusableHttpClient getAnonymousClient() {
 		return anonymousClientPool.getResource();
 	}
 	
@@ -52,8 +53,27 @@ public /*enum*/ class HttpClientManager {
 		anonymousClientPool.returnResource(httpClient);
 	}
 	
+
+	public ReusableHttpClient getReusableClient(String authCode, boolean allowAnony) {
+		
+		ReusableHttpClient reusableClient = null;
+		
+		if(authCode != null) {
+			reusableClient = HttpClientManager.getInstance().getAuthClient(authCode);
+		}
+		
+		if(reusableClient == null) {
+			if(!allowAnony) {
+				logger.error("reusableClient is null! You need to login");
+				throw new SessionExpiredException("Session associated with authCode<"+ authCode+"> has been expired!");
+			}
+			reusableClient = HttpClientManager.getInstance().getAnonymousClient();
+		}
+		
+		return reusableClient;
+	}
 	
-	public ReusableHttpClient getAuthClient(String authCode) {
+	private ReusableHttpClient getAuthClient(String authCode) {
 		if(authCode != null && authClientCache.containsKey(authCode)) {
 			return authClientCache.get(authCode);
 		}
