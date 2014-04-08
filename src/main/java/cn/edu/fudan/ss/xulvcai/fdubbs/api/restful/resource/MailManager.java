@@ -19,8 +19,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.StringConvertHelper.convertToInteger;
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.Inbox;
+
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.MailSummary;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.MailSummaryInbox;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.ResponseStatus;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.DomParsingHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpClientManager;
@@ -60,7 +61,7 @@ private static Logger logger = LoggerFactory.getLogger(MailManager.class);
 		
 		logger.info(">>>>>>>>>>>>> Start getAllMails <<<<<<<<<<<<<<");
 		
-		Inbox inbox = null;
+		MailSummaryInbox inbox = null;
 		
 		try {
 			inbox = getAllMailsFromServer(authCode, 0);
@@ -80,7 +81,7 @@ private static Logger logger = LoggerFactory.getLogger(MailManager.class);
 		
 		logger.info(">>>>>>>>>>>>> Start getAllMailsWithStartNum <<<<<<<<<<<<<<");
 		
-		Inbox inbox = null;
+		MailSummaryInbox inbox = null;
 		
 		try {
 			inbox = getAllMailsFromServer(authCode, startNum);
@@ -140,7 +141,7 @@ private static Logger logger = LoggerFactory.getLogger(MailManager.class);
 		return mail;
 	}
 	
-	private Inbox getAllMailsFromServer(String authCode, int startNum) throws Exception {
+	private MailSummaryInbox getAllMailsFromServer(String authCode, int startNum) throws Exception {
 		
 		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getReusableClient(authCode, false);
 		
@@ -159,10 +160,34 @@ private static Logger logger = LoggerFactory.getLogger(MailManager.class);
 		DomParsingHelper domParsingHelper = HttpParsingHelper.getDomParsingHelper(response, httpContentType);
 		response.close();
 		
+		
+		MailSummaryInbox inbox = constructInbox(domParsingHelper, startNum);
+		
+		
+		return inbox;
+	}
+	
+	private MailSummaryInbox constructInbox(DomParsingHelper domParsingHelper, int startNum) {
+		String xpathOfInbox = "/bbsmail";
 		String xpathOfMail = "/bbsmail/mail";
 		
+
+		List<MailSummary> mails = new ArrayList<MailSummary>();
+		int mailCount = domParsingHelper.getNumberOfNodes(xpathOfMail);
 		
+		for(int idx = 0; idx < mailCount; idx++) {
+			
+		}
 		
-		return null;
+		String start = domParsingHelper.getAttributeTextValueOfNode("start", xpathOfInbox, 0);
+		String total = domParsingHelper.getAttributeTextValueOfNode("total", xpathOfInbox, 0);
+		
+		MailSummaryInbox inbox = new MailSummaryInbox().withStartMailNum(convertToInteger(start))
+				.withTotalCount(convertToInteger(total)).withMailCount(mailCount)
+				.withMailSummaryList(mails);
+		
+		return inbox;
 	}
+	
+	
 }

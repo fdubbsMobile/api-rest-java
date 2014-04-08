@@ -17,26 +17,19 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /**
- * mail inbox
+ * mail_summary inbox
  * 
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
-    "board_meta_data",
     "start_mail_num",
     "total_count",
     "mail_count",
     "mail_summary_list"
 })
-public class Inbox {
+public class MailSummaryInbox {
 
-    /**
-     * board meta data
-     * 
-     */
-    @JsonProperty("board_meta_data")
-    private BoardMetaData boardMetaData;
     /**
      * start mail number
      * 
@@ -60,31 +53,8 @@ public class Inbox {
      * 
      */
     @JsonProperty("mail_summary_list")
-    private List<MailSummaryList> mailSummaryList = new ArrayList<MailSummaryList>();
+    private List<MailSummary> mailSummaryList = new ArrayList<MailSummary>();
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
-
-    /**
-     * board meta data
-     * 
-     */
-    @JsonProperty("board_meta_data")
-    public BoardMetaData getBoardMetaData() {
-        return boardMetaData;
-    }
-
-    /**
-     * board meta data
-     * 
-     */
-    @JsonProperty("board_meta_data")
-    public void setBoardMetaData(BoardMetaData boardMetaData) {
-        this.boardMetaData = boardMetaData;
-    }
-
-    public Inbox withBoardMetaData(BoardMetaData boardMetaData) {
-        this.boardMetaData = boardMetaData;
-        return this;
-    }
 
     /**
      * start mail number
@@ -104,7 +74,7 @@ public class Inbox {
         this.startMailNum = startMailNum;
     }
 
-    public Inbox withStartMailNum(Integer startMailNum) {
+    public MailSummaryInbox withStartMailNum(Integer startMailNum) {
         this.startMailNum = startMailNum;
         return this;
     }
@@ -127,7 +97,7 @@ public class Inbox {
         this.totalCount = totalCount;
     }
 
-    public Inbox withTotalCount(Integer totalCount) {
+    public MailSummaryInbox withTotalCount(Integer totalCount) {
         this.totalCount = totalCount;
         return this;
     }
@@ -150,7 +120,7 @@ public class Inbox {
         this.mailCount = mailCount;
     }
 
-    public Inbox withMailCount(Integer mailCount) {
+    public MailSummaryInbox withMailCount(Integer mailCount) {
         this.mailCount = mailCount;
         return this;
     }
@@ -160,7 +130,7 @@ public class Inbox {
      * 
      */
     @JsonProperty("mail_summary_list")
-    public List<MailSummaryList> getMailSummaryList() {
+    public List<MailSummary> getMailSummaryList() {
         return mailSummaryList;
     }
 
@@ -169,11 +139,11 @@ public class Inbox {
      * 
      */
     @JsonProperty("mail_summary_list")
-    public void setMailSummaryList(List<MailSummaryList> mailSummaryList) {
+    public void setMailSummaryList(List<MailSummary> mailSummaryList) {
         this.mailSummaryList = mailSummaryList;
     }
 
-    public Inbox withMailSummaryList(List<MailSummaryList> mailSummaryList) {
+    public MailSummaryInbox withMailSummaryList(List<MailSummary> mailSummaryList) {
         this.mailSummaryList = mailSummaryList;
         return this;
     }
