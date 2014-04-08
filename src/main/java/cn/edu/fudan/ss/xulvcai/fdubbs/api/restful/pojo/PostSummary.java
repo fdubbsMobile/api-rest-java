@@ -15,7 +15,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /**
- * top post
+ * post summary
  * 
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)

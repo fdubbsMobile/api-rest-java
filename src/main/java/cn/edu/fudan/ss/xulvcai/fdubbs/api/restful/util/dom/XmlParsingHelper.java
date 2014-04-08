@@ -29,7 +29,8 @@ public class XmlParsingHelper implements DomParsingHelper{
 	
 	
 	private XmlParsingHelper(String xmlContent) throws Exception {
-		doc = DocumentHelper.parseText(xmlContent);
+		String contentAsString = xmlContent.replaceAll("&amp;nbsp;"," ").replaceAll("&#160;"," ");
+		doc = DocumentHelper.parseText(contentAsString);
 	}
 	
 	public static XmlParsingHelper parseText(String xmlContent) throws Exception {
