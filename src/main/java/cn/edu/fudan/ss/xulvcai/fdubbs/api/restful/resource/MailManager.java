@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.StringConvertHelper.convertToInteger;
-
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.exception.InvalidParameterException;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.MailSummary;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.MailSummaryInbox;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.ResponseStatus;
@@ -32,7 +32,9 @@ import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpParsingHelper.Ht
 @Path("/mail")
 public class MailManager {
 
-private static Logger logger = LoggerFactory.getLogger(MailManager.class);
+
+	private static Logger logger = LoggerFactory.getLogger(MailManager.class);
+	private static final int MAIL_NUMBER_PER_REQUEST = 20;
 	
 	@GET
 	@Path("/new")
@@ -172,22 +174,76 @@ private static Logger logger = LoggerFactory.getLogger(MailManager.class);
 		String xpathOfMail = "/bbsmail/mail";
 		
 
+		String start = domParsingHelper.getAttributeTextValueOfNode("start", xpathOfInbox, 0);
+		String total = domParsingHelper.getAttributeTextValueOfNode("total", xpathOfInbox, 0);
+		
+		
+		Integer startCount = convertToInteger(start);
+		Integer totalCount = convertToInteger(total);
+		
 		List<MailSummary> mails = new ArrayList<MailSummary>();
 		int mailCount = domParsingHelper.getNumberOfNodes(xpathOfMail);
 		
 		for(int idx = 0; idx < mailCount; idx++) {
-			
+			MailSummary mail = constructMail(domParsingHelper, xpathOfMail,
+					idx, startCount, mailCount);
+			mails.add(mail);
 		}
 		
-		String start = domParsingHelper.getAttributeTextValueOfNode("start", xpathOfInbox, 0);
-		String total = domParsingHelper.getAttributeTextValueOfNode("total", xpathOfInbox, 0);
 		
-		MailSummaryInbox inbox = new MailSummaryInbox().withStartMailNum(convertToInteger(start))
-				.withTotalCount(convertToInteger(total)).withMailCount(mailCount)
+		
+		MailSummaryInbox inbox = new MailSummaryInbox().withStartMailNum(startCount)
+				.withTotalCount(totalCount).withMailCount(mailCount)
 				.withMailSummaryList(mails);
 		
+		validateAndAdjustMailList(inbox, startNum);
 		return inbox;
 	}
 	
+
+	private MailSummary constructMail(DomParsingHelper domParsingHelper, String xpathExpression,
+			int index, int startNum, int mailCount) {
+		
 	
+		String isRead = domParsingHelper.getAttributeTextValueOfNode("r", xpathExpression, index);
+		String markSign = domParsingHelper.getAttributeTextValueOfNode("m", xpathExpression, index);
+		String sender = domParsingHelper.getAttributeTextValueOfNode("from", xpathExpression, index);
+		String name = domParsingHelper.getAttributeTextValueOfNode("name", xpathExpression, index);
+		String date = domParsingHelper.getAttributeTextValueOfNode("date", xpathExpression, index);
+		
+		String title = domParsingHelper.getTextValueOfNode(xpathExpression, index);
+		int mailNumber = (startNum + mailCount) - (index + 1);
+		
+		MailSummary mail = new MailSummary().withIsNew("0".equals(isRead))
+				.withMarkSign(markSign).withSender(sender)
+				.withName(name).withDate(date.replace('T', ' '))
+				.withTitle(title).withMailNumber(mailNumber);
+		
+		return mail;
+	}
+	
+	private void validateAndAdjustMailList(MailSummaryInbox inbox, int startNum) {
+		int startMailNum = inbox.getStartMailNum();
+		if(startNum > startMailNum + MAIL_NUMBER_PER_REQUEST) {
+			throw new InvalidParameterException("Invalid start_num : "+startNum); 
+		}
+		
+		if(startNum > startMailNum) {
+			int redundantNum = startNum - startMailNum;
+			int newMailCount = inbox.getMailCount() - redundantNum;
+			RemoveRedundantMails(inbox.getMailSummaryList(), redundantNum);
+			inbox.setStartMailNum(startNum);
+			inbox.setMailCount(newMailCount);
+		}
+	}
+	
+	private void RemoveRedundantMails(List<MailSummary> mailSummaryList, int redundantNum) {
+		for(int index = 0; index < redundantNum; index++) {
+			if (mailSummaryList.isEmpty()) {
+				break;
+			}
+			
+			mailSummaryList.remove(mailSummaryList.size() - 1);//remove the tail
+		}
+	}
 }
