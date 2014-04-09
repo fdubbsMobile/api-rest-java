@@ -1,6 +1,7 @@
 package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.resource;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,14 +13,17 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.StringConvertHelper.convertToInteger;
+import static cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.StringConvertHelper.*;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.exception.InvalidParameterException;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.MailDetail;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.MailMetaData;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.MailSummary;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.MailSummaryInbox;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.ResponseStatus;
@@ -43,6 +47,12 @@ public class MailManager {
 		
 		logger.info(">>>>>>>>>>>>> Start getNewMails <<<<<<<<<<<<<<");
 		
+		if(authCode == null) {
+			logger.info("authCode is null");
+			return Response.status(ResponseStatus.REQUEST_CONTENT_ERROR_STATUS).build();
+		}
+		
+		
 		List<MailSummary> newMails = null;
 		
 		try {
@@ -62,6 +72,12 @@ public class MailManager {
 	public Response getAllMails(@CookieParam("auth_code") String authCode) {
 		
 		logger.info(">>>>>>>>>>>>> Start getAllMails <<<<<<<<<<<<<<");
+		
+		if(authCode == null) {
+			logger.info("authCode is null");
+			return Response.status(ResponseStatus.REQUEST_CONTENT_ERROR_STATUS).build();
+		}
+		
 		
 		MailSummaryInbox inbox = null;
 		
@@ -83,6 +99,12 @@ public class MailManager {
 		
 		logger.info(">>>>>>>>>>>>> Start getAllMailsWithStartNum <<<<<<<<<<<<<<");
 		
+		if(authCode == null) {
+			logger.info("authCode is null");
+			return Response.status(ResponseStatus.REQUEST_CONTENT_ERROR_STATUS).build();
+		}
+		
+		
 		MailSummaryInbox inbox = null;
 		
 		try {
@@ -96,6 +118,113 @@ public class MailManager {
 		return Response.ok().entity(inbox).build();
 	}
 	
+	@GET
+	@Path("/detail/{mail_number}/{mail_link}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getMailDetailWithMailNum(@CookieParam("auth_code") String authCode, 
+			@PathParam("mail_number") int mailNum, @PathParam("mail_link") String mailLink) {
+		
+		logger.info(">>>>>>>>>>>>> Start getMailDetailWithMailNum <<<<<<<<<<<<<<");
+		
+		if(authCode == null) {
+			logger.info("authCode is null");
+			return Response.status(ResponseStatus.REQUEST_CONTENT_ERROR_STATUS).build();
+		}
+		
+		
+		MailDetail mailDetail = null;
+		
+		try {
+			mailDetail = getMailDetailFromServer(authCode, mailNum, mailLink);
+		} catch (Exception e) {
+			logger.error("Exception occurs in getMailDetailWithMailNum!", e);
+			return Response.status(ResponseStatus.SERVER_INTERNAL_ERROR_STATUS).build();
+		}
+		
+		logger.info(">>>>>>>>>>>>> End getMailDetailWithMailNum <<<<<<<<<<<<<<");
+		return Response.ok().entity(mailDetail).build();
+	}
+	
+	private MailDetail getMailDetailFromServer(String authCode, int mailNum, String mailLink) throws Exception {
+
+		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getReusableClient(authCode, false);
+		
+		URI uri = new URIBuilder().setScheme("http")
+				.setHost("bbs.fudan.edu.cn")
+				.setPath("/bbs/mailcon")
+				.setParameter("n", ""+mailNum)
+				.setParameter("f", mailLink)
+				.build();
+		
+		HttpGet httpGet = new HttpGet(uri);
+		
+		CloseableHttpResponse response = reusableClient.excuteGet(httpGet);
+		
+		HttpContentType httpContentType = HttpParsingHelper.getContentType(response);
+		DomParsingHelper domParsingHelper = HttpParsingHelper.getDomParsingHelper(response, httpContentType);
+		response.close();
+		
+		
+		
+		return  constructMailDetail(domParsingHelper, mailNum, mailLink);
+	}
+
+	private MailDetail constructMailDetail(DomParsingHelper domParsingHelper, int mailNum, String mailLink) {
+		
+		String title = domParsingHelper.getTextValueOfSingleNode("/bbsmailcon/t");
+		
+		String mailContent = domParsingHelper.getTextValueOfSingleNode("/bbsmailcon/mail");
+		logger.debug("mail content : " + mailContent);
+		
+		int firstIdx = -1, secondIdx = -1;
+		String token;
+		
+		token = "寄信人: ";
+		firstIdx = mailContent.indexOf(token);
+		mailContent = mailContent.substring(firstIdx + token.length());
+		secondIdx = mailContent.indexOf(" ");
+		String sender = mailContent.substring(0, secondIdx);
+		
+		token = "(";
+		firstIdx = mailContent.indexOf("(");
+		mailContent = mailContent.substring(firstIdx + token.length());
+		secondIdx = mailContent.indexOf(")");
+		String nick = mailContent.substring(0, secondIdx);
+		
+		token = "发信站: ";
+		firstIdx = mailContent.indexOf(token);
+		mailContent = mailContent.substring(firstIdx + token.length());
+		secondIdx = mailContent.indexOf(" ");
+		String source = mailContent.substring(0, secondIdx);
+		
+		token = "(";
+		firstIdx = mailContent.indexOf("(");
+		mailContent = mailContent.substring(firstIdx + token.length());
+		secondIdx = mailContent.indexOf(")");
+		String date = mailContent.substring(0, secondIdx);
+		
+		token = "来  源: ";
+		firstIdx = mailContent.indexOf("来  源: ");
+		mailContent = mailContent.substring(firstIdx + token.length());
+		secondIdx = mailContent.indexOf("\n");
+		String ip = mailContent.substring(0, secondIdx);
+		
+		mailContent = mailContent.substring(secondIdx+1);
+		
+		mailContent = mailContent.replaceAll(">1b\\[(|(\\d{1,9}(;\\d{1,9})*))m", "");
+		
+		MailMetaData metaData = new MailMetaData().withSender(sender)
+				.withDate(date).withMailLink(encode(mailLink))
+				.withMailNumber(mailNum).withNick(nick)
+				.withTitle(title);
+				
+				
+		MailDetail detail = new MailDetail().withMailMetaData(metaData).withSource(source)
+				.withIp(ip).withContent(mailContent);
+		
+		return detail;
+
+	}
 	
 	private List<MailSummary> getNewMailsFromServer(String authCode) throws Exception {
 		
@@ -127,7 +256,7 @@ public class MailManager {
 		
 		String markSign = domParsingHelper.getAttributeTextValueOfNode("m", xpathExpression, index);
 		String sender = domParsingHelper.getAttributeTextValueOfNode("from", xpathExpression, index);
-		String name = domParsingHelper.getAttributeTextValueOfNode("name", xpathExpression, index);
+		String link = domParsingHelper.getAttributeTextValueOfNode("name", xpathExpression, index);
 		String number = domParsingHelper.getAttributeTextValueOfNode("n", xpathExpression, index);
 		String date = domParsingHelper.getAttributeTextValueOfNode("date", xpathExpression, index);
 		
@@ -135,10 +264,14 @@ public class MailManager {
 		
 		boolean isNew = true;
 		
-		MailSummary mail = new MailSummary().withIsNew(isNew)
-				.withMarkSign(markSign).withSender(sender)
-				.withName(name).withDate(date.replace('T', ' '))
+		MailMetaData metaData = new MailMetaData().withSender(sender)
+				.withMailLink(encode(link)).withDate(date.replace('T', ' '))
 				.withTitle(title).withMailNumber(convertToInteger(number));
+		
+		
+		MailSummary mail = new MailSummary().withMailMetaData(metaData)
+				.withIsNew(isNew)
+				.withMarkSign(markSign);
 		
 		return mail;
 	}
@@ -208,16 +341,19 @@ public class MailManager {
 		String isRead = domParsingHelper.getAttributeTextValueOfNode("r", xpathExpression, index);
 		String markSign = domParsingHelper.getAttributeTextValueOfNode("m", xpathExpression, index);
 		String sender = domParsingHelper.getAttributeTextValueOfNode("from", xpathExpression, index);
-		String name = domParsingHelper.getAttributeTextValueOfNode("name", xpathExpression, index);
+		String link = domParsingHelper.getAttributeTextValueOfNode("name", xpathExpression, index);
 		String date = domParsingHelper.getAttributeTextValueOfNode("date", xpathExpression, index);
 		
 		String title = domParsingHelper.getTextValueOfNode(xpathExpression, index);
 		int mailNumber = (startNum + mailCount) - (index + 1);
 		
-		MailSummary mail = new MailSummary().withIsNew("0".equals(isRead))
-				.withMarkSign(markSign).withSender(sender)
-				.withName(name).withDate(date.replace('T', ' '))
+		MailMetaData metaData = new MailMetaData().withSender(sender)
+				.withMailLink(encode(link)).withDate(date.replace('T', ' '))
 				.withTitle(title).withMailNumber(mailNumber);
+		
+		MailSummary mail = new MailSummary().withMailMetaData(metaData)
+				.withIsNew("0".equals(isRead))
+				.withMarkSign(markSign);
 		
 		return mail;
 	}

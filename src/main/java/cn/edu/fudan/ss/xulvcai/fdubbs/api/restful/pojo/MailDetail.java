@@ -15,17 +15,18 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /**
- * mail summary
+ * mail detail
  * 
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
     "mail_meta_data",
-    "is_new",
-    "mark_sign"
+    "source",
+    "ip",
+    "content"
 })
-public class MailSummary {
+public class MailDetail {
 
     /**
      * mail meta data
@@ -34,17 +35,23 @@ public class MailSummary {
     @JsonProperty("mail_meta_data")
     private MailMetaData mailMetaData;
     /**
-     * if the mail is new
+     * sender id
      * 
      */
-    @JsonProperty("is_new")
-    private Boolean isNew;
+    @JsonProperty("source")
+    private String source;
     /**
-     * mark sign
+     * sender id
      * 
      */
-    @JsonProperty("mark_sign")
-    private String markSign;
+    @JsonProperty("ip")
+    private String ip;
+    /**
+     * mail content
+     * 
+     */
+    @JsonProperty("content")
+    private String content;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     /**
@@ -65,54 +72,77 @@ public class MailSummary {
         this.mailMetaData = mailMetaData;
     }
 
-    public MailSummary withMailMetaData(MailMetaData mailMetaData) {
+    public MailDetail withMailMetaData(MailMetaData mailMetaData) {
         this.mailMetaData = mailMetaData;
         return this;
     }
 
     /**
-     * if the mail is new
+     * sender id
      * 
      */
-    @JsonProperty("is_new")
-    public Boolean getIsNew() {
-        return isNew;
+    @JsonProperty("source")
+    public String getSource() {
+        return source;
     }
 
     /**
-     * if the mail is new
+     * sender id
      * 
      */
-    @JsonProperty("is_new")
-    public void setIsNew(Boolean isNew) {
-        this.isNew = isNew;
+    @JsonProperty("source")
+    public void setSource(String source) {
+        this.source = source;
     }
 
-    public MailSummary withIsNew(Boolean isNew) {
-        this.isNew = isNew;
+    public MailDetail withSource(String source) {
+        this.source = source;
         return this;
     }
 
     /**
-     * mark sign
+     * sender id
      * 
      */
-    @JsonProperty("mark_sign")
-    public String getMarkSign() {
-        return markSign;
+    @JsonProperty("ip")
+    public String getIp() {
+        return ip;
     }
 
     /**
-     * mark sign
+     * sender id
      * 
      */
-    @JsonProperty("mark_sign")
-    public void setMarkSign(String markSign) {
-        this.markSign = markSign;
+    @JsonProperty("ip")
+    public void setIp(String ip) {
+        this.ip = ip;
     }
 
-    public MailSummary withMarkSign(String markSign) {
-        this.markSign = markSign;
+    public MailDetail withIp(String ip) {
+        this.ip = ip;
+        return this;
+    }
+
+    /**
+     * mail content
+     * 
+     */
+    @JsonProperty("content")
+    public String getContent() {
+        return content;
+    }
+
+    /**
+     * mail content
+     * 
+     */
+    @JsonProperty("content")
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public MailDetail withContent(String content) {
+        this.content = content;
         return this;
     }
 
