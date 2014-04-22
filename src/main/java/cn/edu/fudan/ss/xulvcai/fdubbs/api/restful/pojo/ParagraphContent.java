@@ -21,11 +21,11 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
-    "is_newline",
-    "is_link",
-    "is_image",
-    "link_ref",
-    "content"
+    "br",
+    "l",
+    "i",
+    "lr",
+    "c"
 })
 public class ParagraphContent {
 
@@ -33,31 +33,31 @@ public class ParagraphContent {
      * newline
      * 
      */
-    @JsonProperty("is_newline")
+    @JsonProperty("br")
     private Boolean isNewline;
     /**
      * link
      * 
      */
-    @JsonProperty("is_link")
+    @JsonProperty("l")
     private Boolean isLink;
     /**
      * image
      * 
      */
-    @JsonProperty("is_image")
+    @JsonProperty("i")
     private Boolean isImage;
     /**
      * link ref
      * 
      */
-    @JsonProperty("link_ref")
+    @JsonProperty("lr")
     private String linkRef;
     /**
      * content
      * 
      */
-    @JsonProperty("content")
+    @JsonProperty("c")
     private String content;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
@@ -65,7 +65,7 @@ public class ParagraphContent {
      * newline
      * 
      */
-    @JsonProperty("is_newline")
+    @JsonProperty("br")
     public Boolean getIsNewline() {
         return isNewline;
     }
@@ -74,7 +74,7 @@ public class ParagraphContent {
      * newline
      * 
      */
-    @JsonProperty("is_newline")
+    @JsonProperty("br")
     public void setIsNewline(Boolean isNewline) {
         this.isNewline = isNewline;
     }
@@ -88,7 +88,7 @@ public class ParagraphContent {
      * link
      * 
      */
-    @JsonProperty("is_link")
+    @JsonProperty("l")
     public Boolean getIsLink() {
         return isLink;
     }
@@ -97,7 +97,7 @@ public class ParagraphContent {
      * link
      * 
      */
-    @JsonProperty("is_link")
+    @JsonProperty("l")
     public void setIsLink(Boolean isLink) {
         this.isLink = isLink;
     }
@@ -111,7 +111,7 @@ public class ParagraphContent {
      * image
      * 
      */
-    @JsonProperty("is_image")
+    @JsonProperty("i")
     public Boolean getIsImage() {
         return isImage;
     }
@@ -120,7 +120,7 @@ public class ParagraphContent {
      * image
      * 
      */
-    @JsonProperty("is_image")
+    @JsonProperty("i")
     public void setIsImage(Boolean isImage) {
         this.isImage = isImage;
     }
@@ -134,7 +134,7 @@ public class ParagraphContent {
      * link ref
      * 
      */
-    @JsonProperty("link_ref")
+    @JsonProperty("lr")
     public String getLinkRef() {
         return linkRef;
     }
@@ -143,7 +143,7 @@ public class ParagraphContent {
      * link ref
      * 
      */
-    @JsonProperty("link_ref")
+    @JsonProperty("lr")
     public void setLinkRef(String linkRef) {
         this.linkRef = linkRef;
     }
@@ -157,7 +157,7 @@ public class ParagraphContent {
      * content
      * 
      */
-    @JsonProperty("content")
+    @JsonProperty("c")
     public String getContent() {
         return content;
     }
@@ -166,7 +166,7 @@ public class ParagraphContent {
      * content
      * 
      */
-    @JsonProperty("content")
+    @JsonProperty("c")
     public void setContent(String content) {
         this.content = content;
     }

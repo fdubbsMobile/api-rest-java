@@ -65,7 +65,7 @@ public class PostManager {
 	}
 	
 	@GET
-	@Path("/{list_mode}/name/{board_name}/{start_num}")
+	@Path("/summary/board/{board_name}/{list_mode}/{start_num}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getPostsByBoardNameWithStartNum(@CookieParam("auth_code") String authCode, @PathParam("list_mode") String listMode, 
 			@PathParam("board_name") String boardName, @PathParam("start_num") int startNum) {
@@ -88,7 +88,7 @@ public class PostManager {
 	}
 	
 	@GET
-	@Path("/{list_mode}/name/{board_name}/")
+	@Path("/summary/board/{board_name}/{list_mode}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getPostsByBoardName(@CookieParam("auth_code") String authCode, @PathParam("list_mode") String listMode, 
 			@PathParam("board_name") String boardName) {
@@ -111,7 +111,7 @@ public class PostManager {
 	}
 	
 	@GET
-	@Path("/{list_mode}/id/{board_id}/")
+	@Path("/summary/bid/{board_id}/{list_mode}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getPostsByBoardId(@CookieParam("auth_code") String authCode, @PathParam("list_mode") String listMode, 
 			@PathParam("board_id") int boardId) {
@@ -134,7 +134,7 @@ public class PostManager {
 	}
 	
 	@GET
-	@Path("/{list_mode}/id/{board_id}/{start_num}")
+	@Path("/summary/bid/{board_id}/{list_mode}/{start_num}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getPostsByBoardIdWithStartNum(@CookieParam("auth_code") String authCode, @PathParam("list_mode") String listMode, 
 			@PathParam("board_id") int boardId, @PathParam("start_num") int startNum) {
@@ -157,10 +157,34 @@ public class PostManager {
 	}
 	
 	@GET
-	@Path("/{list_mode}/id/{board_id}/detail/{post_id}")
+	@Path("/detail/board/{board_name}/{post_id}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getPostDetailByBoardNameAndPostId(@CookieParam("auth_code") String authCode, 
+			@PathParam("board_name") String boardName, @PathParam("post_id") long postId) {
+		
+		logger.info(">>>>>>>>>>>>> Start getPostDetailByBoardNameAndPostId <<<<<<<<<<<<<<");
+		
+		logger.debug("auth_code : "+authCode+"; board_name : "+boardName+"; post_id : "+postId);
+		
+		PostDetail postDetail = null;
+		
+		try {
+			postDetail = getPostDetailByBoardNameAndPostIdFromServer(authCode, boardName, postId);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		logger.info(">>>>>>>>>>>>> End getPostDetailByBoardNameAndPostId <<<<<<<<<<<<<<");
+		return Response.ok().entity(postDetail).build();
+	}
+	
+	
+	@GET
+	@Path("/detail/bid/{board_id}/{list_mode}/{post_id}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getPostDetailByBoardIdAndPostId(@CookieParam("auth_code") String authCode, @PathParam("list_mode") String listMode, 
-			@PathParam("board_id") int boardId, @PathParam("post_id") int postId) {
+			@PathParam("board_id") int boardId, @PathParam("post_id") long postId) {
 		
 		logger.info(">>>>>>>>>>>>> Start getPostDetailByBoardIdAndPostId <<<<<<<<<<<<<<");
 		
@@ -179,8 +203,10 @@ public class PostManager {
 		return Response.ok().entity(postDetail).build();
 	}
 	
+	
+	
 	private PostDetail getPostDetailByBoardIdAndPostIdFromServer(String authCode, String listMode, 
-			int boardId, int postId) throws Exception {
+			int boardId, long postId) throws Exception {
 
 		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getReusableClient(authCode, true);
 		
@@ -209,6 +235,29 @@ public class PostManager {
 		response.close();
 		
 		return constructPostDetail(domParsingHelper, isTopicMode);
+	}
+	
+	private PostDetail getPostDetailByBoardNameAndPostIdFromServer(String authCode, 
+			String boardName, long postId) throws Exception {
+
+		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getReusableClient(authCode, true);
+		
+		String path = "/bbs/tcon";
+		
+		URI uri = new URIBuilder().setScheme("http").setHost("bbs.fudan.edu.cn")
+				.setPath(path).setParameter("new", "1")
+				.setParameter("board", boardName).setParameter("f", ""+postId).build();
+		
+		CloseableHttpResponse response = reusableClient.excuteGet(new HttpGet(uri));
+		
+		HttpClientManager.getInstance().releaseReusableHttpClient(reusableClient);
+		
+		
+		HttpContentType httpContentType = HttpParsingHelper.getContentType(response);
+		DomParsingHelper domParsingHelper = HttpParsingHelper.getDomParsingHelper(response, httpContentType);
+		response.close();
+		
+		return constructPostDetail(domParsingHelper, true);
 	}
 	
 	private PostDetail constructPostDetail(DomParsingHelper domParsingHelper, boolean isTopicMode) {

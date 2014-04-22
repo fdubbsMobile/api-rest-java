@@ -23,7 +23,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
-    "paragraph_content"
+    "c"
 })
 public class Paragraph {
 
@@ -31,7 +31,7 @@ public class Paragraph {
      * content in the paragraph
      * 
      */
-    @JsonProperty("paragraph_content")
+    @JsonProperty("c")
     private List<ParagraphContent> paragraphContent = new ArrayList<ParagraphContent>();
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
@@ -39,7 +39,7 @@ public class Paragraph {
      * content in the paragraph
      * 
      */
-    @JsonProperty("paragraph_content")
+    @JsonProperty("c")
     public List<ParagraphContent> getParagraphContent() {
         return paragraphContent;
     }
@@ -48,7 +48,7 @@ public class Paragraph {
      * content in the paragraph
      * 
      */
-    @JsonProperty("paragraph_content")
+    @JsonProperty("c")
     public void setParagraphContent(List<ParagraphContent> paragraphContent) {
         this.paragraphContent = paragraphContent;
     }
