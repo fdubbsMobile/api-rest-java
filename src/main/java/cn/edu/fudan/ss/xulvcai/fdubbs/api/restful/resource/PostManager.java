@@ -297,6 +297,10 @@ public class PostManager {
 		String title = domParsingHelper.getTextValueOfNode(xpathExpression+"/title", index);
 		String date = domParsingHelper.getTextValueOfNode(xpathExpression+"/date", index);
 		
+		int idx = date.indexOf(' ');
+		date = date.substring(0, idx).trim();
+		
+		
 		PostMetaData metaData = new PostMetaData();
 		metaData.setBoard(board);
 		metaData.setOwner(owner);
