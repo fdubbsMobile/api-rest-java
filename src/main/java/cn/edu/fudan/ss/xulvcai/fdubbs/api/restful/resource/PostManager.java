@@ -29,6 +29,7 @@ import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.PostMetaData;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.PostSummary;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.PostSummaryInBoard;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.ResponseStatus;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.StringConvertHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.DomParsingHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpClientManager;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpParsingHelper;
@@ -297,9 +298,7 @@ public class PostManager {
 		String title = domParsingHelper.getTextValueOfNode(xpathExpression+"/title", index);
 		String date = domParsingHelper.getTextValueOfNode(xpathExpression+"/date", index);
 		
-		int idx = date.indexOf(' ');
-		date = date.substring(0, idx).trim();
-		
+		date = StringConvertHelper.DateConverter1(date);
 		
 		PostMetaData metaData = new PostMetaData();
 		metaData.setBoard(board);
@@ -489,7 +488,7 @@ public class PostManager {
 			metaData.setOwner(owner);
 			metaData.setPostId(postId);
 			metaData.setTitle(title);
-			metaData.setDate(time.replace('T', ' '));
+			metaData.setDate(StringConvertHelper.DateConverter2(time));
 			
 			PostSummary postSummary = new PostSummary();
 			postSummary.setPostMetaData(metaData);
