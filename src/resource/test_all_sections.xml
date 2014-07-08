@@ -1,0 +1,35 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+   <head>
+      <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+      </meta>
+      <meta name="viewport" content="width=device-width">
+      </meta>
+      <title>分区列表 - 日月光华手机版</title>
+      <link rel="stylesheet" type="text/css" href="../css/mobile.css">
+      </link><script src="../js/mobile.js" defer></script>
+   </head>
+   <body>
+      <a name="top"></a>
+      <div id="hd"><a href="qry?u=hidennis">hidennis</a><a id="fave" href="#" onclick="return expandFav();">收藏▽</a><a href="#" id="favc" onclick="return collapseFav();">收起△</a>|<a href="sec">首页</a>|<a href="top10">十大</a>|<a href="mail">信件</a>|<a href="logout">注销</a></div>
+      <div id="fav"><a href="tdoc?board=Android">Android</a><a href="tdoc?board=Arch_Compiler">Arch_Compiler</a><a href="tdoc?board=Badminton">Badminton</a><a href="tdoc?board=C">C</a><a href="tdoc?board=Database">Database</a><a href="tdoc?board=Employees">Employees</a><a href="tdoc?board=Emprise">Emprise</a><a href="tdoc?board=Fantasy">Fantasy</a><a href="tdoc?board=FDU_Software">FDU_Software</a><a href="tdoc?board=Feelings">Feelings</a><a href="tdoc?board=FM_Ecommodity">FM_Ecommodity</a><a href="tdoc?board=FM_PC">FM_PC</a><a href="tdoc?board=FM_Ticket">FM_Ticket</a><a href="tdoc?board=Food">Food</a><a href="tdoc?board=Geography">Geography</a><a href="tdoc?board=Graduate">Graduate</a><a href="tdoc?board=GuangDong">GuangDong</a><a href="tdoc?board=Heart">Heart</a><a href="tdoc?board=History">History</a><a href="tdoc?board=IT">IT</a><a href="tdoc?board=Java">Java</a><a href="tdoc?board=Job_Intern">Job_Intern</a><a href="tdoc?board=Job_IT">Job_IT</a><a href="tdoc?board=Job_Plaza">Job_Plaza</a><a href="tdoc?board=Job_Servant">Job_Servant</a><a href="tdoc?board=Joke">Joke</a><a href="tdoc?board=KaoYan">KaoYan</a><a href="tdoc?board=Lessons">Lessons</a><a href="tdoc?board=Losers">Losers</a><a href="tdoc?board=Love">Love</a><a href="tdoc?board=Mac">Mac</a><a href="tdoc?board=Magpie_Bridge">Magpie_Bridge</a><a href="tdoc?board=MerchantAgent">MerchantAgent</a><a href="tdoc?board=MobilePhone">MobilePhone</a><a href="tdoc?board=Movie">Movie</a><a href="tdoc?board=MS_Windows">MS_Windows</a><a href="tdoc?board=MyShow">MyShow</a><a href="tdoc?board=M_Career">M_Career</a><a href="tdoc?board=M_GuangHua">M_GuangHua</a><a href="tdoc?board=M_Library">M_Library</a><a href="tdoc?board=M_Zhangjiang">M_Zhangjiang</a><a href="tdoc?board=Network">Network</a><a href="tdoc?board=Net_Resource">Net_Resource</a><a href="tdoc?board=News">News</a><a href="tdoc?board=NR_Movie">NR_Movie</a><a href="tdoc?board=NR_Music">NR_Music</a><a href="tdoc?board=NR_TV">NR_TV</a><a href="tdoc?board=OMTV">OMTV</a><a href="tdoc?board=Outdoors">Outdoors</a><a href="tdoc?board=Photography">Photography</a><a href="tdoc?board=PIC">PIC</a><a href="tdoc?board=Practice">Practice</a><a href="tdoc?board=Railway">Railway</a><a href="tdoc?board=Single">Single</a><a href="tdoc?board=Software_06">Software_06</a><a href="tdoc?board=Teacher">Teacher</a><a href="tdoc?board=Travel">Travel</a><a href="tdoc?board=TV">TV</a><a href="tdoc?board=Undergraduate">Undergraduate</a><a href="tdoc?board=Unix">Unix</a><a href="tdoc?board=Virus">Virus</a><a href="tdoc?board=ZJSecondhand">ZJSecondhand</a><a href="tdoc?board=Zone_C.S.">Zone_C.S.</a><a href="tdoc?board=Zone_Software">Zone_Software</a></div>
+      <div id="main">
+         <ul class="sec">
+            <li><a href="boa?s=0">0 BBS 系统 [站内]</a></li>
+            <li><a href="boa?s=1">1 复旦大学 [本校]</a></li>
+            <li><a href="boa?s=2">2 院系风采 [校园]</a></li>
+            <li><a href="boa?s=3">3 五湖四海 [乡情]</a></li>
+            <li><a href="boa?s=4">4 休闲娱乐 [休闲]</a></li>
+            <li><a href="boa?s=5">5 文学艺术 [文艺]</a></li>
+            <li><a href="boa?s=6">6 体育健身 [运动]</a></li>
+            <li><a href="boa?s=7">7 感性空间 [感性]</a></li>
+            <li><a href="boa?s=8">8 新闻信息 [新闻]</a></li>
+            <li><a href="boa?s=9">9 学科学术 [学科]</a></li>
+            <li><a href="boa?s=A">A 影视音乐 [影音]</a></li>
+            <li><a href="boa?s=B">B 交易专区 [交易]</a></li>
+            <li><a href="boa?s=C">C 个性风采 [个人]</a></li>
+         </ul>
+      </div>
+      <div id="ft">日月光华 ©1996-2012</div>
+   </body>
+</html>

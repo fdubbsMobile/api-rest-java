@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.BoardDetail;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.BoardMetaData;
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.ResponseStatus;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.RESTErrorStatus;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.DomParsingHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpClientManager;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpParsingHelper;
@@ -46,7 +46,7 @@ public class BoardManager {
 			boards = getAllBoardsDetailFromServer(authCode);
 		} catch (Exception e) {
 			logger.error("Exception occurs in getAllBoardsDetail!", e);
-			return Response.status(ResponseStatus.SERVER_INTERNAL_ERROR_STATUS).build();
+			return Response.status(RESTErrorStatus.REST_SERVER_INTERNAL_ERROR_STATUS).build();
 		}
 		
 		logger.info(">>>>>>>>>>>>> End getAllBoardsDetail <<<<<<<<<<<<<<");
@@ -62,7 +62,7 @@ public class BoardManager {
 		
 		if(authCode == null) {
 			logger.info("authCode is null");
-			return Response.status(ResponseStatus.REQUEST_CONTENT_ERROR_STATUS).build();
+			return Response.status(RESTErrorStatus.REST_SERVER_REQUEST_CONTENT_ERROR_STATUS).build();
 		}
 		
 		logger.debug("authCode : " + authCode);
@@ -72,7 +72,7 @@ public class BoardManager {
 			boards = getUserFavorBoardsFromServer(authCode);
 		} catch (Exception e) {
 			logger.error("Exception occurs in getUserFavorBoardsDetail!", e);
-			return Response.status(ResponseStatus.SERVER_INTERNAL_ERROR_STATUS).build();
+			return Response.status(RESTErrorStatus.REST_SERVER_INTERNAL_ERROR_STATUS).build();
 		}
 		
 		logger.info(">>>>>>>>>>>>> End getUserFavorBoardsDetail <<<<<<<<<<<<<<");

@@ -1,9 +1,7 @@
 
 package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import javax.annotation.Generated;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
@@ -17,44 +15,74 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /**
- * paragraph
+ * image
  * 
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
-    "c"
+    "pos",
+    "ref"
 })
-public class Paragraph {
+public class Image {
 
     /**
-     * content in the paragraph
+     * position in the content
      * 
      */
-    @JsonProperty("c")
-    private List<ParagraphContent> paragraphContent = new ArrayList<ParagraphContent>();
+    @JsonProperty("pos")
+    private Integer pos;
+    /**
+     * link ref
+     * 
+     */
+    @JsonProperty("ref")
+    private String ref;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     /**
-     * content in the paragraph
+     * position in the content
      * 
      */
-    @JsonProperty("c")
-    public List<ParagraphContent> getParagraphContent() {
-        return paragraphContent;
+    @JsonProperty("pos")
+    public Integer getPos() {
+        return pos;
     }
 
     /**
-     * content in the paragraph
+     * position in the content
      * 
      */
-    @JsonProperty("c")
-    public void setParagraphContent(List<ParagraphContent> paragraphContent) {
-        this.paragraphContent = paragraphContent;
+    @JsonProperty("pos")
+    public void setPos(Integer pos) {
+        this.pos = pos;
     }
 
-    public Paragraph withParagraphContent(List<ParagraphContent> paragraphContent) {
-        this.paragraphContent = paragraphContent;
+    public Image withPos(Integer pos) {
+        this.pos = pos;
+        return this;
+    }
+
+    /**
+     * link ref
+     * 
+     */
+    @JsonProperty("ref")
+    public String getRef() {
+        return ref;
+    }
+
+    /**
+     * link ref
+     * 
+     */
+    @JsonProperty("ref")
+    public void setRef(String ref) {
+        this.ref = ref;
+    }
+
+    public Image withRef(String ref) {
+        this.ref = ref;
         return this;
     }
 

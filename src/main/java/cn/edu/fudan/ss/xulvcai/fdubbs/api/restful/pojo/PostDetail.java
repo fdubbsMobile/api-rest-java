@@ -1,9 +1,7 @@
 
 package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import javax.annotation.Generated;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
@@ -17,7 +15,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /**
- * top post
+ * post detail
  * 
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -38,30 +36,29 @@ public class PostDetail {
     @JsonProperty("post_meta_data")
     private PostMetaData postMetaData;
     /**
-     * body
-     * (Required)
+     * content
      * 
      */
     @JsonProperty("body")
-    private List<Paragraph> body = new ArrayList<Paragraph>();
+    private Content body;
     /**
-     * qoute
+     * post qoute
      * 
      */
     @JsonProperty("qoute")
-    private List<Paragraph> qoute = new ArrayList<Paragraph>();
+    private Qoute qoute;
     /**
-     * sign
+     * content
      * 
      */
     @JsonProperty("sign")
-    private List<Paragraph> sign = new ArrayList<Paragraph>();
+    private Content sign;
     /**
-     * replies
+     * post reply
      * 
      */
     @JsonProperty("replies")
-    private List<PostDetail> replies = new ArrayList<PostDetail>();
+    private Replies replies;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     /**
@@ -88,95 +85,93 @@ public class PostDetail {
     }
 
     /**
-     * body
-     * (Required)
+     * content
      * 
      */
     @JsonProperty("body")
-    public List<Paragraph> getBody() {
+    public Content getBody() {
         return body;
     }
 
     /**
-     * body
-     * (Required)
+     * content
      * 
      */
     @JsonProperty("body")
-    public void setBody(List<Paragraph> body) {
+    public void setBody(Content body) {
         this.body = body;
     }
 
-    public PostDetail withBody(List<Paragraph> body) {
+    public PostDetail withBody(Content body) {
         this.body = body;
         return this;
     }
 
     /**
-     * qoute
+     * post qoute
      * 
      */
     @JsonProperty("qoute")
-    public List<Paragraph> getQoute() {
+    public Qoute getQoute() {
         return qoute;
     }
 
     /**
-     * qoute
+     * post qoute
      * 
      */
     @JsonProperty("qoute")
-    public void setQoute(List<Paragraph> qoute) {
+    public void setQoute(Qoute qoute) {
         this.qoute = qoute;
     }
 
-    public PostDetail withQoute(List<Paragraph> qoute) {
+    public PostDetail withQoute(Qoute qoute) {
         this.qoute = qoute;
         return this;
     }
 
     /**
-     * sign
+     * content
      * 
      */
     @JsonProperty("sign")
-    public List<Paragraph> getSign() {
+    public Content getSign() {
         return sign;
     }
 
     /**
-     * sign
+     * content
      * 
      */
     @JsonProperty("sign")
-    public void setSign(List<Paragraph> sign) {
+    public void setSign(Content sign) {
         this.sign = sign;
     }
 
-    public PostDetail withSign(List<Paragraph> sign) {
+    public PostDetail withSign(Content sign) {
         this.sign = sign;
         return this;
     }
 
     /**
-     * replies
+     * post reply
      * 
      */
     @JsonProperty("replies")
-    public List<PostDetail> getReplies() {
+    public Replies getReplies() {
         return replies;
     }
 
     /**
-     * replies
+     * post reply
      * 
      */
     @JsonProperty("replies")
-    public void setReplies(List<PostDetail> replies) {
+    public void setReplies(Replies replies) {
         this.replies = replies;
     }
 
-    public PostDetail withReplies(List<PostDetail> replies) {
+    public PostDetail withReplies(Replies replies) {
         this.replies = replies;
         return this;
     }

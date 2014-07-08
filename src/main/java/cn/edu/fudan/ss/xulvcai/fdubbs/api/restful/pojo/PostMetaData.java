@@ -26,7 +26,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
     "owner",
     "nick",
     "date",
-    "board"
+    "board",
+    "board_id"
 })
 public class PostMetaData {
 
@@ -66,6 +67,12 @@ public class PostMetaData {
      */
     @JsonProperty("board")
     private String board;
+    /**
+     * board id
+     * 
+     */
+    @JsonProperty("board_id")
+    private String boardId;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     /**
@@ -203,6 +210,29 @@ public class PostMetaData {
 
     public PostMetaData withBoard(String board) {
         this.board = board;
+        return this;
+    }
+
+    /**
+     * board id
+     * 
+     */
+    @JsonProperty("board_id")
+    public String getBoardId() {
+        return boardId;
+    }
+
+    /**
+     * board id
+     * 
+     */
+    @JsonProperty("board_id")
+    public void setBoardId(String boardId) {
+        this.boardId = boardId;
+    }
+
+    public PostMetaData withBoardId(String boardId) {
+        this.boardId = boardId;
         return this;
     }
 

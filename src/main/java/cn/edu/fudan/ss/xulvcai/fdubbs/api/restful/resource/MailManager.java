@@ -1,7 +1,6 @@
 package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.resource;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,7 +12,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
@@ -26,7 +24,7 @@ import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.MailDetail;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.MailMetaData;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.MailSummary;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.MailSummaryInbox;
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.ResponseStatus;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.RESTErrorStatus;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.DomParsingHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpClientManager;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpParsingHelper;
@@ -49,7 +47,7 @@ public class MailManager {
 		
 		if(authCode == null) {
 			logger.info("authCode is null");
-			return Response.status(ResponseStatus.REQUEST_CONTENT_ERROR_STATUS).build();
+			return Response.status(RESTErrorStatus.REST_SERVER_REQUEST_CONTENT_ERROR_STATUS).build();
 		}
 		
 		
@@ -59,7 +57,7 @@ public class MailManager {
 			newMails = getNewMailsFromServer(authCode);
 		} catch (Exception e) {
 			logger.error("Exception occurs in getNewMails!", e);
-			return Response.status(ResponseStatus.SERVER_INTERNAL_ERROR_STATUS).build();
+			return Response.status(RESTErrorStatus.REST_SERVER_INTERNAL_ERROR_STATUS).build();
 		}
 		
 		logger.info(">>>>>>>>>>>>> End getNewMails <<<<<<<<<<<<<<");
@@ -75,7 +73,7 @@ public class MailManager {
 		
 		if(authCode == null) {
 			logger.info("authCode is null");
-			return Response.status(ResponseStatus.REQUEST_CONTENT_ERROR_STATUS).build();
+			return Response.status(RESTErrorStatus.REST_SERVER_REQUEST_CONTENT_ERROR_STATUS).build();
 		}
 		
 		
@@ -85,7 +83,7 @@ public class MailManager {
 			inbox = getAllMailsFromServer(authCode, 0);
 		} catch (Exception e) {
 			logger.error("Exception occurs in getAllMails!", e);
-			return Response.status(ResponseStatus.SERVER_INTERNAL_ERROR_STATUS).build();
+			return Response.status(RESTErrorStatus.REST_SERVER_INTERNAL_ERROR_STATUS).build();
 		}
 		
 		logger.info(">>>>>>>>>>>>> End getAllMails <<<<<<<<<<<<<<");
@@ -101,7 +99,7 @@ public class MailManager {
 		
 		if(authCode == null) {
 			logger.info("authCode is null");
-			return Response.status(ResponseStatus.REQUEST_CONTENT_ERROR_STATUS).build();
+			return Response.status(RESTErrorStatus.REST_SERVER_REQUEST_CONTENT_ERROR_STATUS).build();
 		}
 		
 		
@@ -111,7 +109,7 @@ public class MailManager {
 			inbox = getAllMailsFromServer(authCode, startNum);
 		} catch (Exception e) {
 			logger.error("Exception occurs in getAllMailsWithStartNum!", e);
-			return Response.status(ResponseStatus.SERVER_INTERNAL_ERROR_STATUS).build();
+			return Response.status(RESTErrorStatus.REST_SERVER_INTERNAL_ERROR_STATUS).build();
 		}
 		
 		logger.info(">>>>>>>>>>>>> End getAllMailsWithStartNum <<<<<<<<<<<<<<");
@@ -128,7 +126,7 @@ public class MailManager {
 		
 		if(authCode == null) {
 			logger.info("authCode is null");
-			return Response.status(ResponseStatus.REQUEST_CONTENT_ERROR_STATUS).build();
+			return Response.status(RESTErrorStatus.REST_SERVER_REQUEST_CONTENT_ERROR_STATUS).build();
 		}
 		
 		
@@ -138,7 +136,7 @@ public class MailManager {
 			mailDetail = getMailDetailFromServer(authCode, mailNum, mailLink);
 		} catch (Exception e) {
 			logger.error("Exception occurs in getMailDetailWithMailNum!", e);
-			return Response.status(ResponseStatus.SERVER_INTERNAL_ERROR_STATUS).build();
+			return Response.status(RESTErrorStatus.REST_SERVER_INTERNAL_ERROR_STATUS).build();
 		}
 		
 		logger.info(">>>>>>>>>>>>> End getMailDetailWithMailNum <<<<<<<<<<<<<<");

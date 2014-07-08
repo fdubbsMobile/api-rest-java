@@ -1,7 +1,9 @@
 
 package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.Generated;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
@@ -15,105 +17,79 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /**
- * section meta data
+ * content
  * 
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
-    "section_id",
-    "section_desc",
-    "category"
+    "text",
+    "images"
 })
-public class SectionMetaData {
+public class Content {
 
     /**
-     * section id
+     * text content
      * 
      */
-    @JsonProperty("section_id")
-    private String sectionId;
+    @JsonProperty("text")
+    private String text;
     /**
-     * section description
+     * images in the content
      * 
      */
-    @JsonProperty("section_desc")
-    private String sectionDesc;
-    /**
-     * section category
-     * 
-     */
-    @JsonProperty("category")
-    private String category;
+    @JsonProperty("images")
+    private List<Image> images = new ArrayList<Image>();
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     /**
-     * section id
+     * text content
      * 
      */
-    @JsonProperty("section_id")
-    public String getSectionId() {
-        return sectionId;
+    @JsonProperty("text")
+    public String getText() {
+        return text;
     }
 
     /**
-     * section id
+     * text content
      * 
      */
-    @JsonProperty("section_id")
-    public void setSectionId(String sectionId) {
-        this.sectionId = sectionId;
+    @JsonProperty("text")
+    public void setText(String text) {
+        this.text = text;
     }
 
-    public SectionMetaData withSectionId(String sectionId) {
-        this.sectionId = sectionId;
+    public Content withText(String text) {
+        this.text = text;
         return this;
     }
 
     /**
-     * section description
+     * images in the content
      * 
      */
-    @JsonProperty("section_desc")
-    public String getSectionDesc() {
-        return sectionDesc;
+    @JsonProperty("images")
+    public List<Image> getImages() {
+        return images;
     }
 
     /**
-     * section description
+     * images in the content
      * 
      */
-    @JsonProperty("section_desc")
-    public void setSectionDesc(String sectionDesc) {
-        this.sectionDesc = sectionDesc;
+    @JsonProperty("images")
+    public void setImages(List<Image> images) {
+        this.images = images;
     }
 
-    public SectionMetaData withSectionDesc(String sectionDesc) {
-        this.sectionDesc = sectionDesc;
+    public Content withImages(List<Image> images) {
+        this.images = images;
         return this;
     }
-
-    /**
-     * section category
-     * 
-     */
-    @JsonProperty("category")
-    public String getCategory() {
-        return category;
-    }
-
-    /**
-     * section category
-     * 
-     */
-    @JsonProperty("category")
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
-    public SectionMetaData withCategory(String category) {
-        this.category = category;
-        return this;
+    
+    public void addImage(Image image) {        
+        images.add(image);
     }
 
     @Override

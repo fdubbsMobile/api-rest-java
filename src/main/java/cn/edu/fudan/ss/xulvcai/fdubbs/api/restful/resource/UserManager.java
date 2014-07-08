@@ -23,7 +23,7 @@ import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.UserInfo;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.UserMetaData;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.UserPerformance;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.UserSignature;
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.ResponseStatus;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.RESTErrorStatus;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.DomParsingHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpClientManager;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpParsingHelper;
@@ -46,7 +46,7 @@ public class UserManager {
 		
 		if(authCode == null) {
 			logger.info("authCode is null");
-			return Response.status(ResponseStatus.REQUEST_CONTENT_ERROR_STATUS).build();
+			return Response.status(RESTErrorStatus.REST_SERVER_REQUEST_CONTENT_ERROR_STATUS).build();
 		}
 		
 		UserInfo userInfo = null;
@@ -55,7 +55,7 @@ public class UserManager {
 			userInfo = getUserInfoFromServer(authCode, userId);
 		} catch (Exception e) {
 			logger.error("Exception occurs in getUserInfo!", e);
-			return Response.status(ResponseStatus.SERVER_INTERNAL_ERROR_STATUS).build();
+			return Response.status(RESTErrorStatus.REST_SERVER_INTERNAL_ERROR_STATUS).build();
 		}
 		
 		

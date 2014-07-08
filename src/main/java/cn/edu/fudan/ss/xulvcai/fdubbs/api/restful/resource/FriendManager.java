@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.Friend;
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.ResponseStatus;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.RESTErrorStatus;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.DomParsingHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpClientManager;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpParsingHelper;
@@ -40,7 +40,7 @@ public class FriendManager {
 		logger.info(">>>>>>>>>>>>> Start getAllFriends <<<<<<<<<<<<<<");
 		if(authCode == null) {
 			logger.info("authCode is null");
-			return Response.status(ResponseStatus.REQUEST_CONTENT_ERROR_STATUS).build();
+			return Response.status(RESTErrorStatus.REST_SERVER_REQUEST_CONTENT_ERROR_STATUS).build();
 		}
 		
 		List<Friend> friends = null;
@@ -49,7 +49,7 @@ public class FriendManager {
 			friends = getAllFriendsFromServer(authCode);
 		} catch (Exception e) {
 			logger.error("Exception occurs in getAllFriends!", e);
-			return Response.status(ResponseStatus.SERVER_INTERNAL_ERROR_STATUS).build();
+			return Response.status(RESTErrorStatus.REST_SERVER_INTERNAL_ERROR_STATUS).build();
 		}
 		
 		
@@ -65,7 +65,7 @@ public class FriendManager {
 		logger.info(">>>>>>>>>>>>> Start getOnlineFriends <<<<<<<<<<<<<<");
 		if(authCode == null) {
 			logger.info("authCode is null");
-			return Response.status(ResponseStatus.REQUEST_CONTENT_ERROR_STATUS).build();
+			return Response.status(RESTErrorStatus.REST_SERVER_REQUEST_CONTENT_ERROR_STATUS).build();
 		}
 		
 		List<Friend> friends = null;
@@ -74,7 +74,7 @@ public class FriendManager {
 			friends = getOnlineFriendsFromServer(authCode);
 		} catch (Exception e) {
 			logger.error("Exception occurs in getOnlineFriends!", e);
-			return Response.status(ResponseStatus.SERVER_INTERNAL_ERROR_STATUS).build();
+			return Response.status(RESTErrorStatus.REST_SERVER_INTERNAL_ERROR_STATUS).build();
 		}
 		
 		

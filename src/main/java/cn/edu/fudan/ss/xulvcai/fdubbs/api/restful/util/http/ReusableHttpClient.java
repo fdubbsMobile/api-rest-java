@@ -7,6 +7,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -15,9 +16,15 @@ import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.protocol.HttpContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ReusableHttpClient {
 
+    private static Logger logger = LoggerFactory.getLogger(ReusableHttpClient.class);
+    
+    private static boolean use_proxy = true;
+    
 	private static long EXPIRE_INTERVAL = 15 * 60 * 1000; // 15 mins
 	private CloseableHttpClient httpclient;
 	private long lastUsedTimestamp;
@@ -98,6 +105,14 @@ public class ReusableHttpClient {
 			throws ClientProtocolException, IOException {
 		
 		touch();
+		if (use_proxy) {
+            HttpHost proxy = new HttpHost("10.249.125.35", 8080, "http");
+            RequestConfig config = RequestConfig.custom()
+                    .setProxy(proxy)
+                    .build();
+            getRequest.setConfig(config);
+            logger.info(">>>>>>>>>>>>> Adding proxy <<<<<<<<<<<<<<");
+        }
 		return httpclient.execute(getRequest);
 	}
 	

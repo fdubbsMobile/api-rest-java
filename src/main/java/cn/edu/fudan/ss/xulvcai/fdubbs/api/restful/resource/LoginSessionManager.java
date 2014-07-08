@@ -15,6 +15,7 @@ import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.http.Consts;
+import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -23,14 +24,13 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.message.BasicNameValuePair;
-import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.exception.ServerInternalException;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.LoginResponse;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.ErrorMessage;
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.ResponseStatus;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.RESTErrorStatus;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpClientManager;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpParsingHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.ReusableHttpClient;
@@ -82,7 +82,7 @@ public class LoginSessionManager{
 		logger.info(">>>>>>>>>>>>> Start doUserLogout <<<<<<<<<<<<<<");
 		if(authCode == null) {
 			logger.info("authCode is null");
-			return Response.status(ResponseStatus.REQUEST_CONTENT_ERROR_STATUS).build();
+			return Response.status(RESTErrorStatus.REST_SERVER_REQUEST_CONTENT_ERROR_STATUS).build();
 		}
 		
 		try {
@@ -171,7 +171,7 @@ public class LoginSessionManager{
 	private boolean isLoginOrLogoutSuccess(CloseableHttpResponse response) {
 		int status = response.getStatusLine().getStatusCode();
 		
-		if(HttpStatus.MOVED_TEMPORARILY_302 == status) {
+		if(HttpStatus.SC_MOVED_TEMPORARILY == status) {
 			return true;
 		}
 		

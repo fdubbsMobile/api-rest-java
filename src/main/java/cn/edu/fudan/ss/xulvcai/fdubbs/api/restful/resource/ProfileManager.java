@@ -20,7 +20,7 @@ import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.BirthDate;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.UserIntrodution;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.UserMetaData;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.UserSignature;
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.ResponseStatus;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.RESTErrorStatus;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.DomParsingHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpClientManager;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpParsingHelper;
@@ -41,7 +41,7 @@ public class ProfileManager {
 		logger.info(">>>>>>>>>>>>> Start getBasicProfile <<<<<<<<<<<<<<");
 		if(authCode == null) {
 			logger.info("authCode is null");
-			return Response.status(ResponseStatus.REQUEST_CONTENT_ERROR_STATUS).build();
+			return Response.status(RESTErrorStatus.REST_SERVER_REQUEST_CONTENT_ERROR_STATUS).build();
 		}
 		
 		BasicProfile basicProfile = null;
@@ -50,7 +50,7 @@ public class ProfileManager {
 			basicProfile = getBasicProfileFromServer(authCode);
 		} catch (Exception e) {
 			logger.error("Exception occurs in getBasicProfile!", e);
-			return Response.status(ResponseStatus.SERVER_INTERNAL_ERROR_STATUS).build();
+			return Response.status(RESTErrorStatus.REST_SERVER_INTERNAL_ERROR_STATUS).build();
 		}
 		
 		
@@ -66,7 +66,7 @@ public class ProfileManager {
 		logger.info(">>>>>>>>>>>>> Start getUserIntrodution <<<<<<<<<<<<<<");
 		if(authCode == null) {
 			logger.info("authCode is null");
-			return Response.status(ResponseStatus.REQUEST_CONTENT_ERROR_STATUS).build();
+			return Response.status(RESTErrorStatus.REST_SERVER_REQUEST_CONTENT_ERROR_STATUS).build();
 		}
 		
 		UserIntrodution userIntrodution = null;
@@ -75,7 +75,7 @@ public class ProfileManager {
 			userIntrodution = getUserIntrodutionFromServer(authCode);
 		} catch (Exception e) {
 			logger.error("Exception occurs in getUserIntrodution!", e);
-			return Response.status(ResponseStatus.SERVER_INTERNAL_ERROR_STATUS).build();
+			return Response.status(RESTErrorStatus.REST_SERVER_INTERNAL_ERROR_STATUS).build();
 		}
 		
 		
@@ -92,7 +92,7 @@ public class ProfileManager {
 		logger.info(">>>>>>>>>>>>> Start getUserSignature <<<<<<<<<<<<<<");
 		if(authCode == null) {
 			logger.info("authCode is null");
-			return Response.status(ResponseStatus.REQUEST_CONTENT_ERROR_STATUS).build();
+			return Response.status(RESTErrorStatus.REST_SERVER_REQUEST_CONTENT_ERROR_STATUS).build();
 		}
 		
 		UserSignature userSignature = null;
@@ -101,7 +101,7 @@ public class ProfileManager {
 			userSignature = getUserSignatureFromServer(authCode);
 		} catch (Exception e) {
 			logger.error("Exception occurs in getUserSignature!", e);
-			return Response.status(ResponseStatus.SERVER_INTERNAL_ERROR_STATUS).build();
+			return Response.status(RESTErrorStatus.REST_SERVER_INTERNAL_ERROR_STATUS).build();
 		}
 		
 		

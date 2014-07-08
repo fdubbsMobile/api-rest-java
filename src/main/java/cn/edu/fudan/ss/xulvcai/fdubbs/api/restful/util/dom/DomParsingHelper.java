@@ -1,8 +1,6 @@
 package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom;
 
-import java.util.List;
-
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.ParagraphContent;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.Content;
 
 public interface DomParsingHelper {
 
@@ -39,5 +37,5 @@ public interface DomParsingHelper {
 	 */
 	public String getTextValueOfNode(String xpathExpression, int index);
 	
-	public List<ParagraphContent> getContentValueofNode(String xpathExpression, int index);
+	public Content getContentValueofNode(String xpathExpression);
 }

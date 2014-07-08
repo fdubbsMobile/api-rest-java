@@ -15,104 +15,74 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /**
- * section meta data
+ * post qoute
  * 
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
-    "section_id",
-    "section_desc",
-    "category"
+    "owner",
+    "content"
 })
-public class SectionMetaData {
+public class Qoute {
 
     /**
-     * section id
+     * owner
      * 
      */
-    @JsonProperty("section_id")
-    private String sectionId;
+    @JsonProperty("owner")
+    private String owner;
     /**
-     * section description
+     * content
      * 
      */
-    @JsonProperty("section_desc")
-    private String sectionDesc;
-    /**
-     * section category
-     * 
-     */
-    @JsonProperty("category")
-    private String category;
+    @JsonProperty("content")
+    private String content;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     /**
-     * section id
+     * owner
      * 
      */
-    @JsonProperty("section_id")
-    public String getSectionId() {
-        return sectionId;
+    @JsonProperty("owner")
+    public String getOwner() {
+        return owner;
     }
 
     /**
-     * section id
+     * owner
      * 
      */
-    @JsonProperty("section_id")
-    public void setSectionId(String sectionId) {
-        this.sectionId = sectionId;
+    @JsonProperty("owner")
+    public void setOwner(String owner) {
+        this.owner = owner;
     }
 
-    public SectionMetaData withSectionId(String sectionId) {
-        this.sectionId = sectionId;
+    public Qoute withOwner(String owner) {
+        this.owner = owner;
         return this;
     }
 
     /**
-     * section description
+     * content
      * 
      */
-    @JsonProperty("section_desc")
-    public String getSectionDesc() {
-        return sectionDesc;
+    @JsonProperty("content")
+    public String getContent() {
+        return content;
     }
 
     /**
-     * section description
+     * content
      * 
      */
-    @JsonProperty("section_desc")
-    public void setSectionDesc(String sectionDesc) {
-        this.sectionDesc = sectionDesc;
+    @JsonProperty("content")
+    public void setContent(String content) {
+        this.content = content;
     }
 
-    public SectionMetaData withSectionDesc(String sectionDesc) {
-        this.sectionDesc = sectionDesc;
-        return this;
-    }
-
-    /**
-     * section category
-     * 
-     */
-    @JsonProperty("category")
-    public String getCategory() {
-        return category;
-    }
-
-    /**
-     * section category
-     * 
-     */
-    @JsonProperty("category")
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
-    public SectionMetaData withCategory(String category) {
-        this.category = category;
+    public Qoute withContent(String content) {
+        this.content = content;
         return this;
     }
 
