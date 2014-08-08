@@ -3,6 +3,7 @@ package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.resource;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -665,6 +666,9 @@ public class PostManager {
 			RemoveRedundantPosts(posts.getPostSummaryList(), redundantNum);
 			posts.setStartPostNum(startNum);
 		}
+		
+		// reverse the list
+		Collections.reverse(posts.getPostSummaryList());
 	}
 
 	private void RemoveRedundantPosts(List<PostSummary> postSummaryList,
