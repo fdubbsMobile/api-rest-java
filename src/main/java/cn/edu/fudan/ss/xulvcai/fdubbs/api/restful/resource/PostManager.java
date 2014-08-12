@@ -31,6 +31,7 @@ import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.PostSummary;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.PostSummaryInBoard;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.Qoute;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.Replies;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.BBSHostConstant;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.DebugHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.FileUtils;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.RESTErrorStatus;
@@ -274,7 +275,7 @@ public class PostManager {
 				.getReusableClient(authCode, true);
 
 		URI uri = new URIBuilder().setScheme("http")
-				.setHost("bbs.fudan.edu.cn").setPath("/bbs/tcon")
+				.setHost(BBSHostConstant.getHostName()).setPath("/bbs/tcon")
 				.setParameter("new", "1").setParameter("bid", "" + boardId)
 				.setParameter("g", "" + mainPostId)
 				.setParameter("f", "" + lastReplyId).setParameter("a", "n")
@@ -316,7 +317,7 @@ public class PostManager {
 		}
 
 		URI uri = new URIBuilder().setScheme("http")
-				.setHost("bbs.fudan.edu.cn").setPath(path)
+				.setHost(BBSHostConstant.getHostName()).setPath(path)
 				.setParameter("new", "1").setParameter("bid", "" + boardId)
 				.setParameter("f", "" + postId).build();
 
@@ -348,7 +349,7 @@ public class PostManager {
 		String path = "/bbs/tcon";
 
 		URI uri = new URIBuilder().setScheme("http")
-				.setHost("bbs.fudan.edu.cn").setPath(path)
+				.setHost(BBSHostConstant.getHostName()).setPath(path)
 				.setParameter("new", "1").setParameter("board", boardName)
 				.setParameter("f", "" + postId).build();
 
@@ -580,7 +581,7 @@ public class PostManager {
 				.getReusableClient(authCode, true);
 
 		URIBuilder uriBuilder = new URIBuilder().setScheme("http").setHost(
-				"bbs.fudan.edu.cn");
+				BBSHostConstant.getHostName());
 		if (NORMAL_LIST_MODE.equalsIgnoreCase(listMode)) {
 			uriBuilder.setPath("/bbs/doc").setParameter("bid", "" + boardId);
 		} else if (TOPIC_LIST_MODE.equalsIgnoreCase(listMode)) {
@@ -620,7 +621,7 @@ public class PostManager {
 				.getReusableClient(authCode, true);
 
 		URIBuilder uriBuilder = new URIBuilder().setScheme("http").setHost(
-				"bbs.fudan.edu.cn");
+				BBSHostConstant.getHostName());
 		if (NORMAL_LIST_MODE.equalsIgnoreCase(listMode)) {
 			uriBuilder.setPath("/bbs/doc").setParameter("board", boardName);
 		} else if (TOPIC_LIST_MODE.equalsIgnoreCase(listMode)) {
@@ -778,7 +779,7 @@ public class PostManager {
 				.getReusableClient(authCode, true);
 
 		URI uri = new URIBuilder().setScheme("http")
-				.setHost("bbs.fudan.edu.cn").setPath("/bbs/top10").build();
+				.setHost(BBSHostConstant.getHostName()).setPath("/bbs/top10").build();
 
 		CloseableHttpResponse response = reusableClient.excuteGet(new HttpGet(
 				uri));

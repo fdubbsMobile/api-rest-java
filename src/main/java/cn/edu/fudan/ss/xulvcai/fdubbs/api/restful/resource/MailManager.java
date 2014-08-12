@@ -24,6 +24,7 @@ import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.MailDetail;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.MailMetaData;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.MailSummary;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.MailSummaryInbox;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.BBSHostConstant;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.RESTErrorStatus;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.DomParsingHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpClientManager;
@@ -148,7 +149,7 @@ public class MailManager {
 		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getReusableClient(authCode, false);
 		
 		URI uri = new URIBuilder().setScheme("http")
-				.setHost("bbs.fudan.edu.cn")
+				.setHost(BBSHostConstant.getHostName())
 				.setPath("/bbs/mailcon")
 				.setParameter("n", ""+mailNum)
 				.setParameter("f", mailLink)
@@ -228,7 +229,7 @@ public class MailManager {
 		
 		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getReusableClient(authCode, false);
 		
-		URI uri = new URIBuilder().setScheme("http").setHost("bbs.fudan.edu.cn").setPath("/bbs/newmail").build();
+		URI uri = new URIBuilder().setScheme("http").setHost(BBSHostConstant.getHostName()).setPath("/bbs/newmail").build();
 		HttpGet httpGet = new HttpGet(uri);
 		
 		CloseableHttpResponse response = reusableClient.excuteGet(httpGet);
@@ -279,7 +280,7 @@ public class MailManager {
 		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getReusableClient(authCode, false);
 		
 		
-		URIBuilder uriBuilder = new URIBuilder().setScheme("http").setHost("bbs.fudan.edu.cn").setPath("/bbs/mail");
+		URIBuilder uriBuilder = new URIBuilder().setScheme("http").setHost(BBSHostConstant.getHostName()).setPath("/bbs/mail");
 		if(startNum > 0) {
 			uriBuilder.setParameter("start", ""+startNum);
 		}

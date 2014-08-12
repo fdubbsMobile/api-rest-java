@@ -10,7 +10,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
@@ -18,11 +17,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.StringConvertHelper.convertToInteger;
-
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.UserInfo;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.UserMetaData;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.UserPerformance;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.UserSignature;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.BBSHostConstant;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.RESTErrorStatus;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.DomParsingHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpClientManager;
@@ -67,7 +66,7 @@ public class UserManager {
 		
 		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getReusableClient(authCode, false);
 		
-		URI uri = new URIBuilder().setScheme("http").setHost("bbs.fudan.edu.cn")
+		URI uri = new URIBuilder().setScheme("http").setHost(BBSHostConstant.getHostName())
 				.setPath("/bbs/qry").setParameter("u", userId).build();
 		HttpGet httpGet = new HttpGet(uri);
 		

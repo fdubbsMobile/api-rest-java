@@ -26,6 +26,7 @@ import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.BoardDetail;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.BoardMetaData;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.Section;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.SectionMetaData;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.BBSHostConstant;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.DebugHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.FileUtils;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.RESTErrorStatus;
@@ -104,7 +105,7 @@ public class SectionManager {
 		}
 		
 		URI uri = new URIBuilder().setScheme("http")
-				.setHost("bbs.fudan.edu.cn").setPath("/m/bbs/sec").build();
+				.setHost(BBSHostConstant.getHostName()).setPath("/m/bbs/sec").build();
 
 		ReusableHttpClient reusableClient = HttpClientManager.getInstance()
 				.getReusableClient(authCode, true);
@@ -143,7 +144,7 @@ public class SectionManager {
 		}
 		
 		URI uri = new URIBuilder().setScheme("http")
-				.setHost("bbs.fudan.edu.cn").setPath("/bbs/boa")
+				.setHost(BBSHostConstant.getHostName()).setPath("/bbs/boa")
 				.setParameter("s", sectionId).build();
 
 		ReusableHttpClient reusableClient = HttpClientManager.getInstance()

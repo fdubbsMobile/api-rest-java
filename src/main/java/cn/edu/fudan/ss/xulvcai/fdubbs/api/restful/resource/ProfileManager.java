@@ -20,6 +20,7 @@ import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.BirthDate;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.UserIntrodution;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.UserMetaData;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.UserSignature;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.BBSHostConstant;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.RESTErrorStatus;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.DomParsingHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpClientManager;
@@ -113,7 +114,7 @@ public class ProfileManager {
 		
 		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getReusableClient(authCode, false);
 		
-		URI uri = new URIBuilder().setScheme("http").setHost("bbs.fudan.edu.cn").setPath("/bbs/plan").build();
+		URI uri = new URIBuilder().setScheme("http").setHost(BBSHostConstant.getHostName()).setPath("/bbs/plan").build();
 		HttpGet httpGet = new HttpGet(uri);
 		
 		CloseableHttpResponse response = reusableClient.excuteGet(httpGet);
@@ -131,7 +132,7 @@ public class ProfileManager {
 
 		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getReusableClient(authCode, false);
 		
-		URI uri = new URIBuilder().setScheme("http").setHost("bbs.fudan.edu.cn").setPath("/bbs/sig").build();
+		URI uri = new URIBuilder().setScheme("http").setHost(BBSHostConstant.getHostName()).setPath("/bbs/sig").build();
 		HttpGet httpGet = new HttpGet(uri);
 		
 		CloseableHttpResponse response = reusableClient.excuteGet(httpGet);
@@ -150,7 +151,7 @@ public class ProfileManager {
 		
 		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getReusableClient(authCode, false);
 		
-		URI uri = new URIBuilder().setScheme("http").setHost("bbs.fudan.edu.cn").setPath("/bbs/info").build();
+		URI uri = new URIBuilder().setScheme("http").setHost(BBSHostConstant.getHostName()).setPath("/bbs/info").build();
 		HttpGet httpGet = new HttpGet(uri);
 		
 		CloseableHttpResponse response = reusableClient.excuteGet(httpGet);

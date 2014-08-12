@@ -18,7 +18,7 @@ public /*enum*/ class HttpClientManager {
 	/*SINGLE_INSTANCE;*/
 	private static final HttpClientManager SINGLE_INSTANCE =  new HttpClientManager();
 	
-	private final int POOL_CAPACITY = 50;
+	private final int POOL_CAPACITY = 10;
 	private final int DEFAULT_CHECK_INTERVAL = 5 * 60 * 1000; // 5mins in milliseconds
 	private final ReusableHttpClientPool anonymousClientPool;
 	private final ReusableHttpClientFactory httpClientFactory;
