@@ -23,7 +23,7 @@ public class ReusableHttpClient {
 
     private static Logger logger = LoggerFactory.getLogger(ReusableHttpClient.class);
     
-    private static boolean use_proxy = true;
+    private static boolean use_proxy = false;
     
 	private static long EXPIRE_INTERVAL = 15 * 60 * 1000; // 15 mins
 	private CloseableHttpClient httpclient;

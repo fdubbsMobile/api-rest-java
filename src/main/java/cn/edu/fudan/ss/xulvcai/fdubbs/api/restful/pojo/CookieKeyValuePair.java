@@ -18,7 +18,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * cookie key_value pair
  * 
  */
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
     "cookie_name",

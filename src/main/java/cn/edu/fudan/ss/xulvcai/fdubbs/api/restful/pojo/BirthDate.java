@@ -18,7 +18,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * user birthday
  * 
  */
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
     "year",

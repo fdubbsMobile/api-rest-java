@@ -18,7 +18,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * post summary
  * 
  */
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
     "post_meta_data",

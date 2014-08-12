@@ -20,7 +20,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * user id and cookies info
  * 
  */
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
     "user_id",

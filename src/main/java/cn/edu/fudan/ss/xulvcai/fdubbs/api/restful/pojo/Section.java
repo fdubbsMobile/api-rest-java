@@ -20,7 +20,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * board detail
  * 
  */
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
     "section_meta_data",
