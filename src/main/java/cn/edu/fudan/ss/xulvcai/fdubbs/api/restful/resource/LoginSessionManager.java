@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.exception.ServerInternalException;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.LoginResponse;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.BBSHostConstant;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.ErrorMessage;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.RESTErrorStatus;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpClientManager;
@@ -101,7 +102,7 @@ public class LoginSessionManager{
 		// Only allow Auth Cilent
 		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getReusableClient(authCode, false);
 		
-		URI uri = new URIBuilder().setScheme("http").setHost("bbs.fudan.edu.cn").setPath("/bbs/all").build();
+		URI uri = new URIBuilder().setScheme("http").setHost(BBSHostConstant.getHostName()).setPath("/bbs/all").build();
 		
 		CloseableHttpResponse response = reusableClient.excuteGet(new HttpGet(uri));
 		HttpClientManager.getInstance().finalizeAuthCilent(authCode, reusableClient);
@@ -125,7 +126,7 @@ public class LoginSessionManager{
 		
 		UrlEncodedFormEntity entity = new UrlEncodedFormEntity(formparams, Consts.UTF_8);
 		
-		URI uri = new URIBuilder().setScheme("http").setHost("bbs.fudan.edu.cn").setPath("/bbs/login").build();
+		URI uri = new URIBuilder().setScheme("http").setHost(BBSHostConstant.getHostName()).setPath("/bbs/login").build();
 		
 		HttpPost httpPost = new HttpPost(uri);
 		httpPost.setEntity(entity);

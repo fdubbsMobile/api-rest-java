@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.BoardDetail;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.BoardMetaData;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.BBSHostConstant;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.RESTErrorStatus;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.DomParsingHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpClientManager;
@@ -84,16 +85,19 @@ public class BoardManager {
 		// Only allow Auth Cilent
 		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getReusableClient(authCode, false);
 		
-		URI uri = new URIBuilder().setScheme("http").setHost("bbs.fudan.edu.cn").setPath("/bbs/fav").build();
+		URI uri = new URIBuilder().setScheme("http").setHost(BBSHostConstant.getHostName()).setPath("/bbs/fav").build();
 		HttpGet httpGet = new HttpGet(uri);
 		
 		CloseableHttpResponse response = reusableClient.excuteGet(httpGet);
+		
+		logger.info("response code" + response.getStatusLine().getStatusCode());
 		
 		HttpContentType httpContentType = HttpParsingHelper.getContentType(response);
 		DomParsingHelper domParsingHelper = HttpParsingHelper.getDomParsingHelper(response, httpContentType);
 		
 		String xpathOfBoard = "/bbsfav/brd";
 		int nodeCount = domParsingHelper.getNumberOfNodes(xpathOfBoard);
+		logger.info("node Count is " + nodeCount);
 		List<BoardDetail> boards = new ArrayList<BoardDetail>();
 		
 		for(int index = 0; index < nodeCount; index++) {
@@ -110,7 +114,7 @@ public class BoardManager {
 		
 		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getReusableClient(authCode, true);
 		
-		URI uri = new URIBuilder().setScheme("http").setHost("bbs.fudan.edu.cn").setPath("/bbs/all").build();
+		URI uri = new URIBuilder().setScheme("http").setHost(BBSHostConstant.getHostName()).setPath("/bbs/all").build();
 		
 		CloseableHttpResponse response = reusableClient.excuteGet(new HttpGet(uri));
 		
