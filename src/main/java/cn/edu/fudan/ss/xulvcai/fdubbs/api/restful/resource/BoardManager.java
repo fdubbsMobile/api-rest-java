@@ -84,7 +84,7 @@ public class BoardManager {
 		
 		// Only allow Auth Cilent
 		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getReusableClient(authCode, false);
-		
+		logger.info("ReusableHttpClient for auth_code " + authCode + " is " + reusableClient);
 		URI uri = new URIBuilder().setScheme("http").setHost(BBSHostConstant.getHostName()).setPath("/bbs/fav").build();
 		HttpGet httpGet = new HttpGet(uri);
 		

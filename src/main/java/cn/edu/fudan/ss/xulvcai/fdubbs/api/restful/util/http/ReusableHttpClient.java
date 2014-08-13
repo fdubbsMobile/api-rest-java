@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.config.RequestConfig;
@@ -13,6 +14,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.conn.ConnectionKeepAliveStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.protocol.HttpContext;
@@ -22,17 +24,36 @@ import org.slf4j.LoggerFactory;
 public class ReusableHttpClient {
 
     private static Logger logger = LoggerFactory.getLogger(ReusableHttpClient.class);
-    
+    private static long ONE_DAY_IN_MILLIONSECOND = 24 * 60 * 60 * 1000;
     private static boolean use_proxy = false;
     
 	private static long EXPIRE_INTERVAL = 15 * 60 * 1000; // 15 mins
+	
 	private CloseableHttpClient httpclient;
 	private long lastUsedTimestamp;
 	private int usedCount;
 	private boolean isExclusive;
 	
+	private ConnectionKeepAliveStrategy keepAliveStrategy;
+	
 	public ReusableHttpClient() {
-		httpclient = HttpClients.createDefault();
+		keepAliveStrategy = new ConnectionKeepAliveStrategy() {
+
+			@Override
+			public long getKeepAliveDuration(HttpResponse response,
+					HttpContext context) {
+				// TODO Auto-generated method stub
+				return ONE_DAY_IN_MILLIONSECOND;
+			}
+			
+		};
+		
+		//httpclient = HttpClients.createDefault();
+		httpclient = HttpClients.custom()
+				.setKeepAliveStrategy(keepAliveStrategy)
+				.setUserAgent("Mozilla/5.0 Firefox/26.0")
+				.build();
+		
 		lastUsedTimestamp = System.currentTimeMillis();
 		usedCount = 0;
 		isExclusive = false;

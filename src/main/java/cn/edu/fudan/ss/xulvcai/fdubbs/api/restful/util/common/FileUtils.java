@@ -23,7 +23,7 @@ public class FileUtils {
     	ClassLoader classLoader=FileUtils.class.getClassLoader();
 
     	InputStream is=classLoader.getResourceAsStream(filePath);
-    	
+    	classLoader.getResource("").getPath();
     	if (is == null) {
     	    logger.info("InputStream is null!");
     	}

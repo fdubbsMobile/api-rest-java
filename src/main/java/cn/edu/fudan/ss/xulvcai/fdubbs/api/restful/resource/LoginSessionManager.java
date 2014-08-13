@@ -15,8 +15,10 @@ import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.http.Consts;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -129,6 +131,7 @@ public class LoginSessionManager{
 		URI uri = new URIBuilder().setScheme("http").setHost(BBSHostConstant.getHostName()).setPath("/bbs/login").build();
 		
 		HttpPost httpPost = new HttpPost(uri);
+		httpPost.setHeader(HttpHeaders.USER_AGENT, "Mozilla/5.0 Firefox/26.0");
 		httpPost.setEntity(entity);
 		
 		HttpClientContext context = HttpClientContext.create();
@@ -146,6 +149,7 @@ public class LoginSessionManager{
 			result.setResultCode(LoginResponse.ResultCode.SUCCESS);
 			result.setAuthCode(authCode);
 			HttpClientManager.getInstance().markClientAsAuth(authCode, reusableClient);
+			logger.info("ReusableHttpClient for auth_code " + authCode + " is " + reusableClient);
 		}else{
 			
 			String errorMessage = HttpParsingHelper.getErrorMessageFromResponse(postResponse);

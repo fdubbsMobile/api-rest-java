@@ -127,6 +127,7 @@ public /*enum*/ class HttpClientManager {
             	for (String key : keySet) {
             		ReusableHttpClient authClient = authClientCache.get(key);
             		if(authClient.isExpired()) {
+            			logger.info("HttpClient for auth_code" + key + "is EXPIRED !");
             			authClientCache.remove(key);
             			authClient.close();
             		}
