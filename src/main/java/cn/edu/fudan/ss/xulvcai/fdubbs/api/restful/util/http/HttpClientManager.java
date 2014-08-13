@@ -8,11 +8,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.exception.SessionExpiredException;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.LoginInfo;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.pool.ReusableHttpClientFactory;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.pool.ReusableHttpClientPool;
 
 public /*enum*/ class HttpClientManager {
-
+	
 	private static Logger logger = LoggerFactory.getLogger(HttpClientManager.class);
 	
 	/*SINGLE_INSTANCE;*/
@@ -23,6 +24,7 @@ public /*enum*/ class HttpClientManager {
 	private final ReusableHttpClientPool anonymousClientPool;
 	private final ReusableHttpClientFactory httpClientFactory;
 	private final ConcurrentHashMap<String, ReusableHttpClient> authClientCache;
+	private final ConcurrentHashMap<String, LoginInfo> authLoginInfoCache;
 	private final IdleClientFinalizer idleClientFinalizer;
 	
 	
@@ -30,6 +32,7 @@ public /*enum*/ class HttpClientManager {
 		httpClientFactory = new ReusableHttpClientFactory();
 		anonymousClientPool = new ReusableHttpClientPool(httpClientFactory, POOL_CAPACITY);
 		authClientCache = new ConcurrentHashMap<String, ReusableHttpClient>();
+		authLoginInfoCache = new ConcurrentHashMap<String, LoginInfo>();
 		
 		// create the idle client finalize thread
 		idleClientFinalizer = new IdleClientFinalizer(DEFAULT_CHECK_INTERVAL);
@@ -81,11 +84,21 @@ public /*enum*/ class HttpClientManager {
 		return null;
 	}
 	
-	public void markClientAsAuth(String authCode, ReusableHttpClient httpClient) {
+	public LoginInfo getAuthLoginInfo(String authCode) {
+		if(authCode != null && authLoginInfoCache.containsKey(authCode)) {
+			return authLoginInfoCache.get(authCode);
+		}
+		
+		return null;
+	}
+	
+	public void markClientAsAuth(String authCode, ReusableHttpClient httpClient, LoginInfo info) {
 		httpClient.markAsExclusive();
 		authClientCache.put(authCode, httpClient);
+		authLoginInfoCache.put(authCode, info);
 		logger.info("Add client for authCode<"+authCode+"> ...");
 		anonymousClientPool.returnResource(httpClient);
+		
 	}
 	
 	public void disableClientForAuthCode(String authCode) {

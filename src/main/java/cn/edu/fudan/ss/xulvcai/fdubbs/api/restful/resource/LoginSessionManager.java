@@ -33,6 +33,7 @@ import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.exception.ServerInternalExcept
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.LoginResponse;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.BBSHostConstant;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.ErrorMessage;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.LoginInfo;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.RESTErrorStatus;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpClientManager;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpParsingHelper;
@@ -148,7 +149,8 @@ public class LoginSessionManager{
 			authCode = RandomStringUtils.randomAlphanumeric(RANDOM_AUTH_CODE_LENGTH);
 			result.setResultCode(LoginResponse.ResultCode.SUCCESS);
 			result.setAuthCode(authCode);
-			HttpClientManager.getInstance().markClientAsAuth(authCode, reusableClient);
+			LoginInfo info = new LoginInfo(user_id, passwd);
+			HttpClientManager.getInstance().markClientAsAuth(authCode, reusableClient, info);
 			logger.info("ReusableHttpClient for auth_code " + authCode + " is " + reusableClient);
 		}else{
 			

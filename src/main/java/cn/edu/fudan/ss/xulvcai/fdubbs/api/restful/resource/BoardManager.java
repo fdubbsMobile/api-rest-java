@@ -12,15 +12,23 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.http.Consts;
+import org.apache.http.HttpHeaders;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.BoardDetail;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.BoardMetaData;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.BBSHostConstant;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.LoginInfo;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.RESTErrorStatus;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.DomParsingHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpClientManager;
@@ -85,6 +93,25 @@ public class BoardManager {
 		// Only allow Auth Cilent
 		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getReusableClient(authCode, false);
 		logger.info("ReusableHttpClient for auth_code " + authCode + " is " + reusableClient);
+		
+		
+		LoginInfo info = HttpClientManager.getInstance().getAuthLoginInfo(authCode);
+		List<NameValuePair> formparams = new ArrayList<NameValuePair>();
+		formparams.add(new BasicNameValuePair("id", info.getUserId()));
+		formparams.add(new BasicNameValuePair("pw", info.getPassword()));
+		
+		UrlEncodedFormEntity entity = new UrlEncodedFormEntity(formparams, Consts.UTF_8);
+		
+		URI loginUri = new URIBuilder().setScheme("http").setHost(BBSHostConstant.getHostName()).setPath("/bbs/login").build();
+		
+		HttpPost httpPost = new HttpPost(loginUri);
+		httpPost.setHeader(HttpHeaders.USER_AGENT, "Mozilla/5.0 Firefox/26.0");
+		httpPost.setEntity(entity);
+		
+		HttpClientContext context = HttpClientContext.create();
+		reusableClient.executePost(httpPost, context);
+		
+		
 		URI uri = new URIBuilder().setScheme("http").setHost(BBSHostConstant.getHostName()).setPath("/bbs/fav").build();
 		HttpGet httpGet = new HttpGet(uri);
 		

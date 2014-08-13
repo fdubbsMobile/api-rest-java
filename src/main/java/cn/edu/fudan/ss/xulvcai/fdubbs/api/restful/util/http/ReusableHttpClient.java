@@ -34,9 +34,10 @@ public class ReusableHttpClient {
 	private int usedCount;
 	private boolean isExclusive;
 	
-	private ConnectionKeepAliveStrategy keepAliveStrategy;
+	//private ConnectionKeepAliveStrategy keepAliveStrategy;
 	
 	public ReusableHttpClient() {
+		/*
 		keepAliveStrategy = new ConnectionKeepAliveStrategy() {
 
 			@Override
@@ -48,12 +49,12 @@ public class ReusableHttpClient {
 			
 		};
 		
-		//httpclient = HttpClients.createDefault();
 		httpclient = HttpClients.custom()
 				.setKeepAliveStrategy(keepAliveStrategy)
 				.setUserAgent("Mozilla/5.0 Firefox/26.0")
 				.build();
-		
+		*/
+		httpclient = HttpClients.createDefault();
 		lastUsedTimestamp = System.currentTimeMillis();
 		usedCount = 0;
 		isExclusive = false;
