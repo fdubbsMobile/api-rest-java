@@ -8,4 +8,6 @@ public class ErrorMessage {
 	public static final String INVALID_PARAMETER_ERROR_MESSAGE = "参数错误";
 	public static final String SERVER_INTERNAL_ERROR_MESSAGE = "服务器内部错误";
 	
+	public static final String UNKNOWN_ERROR_MESSAGE = "未知错误！";
+	
 }

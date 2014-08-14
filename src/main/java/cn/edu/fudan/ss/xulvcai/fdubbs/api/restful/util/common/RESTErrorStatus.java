@@ -8,7 +8,9 @@ public enum RESTErrorStatus implements StatusType {
 
 	REST_SERVER_INTERNAL_ERROR_STATUS(600, "REST Server Internal Error!"),
 	REST_SERVER_PAMAMETER_ERROR_STATUS(601, "Wrong Parameter Error!"),
-	REST_SERVER_REQUEST_CONTENT_ERROR_STATUS(602, "Bad Request Content!");;
+	REST_SERVER_REQUEST_CONTENT_ERROR_STATUS(602, "Bad Request Content!"),
+	REST_SERVER_Authentication_REQUIRED_ERROR_STATUS(603, "Authentication Required!"),
+	REST_SERVER_Authentication_EXPIRED_ERROR_STATUS(604, "Authentication Expired!");
 	
 	private final int code;
     private final String reason;

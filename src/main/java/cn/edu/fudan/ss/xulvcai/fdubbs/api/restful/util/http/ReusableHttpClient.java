@@ -30,6 +30,7 @@ public class ReusableHttpClient {
 	private static long EXPIRE_INTERVAL = 15 * 60 * 1000; // 15 mins
 	
 	private CloseableHttpClient httpclient;
+	private HttpClientContext context;
 	private long lastUsedTimestamp;
 	private int usedCount;
 	private boolean isExclusive;
@@ -55,11 +56,13 @@ public class ReusableHttpClient {
 				.build();
 		*/
 		httpclient = HttpClients.createDefault();
+		context = HttpClientContext.create();
 		lastUsedTimestamp = System.currentTimeMillis();
 		usedCount = 0;
 		isExclusive = false;
 	}
 	
+	/*
 	public CloseableHttpResponse execute(final HttpHost target, final HttpRequest request,
             final HttpContext context) throws IOException, ClientProtocolException {
 		touch();
@@ -72,14 +75,8 @@ public class ReusableHttpClient {
 		touch();
         return httpclient.execute(request, context);
     }
-	
-	public CloseableHttpResponse execute(
-            final HttpUriRequest request) throws IOException, ClientProtocolException {
-		touch();
-        return httpclient.execute(request, (HttpContext) null);
-    }
-	
-	public CloseableHttpResponse execute(
+    
+    public CloseableHttpResponse execute(
             final HttpHost target,
             final HttpRequest request) throws IOException, ClientProtocolException {
 		touch();
@@ -114,7 +111,20 @@ public class ReusableHttpClient {
 		touch();
 		return httpclient.execute(target, request, responseHandler, context);
     }
+    */
 	
+	public <T> T execute(final HttpUriRequest request,
+            final ResponseHandler<? extends T> responseHandler) throws IOException,
+            ClientProtocolException {
+		touch();
+        return httpclient.execute(request, responseHandler, context);
+    }
+	
+	public CloseableHttpResponse execute(
+            final HttpUriRequest request) throws IOException, ClientProtocolException {
+		touch();
+        return httpclient.execute(request, context);
+	}
 	
 	public CloseableHttpResponse executePost(HttpPost postRequest, HttpClientContext context) 
 			throws ClientProtocolException, IOException {

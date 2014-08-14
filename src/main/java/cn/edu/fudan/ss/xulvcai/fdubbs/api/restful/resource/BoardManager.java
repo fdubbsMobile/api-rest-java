@@ -1,8 +1,11 @@
 package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.resource;
 
+import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import javax.ws.rs.CookieParam;
@@ -14,7 +17,10 @@ import javax.ws.rs.core.Response;
 
 import org.apache.http.Consts;
 import org.apache.http.HttpHeaders;
+import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -25,10 +31,13 @@ import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.exception.SessionExpiredException;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.BoardDetail;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.BoardMetaData;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.LoginResponse;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.BBSHostConstant;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.LoginInfo;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.LoginUtils;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.RESTErrorStatus;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.DomParsingHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpClientManager;
@@ -69,9 +78,9 @@ public class BoardManager {
 		
 		logger.info(">>>>>>>>>>>>> Start getUserFavorBoardsDetail <<<<<<<<<<<<<<");
 		
-		if(authCode == null) {
-			logger.info("authCode is null");
-			return Response.status(RESTErrorStatus.REST_SERVER_REQUEST_CONTENT_ERROR_STATUS).build();
+		if(authCode == null || authCode.isEmpty()) {
+			logger.info("authCode is Required!");
+			return Response.status(RESTErrorStatus.REST_SERVER_Authentication_REQUIRED_ERROR_STATUS).build();
 		}
 		
 		logger.debug("authCode : " + authCode);
@@ -79,6 +88,9 @@ public class BoardManager {
 		List<BoardDetail> boards = null;
 		try {
 			boards = getUserFavorBoardsFromServer(authCode);
+		} catch (SessionExpiredException e) {
+			logger.error("Auth Code " + authCode + " Expired!", e);
+			return Response.status(RESTErrorStatus.REST_SERVER_Authentication_EXPIRED_ERROR_STATUS).build();
 		} catch (Exception e) {
 			logger.error("Exception occurs in getUserFavorBoardsDetail!", e);
 			return Response.status(RESTErrorStatus.REST_SERVER_INTERNAL_ERROR_STATUS).build();
@@ -94,47 +106,106 @@ public class BoardManager {
 		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getReusableClient(authCode, false);
 		logger.info("ReusableHttpClient for auth_code " + authCode + " is " + reusableClient);
 		
+		HttpGet httpGet = getFavorBoardGetRequest();
 		
-		LoginInfo info = HttpClientManager.getInstance().getAuthLoginInfo(authCode);
-		List<NameValuePair> formparams = new ArrayList<NameValuePair>();
-		formparams.add(new BasicNameValuePair("id", info.getUserId()));
-		formparams.add(new BasicNameValuePair("pw", info.getPassword()));
+		FavorBoardResponseHandler handler = new FavorBoardResponseHandler(authCode);
 		
-		UrlEncodedFormEntity entity = new UrlEncodedFormEntity(formparams, Consts.UTF_8);
+		List<BoardDetail> boards = reusableClient.execute(httpGet, handler);
+
+		return boards;
+	}
+	
+	private class FavorBoardResponseHandler implements ResponseHandler<List<BoardDetail>> {
+
+		private String authCode;
+		private boolean retry;
 		
-		URI loginUri = new URIBuilder().setScheme("http").setHost(BBSHostConstant.getHostName()).setPath("/bbs/login").build();
-		
-		HttpPost httpPost = new HttpPost(loginUri);
-		httpPost.setHeader(HttpHeaders.USER_AGENT, "Mozilla/5.0 Firefox/26.0");
-		httpPost.setEntity(entity);
-		
-		HttpClientContext context = HttpClientContext.create();
-		reusableClient.executePost(httpPost, context);
-		
-		
-		URI uri = new URIBuilder().setScheme("http").setHost(BBSHostConstant.getHostName()).setPath("/bbs/fav").build();
-		HttpGet httpGet = new HttpGet(uri);
-		
-		CloseableHttpResponse response = reusableClient.excuteGet(httpGet);
-		
-		logger.info("response code" + response.getStatusLine().getStatusCode());
-		
-		HttpContentType httpContentType = HttpParsingHelper.getContentType(response);
-		DomParsingHelper domParsingHelper = HttpParsingHelper.getDomParsingHelper(response, httpContentType);
-		
-		String xpathOfBoard = "/bbsfav/brd";
-		int nodeCount = domParsingHelper.getNumberOfNodes(xpathOfBoard);
-		logger.info("node Count is " + nodeCount);
-		List<BoardDetail> boards = new ArrayList<BoardDetail>();
-		
-		for(int index = 0; index < nodeCount; index++) {
-			BoardDetail board = constructFavoriteBoards(domParsingHelper, xpathOfBoard, index);
-			boards.add(board);
+		public FavorBoardResponseHandler(String authCode) {
+			this.authCode = authCode;
+			retry = true;
 		}
 		
-		response.close();
+		@Override
+		public List<BoardDetail> handleResponse(HttpResponse response)
+				throws ClientProtocolException, IOException {
+			int statusCode = response.getStatusLine().getStatusCode();
+			logger.info("response code " + statusCode);
+			HttpContentType httpContentType = HttpParsingHelper.getContentType(response);
+			DomParsingHelper domParsingHelper = HttpParsingHelper.getDomParsingHelper(response, httpContentType);
+			
+			if(LoginUtils.isLoginNeeded(statusCode, httpContentType, domParsingHelper)) {
+				logger.info("Need Login to get favor boards!");
+				if (retry) {
+					retry = false;
+					return doLoginAndGetFavorBoards();
+				}
+				
+				return Collections.emptyList();
+			}
+			
+			String xpathOfBoard = "/bbsfav/brd";
+			int nodeCount = domParsingHelper.getNumberOfNodes(xpathOfBoard);
+			logger.info("node Count is " + nodeCount);
+			List<BoardDetail> boards = new ArrayList<BoardDetail>();
+			
+			for(int index = 0; index < nodeCount; index++) {
+				BoardDetail board = constructFavoriteBoards(domParsingHelper, xpathOfBoard, index);
+				boards.add(board);
+			}
+			
+			return boards;
+		}
 		
-		return boards;
+		private List<BoardDetail> doLoginAndGetFavorBoards() throws ClientProtocolException, IOException {
+			ReusableHttpClient reusableClient = HttpClientManager.getInstance().getReusableClient(authCode, false);
+			
+			LoginInfo info = HttpClientManager.getInstance().getAuthLoginInfo(authCode);
+			HttpPost httpPost = LoginUtils.getLoginPostRequest(info.getUserId(), info.getPassword());
+			logger.info("Try to logon for user : " + info.getUserId());
+			boolean loginSuccess = reusableClient.execute(httpPost, new CheckLoginResponseHandler());
+			
+			if (loginSuccess) {
+				HttpGet httpGet = getFavorBoardGetRequest();
+				
+				List<BoardDetail> boards = reusableClient.execute(httpGet, this);
+				
+				return boards;
+			}
+			
+			return Collections.emptyList();
+			
+		}
+		
+	}
+	
+	private class CheckLoginResponseHandler implements ResponseHandler<Boolean> {
+
+		@Override
+		public Boolean handleResponse(HttpResponse response)
+				throws ClientProtocolException, IOException {
+			boolean loginSuccess = LoginUtils.isLoginOrLogoutSuccess(
+					response.getStatusLine().getStatusCode());
+			logger.info("Login successful : " + loginSuccess);
+			return loginSuccess;
+		}
+		
+	}
+	
+	private HttpGet getFavorBoardGetRequest() {
+		URI uri = null;
+		try {
+			uri = new URIBuilder().setScheme("http").setHost(BBSHostConstant.getHostName()).setPath("/bbs/fav").build();
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		if (uri == null) {
+			return new HttpGet("http://"+BBSHostConstant.getHostName()+"/bbs/fav");
+		}
+		else {
+			return new HttpGet(uri);
+		}
 	}
 	
 	private List<BoardDetail> getAllBoardsDetailFromServer(String authCode) throws Exception {
@@ -164,6 +235,8 @@ public class BoardManager {
 		
 		return boards;
 	}
+	
+	
 	
 
 	private BoardDetail constructAllBoards(DomParsingHelper domParsingHelper, String xpathExpression, int index) {

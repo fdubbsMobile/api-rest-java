@@ -1,9 +1,12 @@
 package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.ParseException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.cookie.Cookie;
@@ -40,7 +43,7 @@ public class HttpParsingHelper {
 		}
 	}
 
-	public static HttpContentType getContentType(CloseableHttpResponse response) {
+	public static HttpContentType getContentType(HttpResponse response) {
 		
 		if(!response.containsHeader("Content-Type")) {
 			return HttpContentType.UNKNOWN_TYPE;
@@ -64,24 +67,28 @@ public class HttpParsingHelper {
 	}
 	
 	
-	public static boolean isErrorResponse(CloseableHttpResponse response) throws Exception {
-		HttpEntity responseEntity = response.getEntity();
+	public static boolean isErrorResponse(DomParsingHelper domParsingHelper) {
 		
-		if(responseEntity == null)	return true;
-		
-		String contentAsString = EntityUtils.toString(responseEntity);
-		String title = HtmlParsingHelper.parseText(contentAsString).getTextValueOfSingleNode("/html/head/title");
-		return ErrorMessage.ERROR_OCCUR_MESSAGE.equals(title);
+		try {
+			String title = domParsingHelper.getTextValueOfSingleNode("/html/head/title");
+			return ErrorMessage.ERROR_OCCUR_MESSAGE.equals(title);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return true;
+		}
 	}
 	
-	public static String getErrorMessageFromResponse(CloseableHttpResponse response) throws Exception {
+	public static String getErrorMessageFromResponse(DomParsingHelper domParsingHelper) {
 		
-		HttpEntity responseEntity = response.getEntity();
+		try {
+			return domParsingHelper.getTextValueOfSingleNode("/html/body/div");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return ErrorMessage.UNKNOWN_ERROR_MESSAGE;
+		}
 		
-		if(responseEntity == null)	return "";
-		
-		String contentAsString = EntityUtils.toString(responseEntity);
-		return HtmlParsingHelper.parseText(contentAsString).getTextValueOfSingleNode("/html/body/div");
 
 	}
 	
@@ -98,26 +105,30 @@ public class HttpParsingHelper {
 		return cookiePairs;
 	}
 	
-	public static DomParsingHelper getDomParsingHelper(CloseableHttpResponse response, HttpContentType httpContentType) throws Exception {
+	public static DomParsingHelper getDomParsingHelper(HttpResponse response, HttpContentType httpContentType) {
 		
 		DomParsingHelper domParsingHelper = null;
 		
-		String contentAsString = EntityUtils.toString(response.getEntity());
-
-		logger.debug(contentAsString);
-		
-		switch(httpContentType) {
-		case HTML_TYPE:
-			domParsingHelper = HtmlParsingHelper.parseText(contentAsString);
-			break;
-		case XML_TYPE:
-			domParsingHelper = XmlParsingHelper.parseText(contentAsString);
-			break;
-		case JSON_TYPE:
-		case OTHER_TYPE:
-		case UNKNOWN_TYPE:
-		default:
-			throw new ServerInternalException(ErrorMessage.SERVER_INTERNAL_ERROR_MESSAGE);
+		try {
+			String contentAsString = EntityUtils.toString(response.getEntity());
+	
+			logger.debug(contentAsString);
+			
+			switch(httpContentType) {
+			case HTML_TYPE:
+				domParsingHelper = HtmlParsingHelper.parseText(contentAsString);
+				break;
+			case XML_TYPE:
+				domParsingHelper = XmlParsingHelper.parseText(contentAsString);
+				break;
+			case JSON_TYPE:
+			case OTHER_TYPE:
+			case UNKNOWN_TYPE:
+			default:
+				logger.error("Unsupport Content Type : " + httpContentType);
+			}
+		} catch (Exception e) {
+			logger.error("Exception occurs!", e);
 		}
 		
 		return domParsingHelper;
