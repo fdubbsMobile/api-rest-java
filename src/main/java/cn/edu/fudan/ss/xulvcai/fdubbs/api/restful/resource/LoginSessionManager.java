@@ -1,9 +1,6 @@
 package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.resource;
 
-import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.CookieParam;
@@ -14,22 +11,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.apache.commons.lang.RandomStringUtils;
-import org.apache.http.Consts;
-import org.apache.http.HttpHeaders;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,19 +25,16 @@ import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.ErrorMessage;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.LoginInfo;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.LoginUtils;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.RESTErrorStatus;
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.DomParsingHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpClientManager;
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpParsingHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.ReusableHttpClient;
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpParsingHelper.HttpContentType;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.handler.LoginResponseHandler;
 
 @Path("/user")
 public class LoginSessionManager{
 
 	
 	private static Logger logger = LoggerFactory.getLogger(LoginSessionManager.class);
-	private static final int RANDOM_AUTH_CODE_LENGTH = 32;
-
+	
 	@POST
 	@Path("/login")
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
@@ -131,7 +113,7 @@ public class LoginSessionManager{
 
 		HttpPost httpPost = LoginUtils.getLoginPostRequest(user_id, passwd);
 		
-		ResponseHandler<LoginResponse> handler = new LoginResponseHandler();
+		LoginResponseHandler handler = new LoginResponseHandler();
 		
 		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getReusableClient(authCode, true);
 		LoginResponse loginResult = reusableClient.execute(httpPost, handler);
@@ -149,47 +131,5 @@ public class LoginSessionManager{
 		return loginResult;
 	}
 	
-	
-	private class LoginResponseHandler implements ResponseHandler<LoginResponse> {
-
-		@Override
-		public LoginResponse handleResponse(HttpResponse response)
-				throws ClientProtocolException, IOException {
-			LoginResponse result = new LoginResponse();
-			
-			int statusCode = response.getStatusLine().getStatusCode();
-			logger.info("response code " + statusCode);
-			HttpContentType httpContentType = HttpParsingHelper.getContentType(response);
-			DomParsingHelper domParsingHelper = HttpParsingHelper.getDomParsingHelper(response, httpContentType);
-			
-			boolean loginSuccess = LoginUtils.isLoginOrLogoutSuccess(statusCode);
-			logger.debug("Login successful : " + loginSuccess);
-			
-			if(loginSuccess) {
-				String authCode = RandomStringUtils.randomAlphanumeric(RANDOM_AUTH_CODE_LENGTH);
-				result.setResultCode(LoginResponse.ResultCode.SUCCESS);
-				result.setAuthCode(authCode);
-				
-			}else{
-				
-				String errorMessage = HttpParsingHelper.getErrorMessageFromResponse(domParsingHelper);
-				logger.info("User Login Failed! " + errorMessage);
-				if(ErrorMessage.USER_NOT_EXIST_ERROR_MESSAGE.equals(errorMessage)) {
-					result.setResultCode(LoginResponse.ResultCode.USER_NOT_EXIST);
-					result.setErrorMessage(ErrorMessage.USER_NOT_EXIST_ERROR_MESSAGE);
-				}
-				else if(ErrorMessage.PASSWD_INCORRECT_ERROR_MESSAGE.equals(errorMessage)) {
-					result.setResultCode(LoginResponse.ResultCode.PASSWD_INCORRECT);
-					result.setErrorMessage(ErrorMessage.PASSWD_INCORRECT_ERROR_MESSAGE);
-				}
-				else {
-					result.setResultCode(LoginResponse.ResultCode.INTERNAL_ERROR);
-					result.setErrorMessage("Internal Error!");
-				}
-			}
-			return result;
-		}
-		
-	}
 
 }
