@@ -85,7 +85,7 @@ public class MailDetailResponseHandler implements ResponseHandler<MailDetail> {
 			builder.append("http://").append(BBSHostConstant.getHostName()).append("/bbs/mailcon");
 			builder.append("?n=");
 			builder.append(mailNum);
-			builder.append("?f=");
+			builder.append("&f=");
 			builder.append(mailLink);
 
 			return new HttpGet(builder.toString());

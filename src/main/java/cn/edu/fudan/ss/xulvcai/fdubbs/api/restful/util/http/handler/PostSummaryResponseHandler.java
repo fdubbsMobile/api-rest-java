@@ -19,28 +19,24 @@ import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.BoardMetaData;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.PostMetaData;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.PostSummary;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.PostSummaryInBoard;
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.resource.PostManager;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.BBSHostConstant;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.PostProcessUtils.BrowseMode;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.PostProcessUtils.ListMode;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.StringConvertHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.DomParsingHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpParsingHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpParsingHelper.HttpContentType;
 
-public class PostSummaryResponseHandler implements ResponseHandler<PostSummaryInBoard>{
+public class PostSummaryResponseHandler implements ResponseHandler<PostSummaryInBoard> {
 
-	public static enum BrowseMode {
-		BROWSE_BY_BOARD_NAME,
-		BROWSE_BY_BOARD_ID;
-	}
-	
 	private static final int POST_NUMBER_PER_REQUEST = 20;
 	
-	private String listMode;
+	private ListMode listMode;
 	private String boardName;
 	private int boardId;
 	private int startNum;
 	
-	public PostSummaryResponseHandler(String listMode, String boardName, 
+	public PostSummaryResponseHandler(ListMode listMode, String boardName, 
 			int boardId, int startNum) {
 		this.listMode = listMode;
 		this.boardName = boardName;
@@ -61,12 +57,13 @@ public class PostSummaryResponseHandler implements ResponseHandler<PostSummaryIn
 		return postSummary;
 	}
 	
+	@SuppressWarnings("static-access")
 	public HttpGet getPostSummaryInBoardGetRequest(BrowseMode BrowseMode) {
 		
 		String path = null;
-		if (PostManager.NORMAL_LIST_MODE.equalsIgnoreCase(listMode)) {
+		if (listMode == ListMode.LIST_MODE_NORMAL) {
 			path = "/bbs/doc";
-		} else if (PostManager.TOPIC_LIST_MODE.equalsIgnoreCase(listMode)) {
+		} else if (listMode == ListMode.LIST_MODE_TOPIC) {
 			path = "/bbs/tdoc";
 		} else {
 			throw new InvalidParameterException("Invalid list_mode : "
@@ -107,7 +104,7 @@ public class PostSummaryResponseHandler implements ResponseHandler<PostSummaryIn
 			}
 			
 			if (startNum > 0) {
-				builder.append("?start=").append(startNum);
+				builder.append("&start=").append(startNum);
 			}
 
 			return new HttpGet(builder.toString());
