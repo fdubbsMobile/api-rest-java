@@ -1,9 +1,6 @@
 package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.resource;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -22,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.exception.InvalidParameterException;
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.BoardMetaData;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.Content;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.Image;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.PostDetail;
@@ -32,23 +28,22 @@ import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.PostSummaryInBoard;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.Qoute;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.Replies;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.BBSHostConstant;
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.DebugHelper;
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.FileUtils;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.RESTErrorStatus;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.StringConvertHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.DomParsingHelper;
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.XmlParsingHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpClientManager;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpParsingHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.ReusableHttpClient;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpParsingHelper.HttpContentType;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.handler.PostSummaryResponseHandler;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.handler.PostSummaryResponseHandler.BrowseMode;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.handler.Top10PostsResponseHandler;
 
 @Path("/post")
 public class PostManager {
 
-	private static final String NORMAL_LIST_MODE = "normal";
-	private static final String TOPIC_LIST_MODE = "topic";
-	private static final int POST_NUMBER_PER_REQUEST = 20;
+	public static final String NORMAL_LIST_MODE = "normal";
+	public static final String TOPIC_LIST_MODE = "topic";
 
 	private static final int MAX_LEN_OF_QOUTE_CONTENT = 50;
 
@@ -267,10 +262,6 @@ public class PostManager {
 	private Replies getPostRepliesByBoardIdAndPostIdFromServer(String authCode,
 			int boardId, long mainPostId, long lastReplyId) throws Exception {
 
-		if (DebugHelper.shouldGenerateDebugData()) {
-			return generateDebugPostReplies();
-		}
-
 		ReusableHttpClient reusableClient = HttpClientManager.getInstance()
 				.getReusableClient(authCode, true);
 
@@ -338,10 +329,6 @@ public class PostManager {
 
 	private PostDetail getPostDetailByBoardNameAndPostIdFromServer(
 			String authCode, String boardName, long postId) throws Exception {
-
-		if (DebugHelper.shouldGenerateDebugData()) {
-			return generateDebugPostDetail();
-		}
 
 		ReusableHttpClient reusableClient = HttpClientManager.getInstance()
 				.getReusableClient(authCode, true);
@@ -577,350 +564,41 @@ public class PostManager {
 	private PostSummaryInBoard getPostsByBoardIdFromServer(String authCode,
 			String listMode, int boardId, int startNum) throws Exception {
 
-		ReusableHttpClient reusableClient = HttpClientManager.getInstance()
-				.getReusableClient(authCode, true);
-
-		URIBuilder uriBuilder = new URIBuilder().setScheme("http").setHost(
-				BBSHostConstant.getHostName());
-		if (NORMAL_LIST_MODE.equalsIgnoreCase(listMode)) {
-			uriBuilder.setPath("/bbs/doc").setParameter("bid", "" + boardId);
-		} else if (TOPIC_LIST_MODE.equalsIgnoreCase(listMode)) {
-			uriBuilder.setPath("/bbs/tdoc").setParameter("bid", "" + boardId);
-		} else {
-			throw new InvalidParameterException("Invalid list_mode : "
-					+ listMode);
-		}
-
-		if (startNum > 0) {
-			uriBuilder.setParameter("start", "" + startNum);
-		}
-
-		URI uri = uriBuilder.build();
-		CloseableHttpResponse response = reusableClient.excuteGet(new HttpGet(
-				uri));
-
-		HttpClientManager.getInstance().releaseReusableHttpClient(
-				reusableClient);
-
-		HttpContentType httpContentType = HttpParsingHelper
-				.getContentType(response);
-		DomParsingHelper domParsingHelper = HttpParsingHelper
-				.getDomParsingHelper(response, httpContentType);
-		response.close();
-
-		PostSummaryInBoard posts = constructPostInBoard(domParsingHelper);
-		validateAndAdjustPostList(posts, startNum);
-
-		return posts;
+		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getReusableClient(authCode, true);
+		
+		PostSummaryResponseHandler handler = new PostSummaryResponseHandler(listMode, null, boardId, startNum);
+		HttpGet httpGet = handler.getPostSummaryInBoardGetRequest(BrowseMode.BROWSE_BY_BOARD_ID);
+		PostSummaryInBoard postSummary = reusableClient.execute(httpGet, handler);
+	
+		HttpClientManager.getInstance().releaseReusableHttpClient(reusableClient);
+		
+		return postSummary;
 	}
 
 	private PostSummaryInBoard getPostsByBoardNameFromServer(String authCode,
 			String listMode, String boardName, int startNum) throws Exception {
-
-		ReusableHttpClient reusableClient = HttpClientManager.getInstance()
-				.getReusableClient(authCode, true);
-
-		URIBuilder uriBuilder = new URIBuilder().setScheme("http").setHost(
-				BBSHostConstant.getHostName());
-		if (NORMAL_LIST_MODE.equalsIgnoreCase(listMode)) {
-			uriBuilder.setPath("/bbs/doc").setParameter("board", boardName);
-		} else if (TOPIC_LIST_MODE.equalsIgnoreCase(listMode)) {
-			uriBuilder.setPath("/bbs/tdoc").setParameter("board", boardName);
-		} else {
-			throw new InvalidParameterException("Invalid list_mode : "
-					+ listMode);
-		}
-
-		if (startNum > 0) {
-			uriBuilder.setParameter("start", "" + startNum);
-		}
-
-		URI uri = uriBuilder.build();
-		CloseableHttpResponse response = reusableClient.excuteGet(new HttpGet(
-				uri));
-
-		HttpClientManager.getInstance().releaseReusableHttpClient(
-				reusableClient);
-
-		HttpContentType httpContentType = HttpParsingHelper
-				.getContentType(response);
-		DomParsingHelper domParsingHelper = HttpParsingHelper
-				.getDomParsingHelper(response, httpContentType);
-		response.close();
-
-		PostSummaryInBoard posts = constructPostInBoard(domParsingHelper);
-		validateAndAdjustPostList(posts, startNum);
-
-		return posts;
-	}
-
-	private void validateAndAdjustPostList(PostSummaryInBoard posts,
-			int startNum) {
-		int postStartNum = posts.getStartPostNum();
-		if (startNum > postStartNum + POST_NUMBER_PER_REQUEST) {
-			throw new InvalidParameterException("Invalid start_num : "
-					+ startNum);
-		}
-
-		if (startNum > postStartNum) {
-			int redundantNum = startNum - postStartNum;
-			RemoveRedundantPosts(posts.getPostSummaryList(), redundantNum);
-			posts.setStartPostNum(startNum);
-		}
+		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getReusableClient(authCode, true);
 		
-		// reverse the list
-		Collections.reverse(posts.getPostSummaryList());
-	}
-
-	private void RemoveRedundantPosts(List<PostSummary> postSummaryList,
-			int redundantNum) {
-		for (int index = 0; index < redundantNum; index++) {
-			postSummaryList.remove(0);// remove the head
-		}
-	}
-
-	private PostSummaryInBoard constructPostInBoard(
-			DomParsingHelper domParsingHelper) {
-
-		String xpathOfBoard = "/bbsdoc/brd";
-		String xpathOfPost = "/bbsdoc/po";
-
-		List<PostSummary> postSummaryList = constructPostListInBoard(
-				domParsingHelper, xpathOfPost);
-
-		String title = domParsingHelper.getAttributeTextValueOfNode("title",
-				xpathOfBoard, 0);
-		String desc = domParsingHelper.getAttributeTextValueOfNode("desc",
-				xpathOfBoard, 0);
-		String bm = domParsingHelper.getAttributeTextValueOfNode("bm",
-				xpathOfBoard, 0);
-		String total = domParsingHelper.getAttributeTextValueOfNode("total",
-				xpathOfBoard, 0);
-		String start = domParsingHelper.getAttributeTextValueOfNode("start",
-				xpathOfBoard, 0);
-		String bid = domParsingHelper.getAttributeTextValueOfNode("bid",
-				xpathOfBoard, 0);
-
-		BoardMetaData boardMetaData = new BoardMetaData();
-		boardMetaData.setTitle(title);
-		boardMetaData.setBoardDesc(desc);
-		boardMetaData.setManagers(bm == null ? null : Arrays.asList(bm
-				.split(" ")));
-
-		int boardId = 0;
-		int postNumber = 0;
-		int startPostNum = 0;
-		try {
-			boardId = Integer.parseInt(bid);
-			postNumber = Integer.parseInt(total);
-			startPostNum = Integer.parseInt(start);
-		} catch (Exception e) {
-		}
-		boardMetaData.setBoardId(boardId);
-		boardMetaData.setPostNumber(postNumber);
-
-		PostSummaryInBoard posts = new PostSummaryInBoard();
-		posts.setBoardMetaData(boardMetaData);
-		posts.setPostCount(postNumber);
-		posts.setStartPostNum(startPostNum);
-		posts.setPostSummaryList(postSummaryList);
-
-		return posts;
-	}
-
-	private List<PostSummary> constructPostListInBoard(
-			DomParsingHelper domParsingHelper, String xpathExpression) {
-
-		int nodeCount = domParsingHelper.getNumberOfNodes(xpathExpression);
-		List<PostSummary> postSummaryList = new ArrayList<PostSummary>();
-
-		for (int index = 0; index < nodeCount; index++) {
-			String sticky = domParsingHelper.getAttributeTextValueOfNode(
-					"sticky", xpathExpression, index);
-			String markSign = domParsingHelper.getAttributeTextValueOfNode("m",
-					xpathExpression, index);
-			String owner = domParsingHelper.getAttributeTextValueOfNode(
-					"owner", xpathExpression, index);
-			String time = domParsingHelper.getAttributeTextValueOfNode("time",
-					xpathExpression, index);
-			String postId = domParsingHelper.getAttributeTextValueOfNode("id",
-					xpathExpression, index);
-			String nore = domParsingHelper.getAttributeTextValueOfNode("nore",
-					xpathExpression, index);
-
-			String title = domParsingHelper.getTextValueOfNode(xpathExpression,
-					index);
-
-			PostMetaData metaData = new PostMetaData();
-
-			metaData.setOwner(owner);
-			metaData.setPostId(postId);
-			metaData.setTitle(title);
-			metaData.setDate(StringConvertHelper.DateConverter2(time));
-
-			PostSummary postSummary = new PostSummary();
-			postSummary.setPostMetaData(metaData);
-			postSummary.setIsSticky("1".equals(sticky));
-			postSummary.setMarkSign(markSign);
-			postSummary.setIsNoReply("1".equals(nore));
-			postSummaryList.add(postSummary);
-		}
-
-		return postSummaryList;
+		PostSummaryResponseHandler handler = new PostSummaryResponseHandler(listMode, boardName, 0, startNum);
+		HttpGet httpGet = handler.getPostSummaryInBoardGetRequest(BrowseMode.BROWSE_BY_BOARD_NAME);
+		PostSummaryInBoard postSummary = reusableClient.execute(httpGet, handler);
+	
+		HttpClientManager.getInstance().releaseReusableHttpClient(reusableClient);
+		
+		return postSummary;
 	}
 
 	private List<PostSummary> getTopPostsFromServer(String authCode)
 			throws Exception {
-		if (DebugHelper.shouldGenerateDebugData()) {
-			return generateDebugTopPosts();
-		}
 
-		ReusableHttpClient reusableClient = HttpClientManager.getInstance()
-				.getReusableClient(authCode, true);
-
-		URI uri = new URIBuilder().setScheme("http")
-				.setHost(BBSHostConstant.getHostName()).setPath("/bbs/top10").build();
-
-		CloseableHttpResponse response = reusableClient.excuteGet(new HttpGet(
-				uri));
-
-		HttpClientManager.getInstance().releaseReusableHttpClient(
-				reusableClient);
-
-		HttpContentType httpContentType = HttpParsingHelper
-				.getContentType(response);
-		DomParsingHelper domParsingHelper = HttpParsingHelper
-				.getDomParsingHelper(response, httpContentType);
-		response.close();
-
-		String xpathOfBoard = "/bbstop10/top";
-		int nodeCount = domParsingHelper.getNumberOfNodes(xpathOfBoard);
-		List<PostSummary> toPosts = new ArrayList<PostSummary>();
-
-		for (int index = 0; index < nodeCount; index++) {
-			PostSummary topPost = constructTopPost(domParsingHelper,
-					xpathOfBoard, index);
-			toPosts.add(topPost);
-		}
-
-		return toPosts;
-	}
-
-	private PostSummary constructTopPost(DomParsingHelper domParsingHelper,
-			String xpathExpression, int index) {
-
-		String board = domParsingHelper.getAttributeTextValueOfNode("board",
-				xpathExpression, index);
-		String owner = domParsingHelper.getAttributeTextValueOfNode("owner",
-				xpathExpression, index);
-		String count = domParsingHelper.getAttributeTextValueOfNode("count",
-				xpathExpression, index);
-		String postId = domParsingHelper.getAttributeTextValueOfNode("gid",
-				xpathExpression, index);
-		String title = domParsingHelper.getTextValueOfNode(xpathExpression,
-				index);
-
-		PostMetaData metaData = new PostMetaData();
-		metaData.setBoard(board);
-		metaData.setOwner(owner);
-		metaData.setPostId(postId);
-		metaData.setTitle(title);
-
-		PostSummary topPost = new PostSummary();
-		topPost.setPostMetaData(metaData);
-		topPost.setCount(count);
-
-		return topPost;
-	}
-
-	private List<PostSummary> generateDebugTopPosts() {
-		List<PostSummary> toPosts = new ArrayList<PostSummary>();
-
-		try {
-
-			//String fileName = "cn/edu/fudan/ss/xulvcai/fdubbs/api/restful/mock/test_top_10.xml";
-			String fileName = "test_top_10.xml";
-			String contentAsString = FileUtils.readFile(fileName);
-			logger.info("contentAsString : " + contentAsString);
-			DomParsingHelper domParsingHelper = XmlParsingHelper
-					.parseText(contentAsString);
-
-			String xpathOfBoard = "/bbstop10/top";
-			int nodeCount = domParsingHelper.getNumberOfNodes(xpathOfBoard);
-
-			for (int index = 0; index < nodeCount; index++) {
-				PostSummary topPost = constructTopPost(domParsingHelper,
-						xpathOfBoard, index);
-				toPosts.add(topPost);
-			}
-
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		return toPosts;
-	}
-
-	private PostDetail generateDebugPostDetail() {
-
-		try {
-			//String fileName = "cn/edu/fudan/ss/xulvcai/fdubbs/api/restful/mock/test_post_detail.xml";
-			String fileName = "test_post_detail.xml";
-			String contentAsString = FileUtils.readFile(fileName);
-			logger.info("contentAsString : " + contentAsString);
-			DomParsingHelper domParsingHelper = XmlParsingHelper
-					.parseText(contentAsString);
-			return constructPostDetail(domParsingHelper, true);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		return new PostDetail();
-	}
-
-	private Replies generateDebugPostReplies() {
-
-		try {
-			//String fileName = "cn/edu/fudan/ss/xulvcai/fdubbs/api/restful/mock/test_post_detail.xml";
-			String fileName = "test_post_replies.xml";
-			String contentAsString = FileUtils.readFile(fileName);
-			logger.info("contentAsString : " + contentAsString);
-			DomParsingHelper domParsingHelper = XmlParsingHelper
-					.parseText(contentAsString);
-			return constructPostReplies(domParsingHelper, "bbstcon/po", false);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		return new Replies();
-	}
-
-	public static void main(String[] args) {
-		PostManager pm = new PostManager();
-
+		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getReusableClient(authCode, true);
 		
-		List<PostSummary> toPosts = pm.generateDebugTopPosts();
-		logger.info("PostSummary List : " + toPosts.toString());
-		 
-		PostDetail post = pm.generateDebugPostDetail();
-		logger.info("PostDetail : " + post.toString());
-		 
-		Replies replies = pm.generateDebugPostReplies();
-		logger.info("Post Replies : " + replies.toString());
+		Top10PostsResponseHandler handler = new Top10PostsResponseHandler();
+		HttpGet httpGet = handler.getTop10PostsGetRequest();
+		List<PostSummary> posts = reusableClient.execute(httpGet, handler);
+	
+		HttpClientManager.getInstance().releaseReusableHttpClient(reusableClient);
 		
-		/*
-		String textValue = "【 在 zhangdepei (小脸唯一) 的大作中提到: 】\n"
-				+ ": 我好像都是用车的过程才能认识自己的需求，买的过程研究再细致都没用。。。\n"
-				+ ": 【 在 ghostlee (种瓜得瓜，种豆得豆) 的大作中提到: 】"
-				+ ": : 看车的过程是认识自己需求的过程。多看看能更看清自己。";
-		String owner = pm.getOwnerOfQoute(textValue);
-
-		String content = pm.getContentOfQoute(textValue);
-
-		System.out.printf("Owner : %s \n Content : %s", owner, content);
-		*/
+		return posts;
 	}
 }
