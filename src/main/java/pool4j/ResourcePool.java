@@ -19,40 +19,42 @@ package pool4j;
  * under the License.
  */
 
-
 /**
  * Link : https://code.google.com/p/pool4j
  */
 
-
 /**
  * A resource pool
+ * 
  * @author Evan Worley
- * @param <T> The type of the resource
+ * @param <T>
+ *            The type of the resource
  */
 public interface ResourcePool<T> {
-       
-    /**
-     * Retrieves a resource from the pool
-     *
-     * @throws EmptyResourcePoolException If a resource cannot be retrieved from
-     * the pool
-     *
-     * @return a non-null resource of type <code>T</code>
-     */
-    public T getResource() throws EmptyResourcePoolException;
-   
-    /**
-     * @return <code>true</code> if the pool is empty, else false
-     */
-    public boolean isEmpty();
 
-    /**
-     * Releases a resource back into the pool
-     *
-     * @param resource The resource to put back into the pool
-     * @throws IllegalArgumentException if resource is null
-     */
-    public void releaseResource(T resource) throws IllegalArgumentException;
+	/**
+	 * Retrieves a resource from the pool
+	 * 
+	 * @throws EmptyResourcePoolException
+	 *             If a resource cannot be retrieved from the pool
+	 * 
+	 * @return a non-null resource of type <code>T</code>
+	 */
+	public T getResource() throws EmptyResourcePoolException;
+
+	/**
+	 * @return <code>true</code> if the pool is empty, else false
+	 */
+	public boolean isEmpty();
+
+	/**
+	 * Releases a resource back into the pool
+	 * 
+	 * @param resource
+	 *            The resource to put back into the pool
+	 * @throws IllegalArgumentException
+	 *             if resource is null
+	 */
+	public void releaseResource(T resource) throws IllegalArgumentException;
 
 }

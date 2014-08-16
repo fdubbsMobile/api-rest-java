@@ -14,42 +14,38 @@ import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.DomParsingHelper;
 public class PostProcessUtils {
 
 	public static enum BrowseMode {
-		BROWSE_BY_BOARD_NAME,
-		BROWSE_BY_BOARD_ID;
+		BROWSE_BY_BOARD_NAME, BROWSE_BY_BOARD_ID;
 	}
-	
+
 	public static enum ListMode {
-		
-		LIST_MODE_NORMAL("normal"),
-		LIST_MODE_TOPIC("topic"),
-		LIST_MODE_UNSUPPORT("unsupport");
-		
-		
+
+		LIST_MODE_NORMAL("normal"), LIST_MODE_TOPIC("topic"), LIST_MODE_UNSUPPORT(
+				"unsupport");
+
 		private String mode;
-		
+
 		private ListMode(String mode) {
 			this.mode = mode;
 		}
-		
+
 		public static ListMode getListMode(String mode) {
-			if("normal".equalsIgnoreCase(mode)) {
+			if ("normal".equalsIgnoreCase(mode)) {
 				return LIST_MODE_NORMAL;
-			}
-			else if ("topic".equalsIgnoreCase(mode)) {
+			} else if ("topic".equalsIgnoreCase(mode)) {
 				return LIST_MODE_TOPIC;
 			}
 			return LIST_MODE_UNSUPPORT;
 		}
-		
+
 		public String toString() {
 			return mode;
 		}
 	}
-	
+
 	private static final int MAX_LEN_OF_QOUTE_CONTENT = 50;
-	
-	public static PostDetail constructPostDetail(DomParsingHelper domParsingHelper,
-			boolean isTopicMode) {
+
+	public static PostDetail constructPostDetail(
+			DomParsingHelper domParsingHelper, boolean isTopicMode) {
 
 		String xpathExpression;
 
@@ -70,9 +66,10 @@ public class PostProcessUtils {
 
 		return postDetail;
 	}
-	
-	private static PostDetail constructPostDetail(DomParsingHelper domParsingHelper,
-			String xpathExpression, int index, boolean mainPost) {
+
+	private static PostDetail constructPostDetail(
+			DomParsingHelper domParsingHelper, String xpathExpression,
+			int index, boolean mainPost) {
 
 		String postId = domParsingHelper.getAttributeTextValueOfNode("fid",
 				xpathExpression, index);
@@ -147,9 +144,10 @@ public class PostProcessUtils {
 
 		return postDetail;
 	}
-	
-	public static Replies constructPostReplies(DomParsingHelper domParsingHelper,
-			String xpathExpression, boolean excludeFirstPost) {
+
+	public static Replies constructPostReplies(
+			DomParsingHelper domParsingHelper, String xpathExpression,
+			boolean excludeFirstPost) {
 		Replies replies = new Replies();
 
 		String xpathOfNode = "bbstcon";
@@ -182,7 +180,7 @@ public class PostProcessUtils {
 
 		return replies;
 	}
-	
+
 	private static Qoute makeQouteFromContent(Content content) {
 
 		String owner = getOwnerOfQoute(content.getText());
@@ -194,7 +192,7 @@ public class PostProcessUtils {
 
 		return null;
 	}
-	
+
 	private static String getOwnerOfQoute(String content) {
 		int idx1 = content.indexOf("在");
 		int idx2 = content.indexOf("的");
@@ -253,5 +251,5 @@ public class PostProcessUtils {
 		target.setText(stringBuilder.toString());
 
 	}
-	
+
 }

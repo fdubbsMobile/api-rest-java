@@ -14,6 +14,8 @@ import org.apache.http.client.methods.HttpGet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.exception.AuthenticationExpiredException;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.exception.AuthenticationRequiredException;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.PostDetail;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.PostSummary;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.PostSummaryInBoard;
@@ -53,18 +55,20 @@ public class PostManager {
 		logger.info(">>>>>>>>>>>>> End getTop10Posts <<<<<<<<<<<<<<");
 		return Response.ok().entity(topPosts).build();
 	}
-	
+
 	private List<PostSummary> getTopPostsFromServer(String authCode)
 			throws Exception {
 
-		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getReusableClient(authCode, true);
-		
+		ReusableHttpClient reusableClient = HttpClientManager.getInstance()
+				.getReusableClient(authCode, true);
+
 		Top10PostsResponseHandler handler = new Top10PostsResponseHandler();
 		HttpGet httpGet = handler.getTop10PostsGetRequest();
 		List<PostSummary> posts = reusableClient.execute(httpGet, handler);
-	
-		HttpClientManager.getInstance().releaseReusableHttpClient(reusableClient);
-		
+
+		HttpClientManager.getInstance().releaseReusableHttpClient(
+				reusableClient);
+
 		return posts;
 	}
 
@@ -85,11 +89,23 @@ public class PostManager {
 		PostSummaryInBoard posts = null;
 
 		try {
-			posts = getPostsByBoardNameFromServer(authCode, ListMode.getListMode(listMode),
-					boardName, startNum);
+			posts = getPostsByBoardNameFromServer(authCode,
+					ListMode.getListMode(listMode), boardName, startNum);
+		} catch (AuthenticationRequiredException e) {
+			logger.error(e.getMessage(), e);
+			return Response.status(
+					RESTErrorStatus.REST_SERVER_AUTH_REQUIRED_ERROR_STATUS)
+					.build();
+		} catch (AuthenticationExpiredException e) {
+			logger.error("Auth Code " + authCode + " Expired!", e);
+			return Response.status(
+					RESTErrorStatus.REST_SERVER_AUTH_EXPIRED_ERROR_STATUS)
+					.build();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(
+					"Exception occurs in getPostsByBoardNameWithStartNum!", e);
+			return Response.status(
+					RESTErrorStatus.REST_SERVER_INTERNAL_ERROR_STATUS).build();
 		}
 
 		logger.info(">>>>>>>>>>>>> End getPostsByBoardNameWithStartNum <<<<<<<<<<<<<<");
@@ -112,27 +128,43 @@ public class PostManager {
 		PostSummaryInBoard posts = null;
 
 		try {
-			posts = getPostsByBoardNameFromServer(authCode, ListMode.getListMode(listMode),
-					boardName, 0);
+			posts = getPostsByBoardNameFromServer(authCode,
+					ListMode.getListMode(listMode), boardName, 0);
+		} catch (AuthenticationRequiredException e) {
+			logger.error(e.getMessage(), e);
+			return Response.status(
+					RESTErrorStatus.REST_SERVER_AUTH_REQUIRED_ERROR_STATUS)
+					.build();
+		} catch (AuthenticationExpiredException e) {
+			logger.error("Auth Code " + authCode + " Expired!", e);
+			return Response.status(
+					RESTErrorStatus.REST_SERVER_AUTH_EXPIRED_ERROR_STATUS)
+					.build();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Exception occurs in getPostsByBoardName!", e);
+			return Response.status(
+					RESTErrorStatus.REST_SERVER_INTERNAL_ERROR_STATUS).build();
 		}
 
 		logger.info(">>>>>>>>>>>>> End getPostsByBoardName <<<<<<<<<<<<<<");
 		return Response.ok().entity(posts).build();
 	}
-	
+
 	private PostSummaryInBoard getPostsByBoardNameFromServer(String authCode,
 			ListMode listMode, String boardName, int startNum) throws Exception {
-		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getReusableClient(authCode, true);
-		
-		PostSummaryResponseHandler handler = new PostSummaryResponseHandler(listMode, boardName, 0, startNum);
-		HttpGet httpGet = handler.getPostSummaryInBoardGetRequest(BrowseMode.BROWSE_BY_BOARD_NAME);
-		PostSummaryInBoard postSummary = reusableClient.execute(httpGet, handler);
-	
-		HttpClientManager.getInstance().releaseReusableHttpClient(reusableClient);
-		
+		ReusableHttpClient reusableClient = HttpClientManager.getInstance()
+				.getReusableClient(authCode, true);
+
+		PostSummaryResponseHandler handler = new PostSummaryResponseHandler(
+				authCode, listMode, boardName, 0, startNum,
+				BrowseMode.BROWSE_BY_BOARD_NAME);
+		HttpGet httpGet = handler.getPostSummaryInBoardGetRequest();
+		PostSummaryInBoard postSummary = reusableClient.execute(httpGet,
+				handler);
+
+		HttpClientManager.getInstance().releaseReusableHttpClient(
+				reusableClient);
+
 		return postSummary;
 	}
 
@@ -152,10 +184,22 @@ public class PostManager {
 		PostSummaryInBoard posts = null;
 
 		try {
-			posts = getPostsByBoardIdFromServer(authCode, ListMode.getListMode(listMode), boardId, 0);
+			posts = getPostsByBoardIdFromServer(authCode,
+					ListMode.getListMode(listMode), boardId, 0);
+		} catch (AuthenticationRequiredException e) {
+			logger.error(e.getMessage(), e);
+			return Response.status(
+					RESTErrorStatus.REST_SERVER_AUTH_REQUIRED_ERROR_STATUS)
+					.build();
+		} catch (AuthenticationExpiredException e) {
+			logger.error("Auth Code " + authCode + " Expired!", e);
+			return Response.status(
+					RESTErrorStatus.REST_SERVER_AUTH_EXPIRED_ERROR_STATUS)
+					.build();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Exception occurs in getPostsByBoardId!", e);
+			return Response.status(
+					RESTErrorStatus.REST_SERVER_INTERNAL_ERROR_STATUS).build();
 		}
 
 		logger.info(">>>>>>>>>>>>> End getPostsByBoardId <<<<<<<<<<<<<<");
@@ -179,28 +223,45 @@ public class PostManager {
 		PostSummaryInBoard posts = null;
 
 		try {
-			posts = getPostsByBoardIdFromServer(authCode, ListMode.getListMode(listMode), boardId,
-					startNum);
+			posts = getPostsByBoardIdFromServer(authCode,
+					ListMode.getListMode(listMode), boardId, startNum);
+		} catch (AuthenticationRequiredException e) {
+			logger.error(e.getMessage(), e);
+			return Response.status(
+					RESTErrorStatus.REST_SERVER_AUTH_REQUIRED_ERROR_STATUS)
+					.build();
+		} catch (AuthenticationExpiredException e) {
+			logger.error("Auth Code " + authCode + " Expired!", e);
+			return Response.status(
+					RESTErrorStatus.REST_SERVER_AUTH_EXPIRED_ERROR_STATUS)
+					.build();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Exception occurs in getPostsByBoardIdWithStartNum!",
+					e);
+			return Response.status(
+					RESTErrorStatus.REST_SERVER_INTERNAL_ERROR_STATUS).build();
 		}
 
 		logger.info(">>>>>>>>>>>>> End getPostsByBoardIdWithStartNum <<<<<<<<<<<<<<");
 		return Response.ok().entity(posts).build();
 	}
-	
+
 	private PostSummaryInBoard getPostsByBoardIdFromServer(String authCode,
 			ListMode listMode, int boardId, int startNum) throws Exception {
 
-		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getReusableClient(authCode, true);
-		
-		PostSummaryResponseHandler handler = new PostSummaryResponseHandler(listMode, null, boardId, startNum);
-		HttpGet httpGet = handler.getPostSummaryInBoardGetRequest(BrowseMode.BROWSE_BY_BOARD_ID);
-		PostSummaryInBoard postSummary = reusableClient.execute(httpGet, handler);
-	
-		HttpClientManager.getInstance().releaseReusableHttpClient(reusableClient);
-		
+		ReusableHttpClient reusableClient = HttpClientManager.getInstance()
+				.getReusableClient(authCode, true);
+
+		PostSummaryResponseHandler handler = new PostSummaryResponseHandler(
+				authCode, listMode, null, boardId, startNum,
+				BrowseMode.BROWSE_BY_BOARD_ID);
+		HttpGet httpGet = handler.getPostSummaryInBoardGetRequest();
+		PostSummaryInBoard postSummary = reusableClient.execute(httpGet,
+				handler);
+
+		HttpClientManager.getInstance().releaseReusableHttpClient(
+				reusableClient);
+
 		return postSummary;
 	}
 
@@ -222,26 +283,43 @@ public class PostManager {
 		try {
 			postDetail = getPostDetailByBoardNameAndPostIdFromServer(authCode,
 					ListMode.LIST_MODE_TOPIC, boardName, postId);
+		} catch (AuthenticationRequiredException e) {
+			logger.error(e.getMessage(), e);
+			return Response.status(
+					RESTErrorStatus.REST_SERVER_AUTH_REQUIRED_ERROR_STATUS)
+					.build();
+		} catch (AuthenticationExpiredException e) {
+			logger.error("Auth Code " + authCode + " Expired!", e);
+			return Response.status(
+					RESTErrorStatus.REST_SERVER_AUTH_EXPIRED_ERROR_STATUS)
+					.build();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(
+					"Exception occurs in getPostDetailByBoardNameAndPostId!", e);
+			return Response.status(
+					RESTErrorStatus.REST_SERVER_INTERNAL_ERROR_STATUS).build();
 		}
 
 		logger.info(">>>>>>>>>>>>> End getPostDetailByBoardNameAndPostId <<<<<<<<<<<<<<");
 		return Response.ok().entity(postDetail).build();
 	}
-	
-	private PostDetail getPostDetailByBoardNameAndPostIdFromServer(
-			String authCode, ListMode listMode, String boardName, long postId) throws Exception {
 
-		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getReusableClient(authCode, true);
-		
-		PostDetailResponseHandler handler = new PostDetailResponseHandler(listMode, boardName, 0, postId);
-		HttpGet httpGet = handler.getPostDetailGetRequest(BrowseMode.BROWSE_BY_BOARD_NAME);
+	private PostDetail getPostDetailByBoardNameAndPostIdFromServer(
+			String authCode, ListMode listMode, String boardName, long postId)
+			throws Exception {
+
+		ReusableHttpClient reusableClient = HttpClientManager.getInstance()
+				.getReusableClient(authCode, true);
+
+		PostDetailResponseHandler handler = new PostDetailResponseHandler(
+				authCode, listMode, boardName, 0, postId,
+				BrowseMode.BROWSE_BY_BOARD_NAME);
+		HttpGet httpGet = handler.getPostDetailGetRequest();
 		PostDetail detail = reusableClient.execute(httpGet, handler);
-	
-		HttpClientManager.getInstance().releaseReusableHttpClient(reusableClient);
-		
+
+		HttpClientManager.getInstance().releaseReusableHttpClient(
+				reusableClient);
+
 		return detail;
 	}
 
@@ -264,27 +342,43 @@ public class PostManager {
 		try {
 			postDetail = getPostDetailByBoardIdAndPostIdFromServer(authCode,
 					ListMode.getListMode(listMode), boardId, postId);
+		} catch (AuthenticationRequiredException e) {
+			logger.error(e.getMessage(), e);
+			return Response.status(
+					RESTErrorStatus.REST_SERVER_AUTH_REQUIRED_ERROR_STATUS)
+					.build();
+		} catch (AuthenticationExpiredException e) {
+			logger.error("Auth Code " + authCode + " Expired!", e);
+			return Response.status(
+					RESTErrorStatus.REST_SERVER_AUTH_EXPIRED_ERROR_STATUS)
+					.build();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(
+					"Exception occurs in getPostDetailByBoardIdAndPostId!", e);
+			return Response.status(
+					RESTErrorStatus.REST_SERVER_INTERNAL_ERROR_STATUS).build();
 		}
 
 		logger.info(">>>>>>>>>>>>> End getPostDetailByBoardIdAndPostId <<<<<<<<<<<<<<");
 		return Response.ok().entity(postDetail).build();
 	}
-	
+
 	private PostDetail getPostDetailByBoardIdAndPostIdFromServer(
 			String authCode, ListMode listMode, int boardId, long postId)
 			throws Exception {
 
-		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getReusableClient(authCode, true);
-		
-		PostDetailResponseHandler handler = new PostDetailResponseHandler(listMode, null, boardId, postId);
-		HttpGet httpGet = handler.getPostDetailGetRequest(BrowseMode.BROWSE_BY_BOARD_ID);
+		ReusableHttpClient reusableClient = HttpClientManager.getInstance()
+				.getReusableClient(authCode, true);
+
+		PostDetailResponseHandler handler = new PostDetailResponseHandler(
+				authCode, listMode, null, boardId, postId,
+				BrowseMode.BROWSE_BY_BOARD_ID);
+		HttpGet httpGet = handler.getPostDetailGetRequest();
 		PostDetail detail = reusableClient.execute(httpGet, handler);
-	
-		HttpClientManager.getInstance().releaseReusableHttpClient(reusableClient);
-		
+
+		HttpClientManager.getInstance().releaseReusableHttpClient(
+				reusableClient);
+
 		return detail;
 	}
 
@@ -304,9 +398,21 @@ public class PostManager {
 		try {
 			replies = getPostRepliesByBoardIdAndPostIdFromServer(authCode,
 					boardId, mainPostId, lastReplyId);
+		} catch (AuthenticationRequiredException e) {
+			logger.error(e.getMessage(), e);
+			return Response.status(
+					RESTErrorStatus.REST_SERVER_AUTH_REQUIRED_ERROR_STATUS)
+					.build();
+		} catch (AuthenticationExpiredException e) {
+			logger.error("Auth Code " + authCode + " Expired!", e);
+			return Response.status(
+					RESTErrorStatus.REST_SERVER_AUTH_EXPIRED_ERROR_STATUS)
+					.build();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(
+					"Exception occurs in getPostRepliesByBoardIdAndPostId!", e);
+			return Response.status(
+					RESTErrorStatus.REST_SERVER_INTERNAL_ERROR_STATUS).build();
 		}
 
 		logger.info(">>>>>>>>>>>>> End getPostRepliesByBoardIdAndPostId <<<<<<<<<<<<<<");
@@ -316,14 +422,17 @@ public class PostManager {
 	private Replies getPostRepliesByBoardIdAndPostIdFromServer(String authCode,
 			int boardId, long mainPostId, long lastReplyId) throws Exception {
 
-		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getReusableClient(authCode, true);
-		
-		PostReplyResponseHandler handler = new PostReplyResponseHandler(boardId, mainPostId, lastReplyId);
+		ReusableHttpClient reusableClient = HttpClientManager.getInstance()
+				.getReusableClient(authCode, true);
+
+		PostReplyResponseHandler handler = new PostReplyResponseHandler(
+				authCode, boardId, mainPostId, lastReplyId);
 		HttpGet httpGet = handler.getPostReplyGetRequest();
 		Replies replies = reusableClient.execute(httpGet, handler);
-	
-		HttpClientManager.getInstance().releaseReusableHttpClient(reusableClient);
-		
+
+		HttpClientManager.getInstance().releaseReusableHttpClient(
+				reusableClient);
+
 		return replies;
-	}	
+	}
 }

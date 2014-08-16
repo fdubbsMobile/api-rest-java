@@ -12,15 +12,16 @@ import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.LoginUtils;
 
 public class CheckLoginResponseHandler implements ResponseHandler<Boolean> {
 
-	private static Logger logger = LoggerFactory.getLogger(CheckLoginResponseHandler.class);
-	
+	private static Logger logger = LoggerFactory
+			.getLogger(CheckLoginResponseHandler.class);
+
 	@Override
 	public Boolean handleResponse(HttpResponse response)
 			throws ClientProtocolException, IOException {
-		boolean loginSuccess = LoginUtils.isLoginOrLogoutSuccess(
-				response.getStatusLine().getStatusCode());
+		boolean loginSuccess = LoginUtils.isLoginOrLogoutSuccess(response
+				.getStatusLine().getStatusCode());
 		logger.info("Login successful : " + loginSuccess);
 		return loginSuccess;
 	}
-	
+
 }

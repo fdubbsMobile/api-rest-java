@@ -10,13 +10,13 @@ public class DebugHelper {
 
 	private static final boolean debugSupported = true;
 	private static Logger logger = LoggerFactory.getLogger(DebugHelper.class);
-	
+
 	public static boolean shouldGenerateDebugData() {
 		Calendar calendar = Calendar.getInstance();
 
 		calendar.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
 		int shanghaiHour = calendar.get(Calendar.HOUR_OF_DAY);
-		
+
 		boolean debug = debugSupported && (shanghaiHour < 9);
 
 		logger.info("shouldGenerateDebugData : " + debug);

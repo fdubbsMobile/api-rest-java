@@ -23,74 +23,86 @@ import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpParsingHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.ReusableHttpClient;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpParsingHelper.HttpContentType;
 
-public class UserIntrodutionResponseHandler implements ResponseHandler<UserIntrodution> {
+public class UserIntrodutionResponseHandler implements
+		ResponseHandler<UserIntrodution> {
 
-	private static Logger logger = LoggerFactory.getLogger(UserIntrodutionResponseHandler.class);
-	
+	private static Logger logger = LoggerFactory
+			.getLogger(UserIntrodutionResponseHandler.class);
+
 	private String authCode;
 	private boolean retry;
-	
+
 	public UserIntrodutionResponseHandler(String authCode) {
 		this.authCode = authCode;
 		retry = true;
 	}
-	
+
 	@Override
 	public UserIntrodution handleResponse(HttpResponse response)
 			throws ClientProtocolException, IOException {
 		int statusCode = response.getStatusLine().getStatusCode();
 		logger.info("response code " + statusCode);
-		HttpContentType httpContentType = HttpParsingHelper.getContentType(response);
-		DomParsingHelper domParsingHelper = HttpParsingHelper.getDomParsingHelper(response, httpContentType);
-		
-		if(LoginUtils.isLoginNeeded(statusCode, httpContentType, domParsingHelper)) {
+		HttpContentType httpContentType = HttpParsingHelper
+				.getContentType(response);
+		DomParsingHelper domParsingHelper = HttpParsingHelper
+				.getDomParsingHelper(response, httpContentType);
+
+		if (LoginUtils.isLoginNeeded(statusCode, httpContentType,
+				domParsingHelper)) {
 			logger.info("Need Login to get user introdution!");
 			if (retry) {
 				retry = false;
 				return doLoginAndGetUserSignature();
 			}
-			
+
 			return null;
 		}
-		
+
 		String xpathOfIntrodution = "/bbseufile/text";
-		String introdution = domParsingHelper.getTextValueOfSingleNode(xpathOfIntrodution);
+		String introdution = domParsingHelper
+				.getTextValueOfSingleNode(xpathOfIntrodution);
 		return new UserIntrodution().withIntrodution(introdution);
 	}
-	
+
 	public HttpGet getUserIntrodutionGetRequest() {
 		URI uri = null;
 		try {
-			uri = new URIBuilder().setScheme("http").setHost(BBSHostConstant.getHostName()).setPath("/bbs/plan").build();
+			uri = new URIBuilder().setScheme("http")
+					.setHost(BBSHostConstant.getHostName())
+					.setPath("/bbs/plan").build();
 		} catch (URISyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		if (uri == null) {
-			return new HttpGet("http://"+BBSHostConstant.getHostName()+"/bbs/plan");
-		}
-		else {
+			return new HttpGet("http://" + BBSHostConstant.getHostName()
+					+ "/bbs/plan");
+		} else {
 			return new HttpGet(uri);
 		}
 	}
-	
-	private UserIntrodution doLoginAndGetUserSignature() throws ClientProtocolException, IOException {
-		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getReusableClient(authCode, false);
-		
-		LoginInfo info = HttpClientManager.getInstance().getAuthLoginInfo(authCode);
-		HttpPost httpPost = LoginUtils.getLoginPostRequest(info.getUserId(), info.getPassword());
+
+	private UserIntrodution doLoginAndGetUserSignature()
+			throws ClientProtocolException, IOException {
+		ReusableHttpClient reusableClient = HttpClientManager.getInstance()
+				.getReusableClient(authCode, false);
+
+		LoginInfo info = HttpClientManager.getInstance().getAuthLoginInfo(
+				authCode);
+		HttpPost httpPost = LoginUtils.getLoginPostRequest(info.getUserId(),
+				info.getPassword());
 		logger.info("Try to logon for user : " + info.getUserId());
-		boolean loginSuccess = reusableClient.execute(httpPost, new CheckLoginResponseHandler());
-		
+		boolean loginSuccess = reusableClient.execute(httpPost,
+				new CheckLoginResponseHandler());
+
 		if (loginSuccess) {
 			HttpGet httpGet = getUserIntrodutionGetRequest();
 			UserIntrodution introdution = reusableClient.execute(httpGet, this);
 			return introdution;
 		}
-		
+
 		return null;
 	}
-	
 
 }

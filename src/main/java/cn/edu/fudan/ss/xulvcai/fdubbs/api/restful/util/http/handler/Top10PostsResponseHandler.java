@@ -19,14 +19,17 @@ import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.DomParsingHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpParsingHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpParsingHelper.HttpContentType;
 
-public class Top10PostsResponseHandler implements ResponseHandler<List<PostSummary>> {
+public class Top10PostsResponseHandler implements
+		ResponseHandler<List<PostSummary>> {
 
 	@Override
 	public List<PostSummary> handleResponse(HttpResponse response)
 			throws ClientProtocolException, IOException {
-		HttpContentType httpContentType = HttpParsingHelper.getContentType(response);
-		DomParsingHelper domParsingHelper = HttpParsingHelper.getDomParsingHelper(response, httpContentType);
-		
+		HttpContentType httpContentType = HttpParsingHelper
+				.getContentType(response);
+		DomParsingHelper domParsingHelper = HttpParsingHelper
+				.getDomParsingHelper(response, httpContentType);
+
 		String xpathOfBoard = "/bbstop10/top";
 		int nodeCount = domParsingHelper.getNumberOfNodes(xpathOfBoard);
 		List<PostSummary> posts = new ArrayList<PostSummary>();
@@ -36,27 +39,29 @@ public class Top10PostsResponseHandler implements ResponseHandler<List<PostSumma
 					xpathOfBoard, index);
 			posts.add(topPost);
 		}
-		
+
 		return posts;
 	}
-	
+
 	public HttpGet getTop10PostsGetRequest() {
 		URI uri = null;
 		try {
-			uri = new URIBuilder().setScheme("http").setHost(BBSHostConstant.getHostName()).setPath("/bbs/top10").build();
+			uri = new URIBuilder().setScheme("http")
+					.setHost(BBSHostConstant.getHostName())
+					.setPath("/bbs/top10").build();
 		} catch (URISyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		if (uri == null) {
-			return new HttpGet("http://"+BBSHostConstant.getHostName()+"/bbs/top10");
-		}
-		else {
+			return new HttpGet("http://" + BBSHostConstant.getHostName()
+					+ "/bbs/top10");
+		} else {
 			return new HttpGet(uri);
 		}
 	}
-	
+
 	private PostSummary constructTopPost(DomParsingHelper domParsingHelper,
 			String xpathExpression, int index) {
 

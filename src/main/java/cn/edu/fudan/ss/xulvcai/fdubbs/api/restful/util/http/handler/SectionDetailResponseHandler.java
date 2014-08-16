@@ -24,22 +24,25 @@ import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.DomParsingHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpParsingHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpParsingHelper.HttpContentType;
 
-public class SectionDetailResponseHandler  implements ResponseHandler<Section> {
+public class SectionDetailResponseHandler implements ResponseHandler<Section> {
 
-	private static Logger logger = LoggerFactory.getLogger(SectionDetailResponseHandler.class);
-	
+	private static Logger logger = LoggerFactory
+			.getLogger(SectionDetailResponseHandler.class);
+
 	private String sectionId;
-	
+
 	public SectionDetailResponseHandler(String sectionId) {
 		this.sectionId = sectionId;
 	}
-	
+
 	@Override
 	public Section handleResponse(HttpResponse response)
 			throws ClientProtocolException, IOException {
-		HttpContentType httpContentType = HttpParsingHelper.getContentType(response);
-		DomParsingHelper domParsingHelper = HttpParsingHelper.getDomParsingHelper(response, httpContentType);
-		
+		HttpContentType httpContentType = HttpParsingHelper
+				.getContentType(response);
+		DomParsingHelper domParsingHelper = HttpParsingHelper
+				.getDomParsingHelper(response, httpContentType);
+
 		String xpathOfBoard = "/bbsboa/brd";
 		int nodeCount = domParsingHelper.getNumberOfNodes(xpathOfBoard);
 		logger.debug("count is " + nodeCount);
@@ -63,36 +66,34 @@ public class SectionDetailResponseHandler  implements ResponseHandler<Section> {
 		section.setBoards(boards);
 
 		return section;
-		
+
 	}
-	
+
 	public HttpGet getSectionDetailGetRequest() {
-		
+
 		URI uri = null;
 		try {
 			uri = new URIBuilder().setScheme("http")
-					.setHost(BBSHostConstant.getHostName())
-					.setPath("/bbs/boa")
-					.setParameter("s", sectionId)
-					.build();
+					.setHost(BBSHostConstant.getHostName()).setPath("/bbs/boa")
+					.setParameter("s", sectionId).build();
 		} catch (URISyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		if (uri == null) {
 			StringBuilder builder = new StringBuilder();
-			builder.append("http://").append(BBSHostConstant.getHostName()).append("/bbs/boa");
+			builder.append("http://").append(BBSHostConstant.getHostName())
+					.append("/bbs/boa");
 			builder.append("?s=");
 			builder.append(sectionId);
 
 			return new HttpGet(builder.toString());
-		}
-		else {
+		} else {
 			return new HttpGet(uri);
 		}
 	}
-	
+
 	private BoardDetail constructBoard(DomParsingHelper domParsingHelper,
 			String xpathExpression, int index) {
 

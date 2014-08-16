@@ -27,108 +27,127 @@ import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpParsingHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.ReusableHttpClient;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpParsingHelper.HttpContentType;
 
-public class FavorBoardResponseHandler implements ResponseHandler<List<BoardDetail>> {
+public class FavorBoardResponseHandler implements
+		ResponseHandler<List<BoardDetail>> {
 
-	private static Logger logger = LoggerFactory.getLogger(FavorBoardResponseHandler.class);
-	
+	private static Logger logger = LoggerFactory
+			.getLogger(FavorBoardResponseHandler.class);
+
 	private String authCode;
 	private boolean retry;
-	
+
 	public FavorBoardResponseHandler(String authCode) {
 		this.authCode = authCode;
 		retry = true;
 	}
-	
+
 	@Override
 	public List<BoardDetail> handleResponse(HttpResponse response)
 			throws ClientProtocolException, IOException {
-		
+
 		int statusCode = response.getStatusLine().getStatusCode();
 		logger.info("response code " + statusCode);
-		HttpContentType httpContentType = HttpParsingHelper.getContentType(response);
-		DomParsingHelper domParsingHelper = HttpParsingHelper.getDomParsingHelper(response, httpContentType);
-		
-		if(LoginUtils.isLoginNeeded(statusCode, httpContentType, domParsingHelper)) {
+		HttpContentType httpContentType = HttpParsingHelper
+				.getContentType(response);
+		DomParsingHelper domParsingHelper = HttpParsingHelper
+				.getDomParsingHelper(response, httpContentType);
+
+		if (LoginUtils.isLoginNeeded(statusCode, httpContentType,
+				domParsingHelper)) {
 			logger.info("Need Login to get favor boards!");
 			if (retry) {
 				retry = false;
 				return doLoginAndGetFavorBoards();
 			}
-			
+
 			return Collections.emptyList();
 		}
-		
+
 		String xpathOfBoard = "/bbsfav/brd";
 		int nodeCount = domParsingHelper.getNumberOfNodes(xpathOfBoard);
 		logger.info("node Count is " + nodeCount);
 		List<BoardDetail> boards = new ArrayList<BoardDetail>();
-		
-		for(int index = 0; index < nodeCount; index++) {
-			BoardDetail board = constructFavoriteBoards(domParsingHelper, xpathOfBoard, index);
+
+		for (int index = 0; index < nodeCount; index++) {
+			BoardDetail board = constructFavoriteBoards(domParsingHelper,
+					xpathOfBoard, index);
 			boards.add(board);
 		}
-		
+
 		return boards;
 	}
-	
-	private List<BoardDetail> doLoginAndGetFavorBoards() throws ClientProtocolException, IOException {
-		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getReusableClient(authCode, false);
-		
-		LoginInfo info = HttpClientManager.getInstance().getAuthLoginInfo(authCode);
-		HttpPost httpPost = LoginUtils.getLoginPostRequest(info.getUserId(), info.getPassword());
+
+	private List<BoardDetail> doLoginAndGetFavorBoards()
+			throws ClientProtocolException, IOException {
+		ReusableHttpClient reusableClient = HttpClientManager.getInstance()
+				.getReusableClient(authCode, false);
+
+		LoginInfo info = HttpClientManager.getInstance().getAuthLoginInfo(
+				authCode);
+		HttpPost httpPost = LoginUtils.getLoginPostRequest(info.getUserId(),
+				info.getPassword());
 		logger.info("Try to logon for user : " + info.getUserId());
-		boolean loginSuccess = reusableClient.execute(httpPost, new CheckLoginResponseHandler());
-		
+		boolean loginSuccess = reusableClient.execute(httpPost,
+				new CheckLoginResponseHandler());
+
 		if (loginSuccess) {
 			HttpGet httpGet = getFavorBoardGetRequest();
-			
+
 			List<BoardDetail> boards = reusableClient.execute(httpGet, this);
-			
+
 			return boards;
 		}
-		
+
 		return Collections.emptyList();
-		
+
 	}
-	
+
 	public HttpGet getFavorBoardGetRequest() {
 		URI uri = null;
 		try {
-			uri = new URIBuilder().setScheme("http").setHost(BBSHostConstant.getHostName()).setPath("/bbs/fav").build();
+			uri = new URIBuilder().setScheme("http")
+					.setHost(BBSHostConstant.getHostName()).setPath("/bbs/fav")
+					.build();
 		} catch (URISyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		if (uri == null) {
-			return new HttpGet("http://"+BBSHostConstant.getHostName()+"/bbs/fav");
-		}
-		else {
+			return new HttpGet("http://" + BBSHostConstant.getHostName()
+					+ "/bbs/fav");
+		} else {
 			return new HttpGet(uri);
 		}
 	}
-	
 
-	private BoardDetail constructFavoriteBoards(DomParsingHelper domParsingHelper, String xpathExpression, int index) {
-		
-		String bid = domParsingHelper.getAttributeTextValueOfNode("bid", xpathExpression, index);
-		String title = domParsingHelper.getAttributeTextValueOfNode("brd", xpathExpression, index);
-		String boardDesc = domParsingHelper.getTextValueOfNode(xpathExpression, index);
-		
+	private BoardDetail constructFavoriteBoards(
+			DomParsingHelper domParsingHelper, String xpathExpression, int index) {
+
+		String bid = domParsingHelper.getAttributeTextValueOfNode("bid",
+				xpathExpression, index);
+		String title = domParsingHelper.getAttributeTextValueOfNode("brd",
+				xpathExpression, index);
+		String boardDesc = domParsingHelper.getTextValueOfNode(xpathExpression,
+				index);
+
 		BoardMetaData metaData = new BoardMetaData();
 		metaData.setTitle(title);
 		metaData.setBoardDesc(boardDesc);
-		
-		if(bid != null) {
+
+		if (bid != null) {
 			int boardId = 0;
-			try { boardId = Integer.parseInt(bid); } catch(Exception e) {}
+			try {
+				boardId = Integer.parseInt(bid);
+			} catch (Exception e) {
+			}
 			metaData.setBoardId(boardId);
 		}
-		
+
 		BoardDetail board = new BoardDetail();
 		board.setBoardMetaData(metaData);
-		
+
 		return board;
 	}
-	
+
 }

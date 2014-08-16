@@ -1,4 +1,3 @@
-
 package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo;
 
 import java.util.ArrayList;
@@ -15,106 +14,102 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-
 /**
  * content
  * 
  */
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Generated("com.googlecode.jsonschema2pojo")
-@JsonPropertyOrder({
-    "text",
-    "images"
-})
+@JsonPropertyOrder({ "text", "images" })
 public class Content {
 
-    /**
-     * text content
-     * 
-     */
-    @JsonProperty("text")
-    private String text;
-    /**
-     * images in the content
-     * 
-     */
-    @JsonProperty("images")
-    private List<Image> images = new ArrayList<Image>();
-    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+	/**
+	 * text content
+	 * 
+	 */
+	@JsonProperty("text")
+	private String text;
+	/**
+	 * images in the content
+	 * 
+	 */
+	@JsonProperty("images")
+	private List<Image> images = new ArrayList<Image>();
+	private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-    /**
-     * text content
-     * 
-     */
-    @JsonProperty("text")
-    public String getText() {
-        return text;
-    }
+	/**
+	 * text content
+	 * 
+	 */
+	@JsonProperty("text")
+	public String getText() {
+		return text;
+	}
 
-    /**
-     * text content
-     * 
-     */
-    @JsonProperty("text")
-    public void setText(String text) {
-        this.text = text;
-    }
+	/**
+	 * text content
+	 * 
+	 */
+	@JsonProperty("text")
+	public void setText(String text) {
+		this.text = text;
+	}
 
-    public Content withText(String text) {
-        this.text = text;
-        return this;
-    }
+	public Content withText(String text) {
+		this.text = text;
+		return this;
+	}
 
-    /**
-     * images in the content
-     * 
-     */
-    @JsonProperty("images")
-    public List<Image> getImages() {
-        return images;
-    }
+	/**
+	 * images in the content
+	 * 
+	 */
+	@JsonProperty("images")
+	public List<Image> getImages() {
+		return images;
+	}
 
-    /**
-     * images in the content
-     * 
-     */
-    @JsonProperty("images")
-    public void setImages(List<Image> images) {
-        this.images = images;
-    }
+	/**
+	 * images in the content
+	 * 
+	 */
+	@JsonProperty("images")
+	public void setImages(List<Image> images) {
+		this.images = images;
+	}
 
-    public Content withImages(List<Image> images) {
-        this.images = images;
-        return this;
-    }
-    
-    public void addImage(Image image) {        
-        images.add(image);
-    }
+	public Content withImages(List<Image> images) {
+		this.images = images;
+		return this;
+	}
 
-    @Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this);
-    }
+	public void addImage(Image image) {
+		images.add(image);
+	}
 
-    @Override
-    public int hashCode() {
-        return HashCodeBuilder.reflectionHashCode(this);
-    }
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this);
+	}
 
-    @Override
-    public boolean equals(Object other) {
-        return EqualsBuilder.reflectionEquals(this, other);
-    }
+	@Override
+	public int hashCode() {
+		return HashCodeBuilder.reflectionHashCode(this);
+	}
 
-    @JsonAnyGetter
-    public Map<String, Object> getAdditionalProperties() {
-        return this.additionalProperties;
-    }
+	@Override
+	public boolean equals(Object other) {
+		return EqualsBuilder.reflectionEquals(this, other);
+	}
 
-    @JsonAnySetter
-    public void setAdditionalProperties(String name, Object value) {
-        this.additionalProperties.put(name, value);
-    }
+	@JsonAnyGetter
+	public Map<String, Object> getAdditionalProperties() {
+		return this.additionalProperties;
+	}
+
+	@JsonAnySetter
+	public void setAdditionalProperties(String name, Object value) {
+		this.additionalProperties.put(name, value);
+	}
 
 }

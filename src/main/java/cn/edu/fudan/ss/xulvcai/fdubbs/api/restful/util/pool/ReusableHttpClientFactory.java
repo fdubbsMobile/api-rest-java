@@ -4,9 +4,11 @@ import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.ReusableHttpClient;
 
 /**
  * A factory that generates ReusableHttpClient
+ * 
  * @author hidennis
  */
-public class ReusableHttpClientFactory implements ResourceFactory<ReusableHttpClient> {
+public class ReusableHttpClientFactory implements
+		ResourceFactory<ReusableHttpClient> {
 
 	@Override
 	public ReusableHttpClient createResource() {
@@ -18,7 +20,5 @@ public class ReusableHttpClientFactory implements ResourceFactory<ReusableHttpCl
 	public boolean validateResource(ReusableHttpClient resource) {
 		return !resource.isExclusive();
 	}
-
-
 
 }

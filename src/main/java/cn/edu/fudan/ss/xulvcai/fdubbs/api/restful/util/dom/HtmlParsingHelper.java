@@ -15,34 +15,33 @@ import org.w3c.dom.NodeList;
 
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.Content;
 
-
-
-public class HtmlParsingHelper implements DomParsingHelper{
+public class HtmlParsingHelper implements DomParsingHelper {
 
 	private Document doc;
 	private HashMap<String, NodeList> nodesCache = new HashMap<String, NodeList>();
-	
+
 	private HtmlParsingHelper(String htmlContent) throws Exception {
 		TagNode tagNode = new HtmlCleaner().clean(htmlContent);
-		//System.out.println(new HtmlCleaner().getInnerHtml(tagNode));
+		// System.out.println(new HtmlCleaner().getInnerHtml(tagNode));
 		doc = new DomSerializer(new CleanerProperties()).createDOM(tagNode);
 	}
-	
-	public static HtmlParsingHelper parseText(String htmlContent) throws Exception{
-		return new HtmlParsingHelper(htmlContent);	
+
+	public static HtmlParsingHelper parseText(String htmlContent)
+			throws Exception {
+		return new HtmlParsingHelper(htmlContent);
 	}
-	
-	
+
 	@Override
 	public String getTextValueOfSingleNode(String xpathExpression) {
 		Node node = null;
 		try {
-			node = XPathAPI.selectSingleNode(doc, xpathExpression).getFirstChild();
+			node = XPathAPI.selectSingleNode(doc, xpathExpression)
+					.getFirstChild();
 		} catch (TransformerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		return node == null ? null : node.getNodeValue();
 	}
 
@@ -56,32 +55,33 @@ public class HtmlParsingHelper implements DomParsingHelper{
 	public String getAttributeTextValueOfNode(String attributName,
 			String xpathExpression, int index) {
 		NodeList nodes = getNodesFromCacheOrDocument(xpathExpression);
-		if(nodes == null || index < 0 || index >= nodes.getLength()) 
+		if (nodes == null || index < 0 || index >= nodes.getLength())
 			return null;
-		
+
 		Node node = nodes.item(index);
-		if(node.hasAttributes()) {
-			return node.getAttributes().getNamedItem(attributName).getNodeValue();
+		if (node.hasAttributes()) {
+			return node.getAttributes().getNamedItem(attributName)
+					.getNodeValue();
 		}
-		
+
 		return null;
 	}
 
 	@Override
 	public String getTextValueOfNode(String xpathExpression, int index) {
 		NodeList nodes = getNodesFromCacheOrDocument(xpathExpression);
-		if(nodes == null || index < 0 || index >= nodes.getLength()) 
+		if (nodes == null || index < 0 || index >= nodes.getLength())
 			return null;
-		
+
 		Node node = nodes.item(index).getFirstChild();
 		return node.getNodeValue();
 	}
-	
+
 	private NodeList getNodesFromCacheOrDocument(String xpathExpression) {
-		if(nodesCache.containsKey(xpathExpression)){
+		if (nodesCache.containsKey(xpathExpression)) {
 			return nodesCache.get(xpathExpression);
 		}
-		
+
 		NodeList nodes = null;
 		try {
 			nodes = XPathAPI.selectNodeList(doc, xpathExpression);
@@ -89,11 +89,11 @@ public class HtmlParsingHelper implements DomParsingHelper{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		if(nodes != null) {
+
+		if (nodes != null) {
 			nodesCache.put(xpathExpression, nodes);
 		}
-		
+
 		return nodes;
 	}
 
@@ -104,4 +104,3 @@ public class HtmlParsingHelper implements DomParsingHelper{
 	}
 
 }
-

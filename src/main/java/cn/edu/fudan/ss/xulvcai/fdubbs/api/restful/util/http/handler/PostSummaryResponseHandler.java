@@ -12,54 +12,88 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.exception.InvalidParameterException;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.BoardMetaData;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.PostMetaData;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.PostSummary;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.PostSummaryInBoard;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.Replies;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.BBSHostConstant;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.LoginInfo;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.LoginUtils;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.PostProcessUtils.BrowseMode;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.PostProcessUtils.ListMode;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.StringConvertHelper;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.dom.DomParsingHelper;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpClientManager;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpParsingHelper;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.ReusableHttpClient;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpParsingHelper.HttpContentType;
 
-public class PostSummaryResponseHandler implements ResponseHandler<PostSummaryInBoard> {
+public class PostSummaryResponseHandler implements
+		ResponseHandler<PostSummaryInBoard> {
+
+	private static Logger logger = LoggerFactory
+			.getLogger(PostSummaryResponseHandler.class);
 
 	private static final int POST_NUMBER_PER_REQUEST = 20;
-	
+
+	private String authCode;
+	private boolean retry;
+
 	private ListMode listMode;
 	private String boardName;
 	private int boardId;
 	private int startNum;
-	
-	public PostSummaryResponseHandler(ListMode listMode, String boardName, 
-			int boardId, int startNum) {
+	private BrowseMode browseMode;
+
+	public PostSummaryResponseHandler(String authCode, ListMode listMode,
+			String boardName, int boardId, int startNum, BrowseMode browseMode) {
+		this.authCode = authCode;
 		this.listMode = listMode;
 		this.boardName = boardName;
 		this.boardId = boardId;
 		this.startNum = startNum;
+		this.browseMode = browseMode;
+
+		retry = true;
 	}
-	
-	
+
 	@Override
 	public PostSummaryInBoard handleResponse(HttpResponse response)
 			throws ClientProtocolException, IOException {
-		HttpContentType httpContentType = HttpParsingHelper.getContentType(response);
-		DomParsingHelper domParsingHelper = HttpParsingHelper.getDomParsingHelper(response, httpContentType);
-		
+		int statusCode = response.getStatusLine().getStatusCode();
+		logger.info("response code " + statusCode);
+
+		HttpContentType httpContentType = HttpParsingHelper
+				.getContentType(response);
+		DomParsingHelper domParsingHelper = HttpParsingHelper
+				.getDomParsingHelper(response, httpContentType);
+
+		if (LoginUtils.isLoginNeeded(statusCode, httpContentType,
+				domParsingHelper)) {
+			logger.info("Need Login to get post summary!");
+			if (retry) {
+				retry = false;
+				return doLoginAndGetPostSummary();
+			}
+
+			return null;
+		}
+
 		PostSummaryInBoard postSummary = constructPostInBoard(domParsingHelper);
 		validateAndAdjustPostList(postSummary, startNum);
-		
+
 		return postSummary;
 	}
-	
-	@SuppressWarnings("static-access")
-	public HttpGet getPostSummaryInBoardGetRequest(BrowseMode BrowseMode) {
-		
+
+	public HttpGet getPostSummaryInBoardGetRequest() {
+
 		String path = null;
 		if (listMode == ListMode.LIST_MODE_NORMAL) {
 			path = "/bbs/doc";
@@ -69,51 +103,71 @@ public class PostSummaryResponseHandler implements ResponseHandler<PostSummaryIn
 			throw new InvalidParameterException("Invalid list_mode : "
 					+ listMode);
 		}
-		
+
 		URI uri = null;
 		try {
 			URIBuilder uriBuilder = new URIBuilder().setScheme("http")
-					.setHost(BBSHostConstant.getHostName())
-					.setPath(path);
-			
-			if (BrowseMode == BrowseMode.BROWSE_BY_BOARD_NAME) {
+					.setHost(BBSHostConstant.getHostName()).setPath(path);
+
+			if (browseMode == BrowseMode.BROWSE_BY_BOARD_NAME) {
 				uriBuilder.setParameter("board", boardName);
-			}
-			else if (BrowseMode == BrowseMode.BROWSE_BY_BOARD_ID) {
+			} else if (browseMode == BrowseMode.BROWSE_BY_BOARD_ID) {
 				uriBuilder.setParameter("bid", "" + boardId);
 			}
-			
+
 			if (startNum > 0) {
 				uriBuilder.setParameter("start", "" + startNum);
 			}
-			
+
 			uri = uriBuilder.build();
 		} catch (URISyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		if (uri == null) {
 			StringBuilder builder = new StringBuilder();
-			builder.append("http://").append(BBSHostConstant.getHostName()).append(path);
-			if (BrowseMode == BrowseMode.BROWSE_BY_BOARD_NAME) {
+			builder.append("http://").append(BBSHostConstant.getHostName())
+					.append(path);
+			if (browseMode == BrowseMode.BROWSE_BY_BOARD_NAME) {
 				builder.append("?board=").append(boardName);
-			}
-			else if (BrowseMode == BrowseMode.BROWSE_BY_BOARD_ID) {
+			} else if (browseMode == BrowseMode.BROWSE_BY_BOARD_ID) {
 				builder.append("?bid=").append(boardId);
 			}
-			
+
 			if (startNum > 0) {
 				builder.append("&start=").append(startNum);
 			}
 
 			return new HttpGet(builder.toString());
-		}
-		else {
+		} else {
 			return new HttpGet(uri);
 		}
 	}
-	
+
+	private PostSummaryInBoard doLoginAndGetPostSummary()
+			throws ClientProtocolException, IOException {
+		ReusableHttpClient reusableClient = HttpClientManager.getInstance()
+				.getReusableClient(authCode, false);
+
+		LoginInfo info = HttpClientManager.getInstance().getAuthLoginInfo(
+				authCode);
+		HttpPost httpPost = LoginUtils.getLoginPostRequest(info.getUserId(),
+				info.getPassword());
+		logger.info("Try to logon for user : " + info.getUserId());
+		boolean loginSuccess = reusableClient.execute(httpPost,
+				new CheckLoginResponseHandler());
+
+		if (loginSuccess) {
+			HttpGet httpGet = getPostSummaryInBoardGetRequest();
+			PostSummaryInBoard postSummary = reusableClient.execute(httpGet,
+					this);
+			return postSummary;
+		}
+
+		return null;
+	}
+
 	private PostSummaryInBoard constructPostInBoard(
 			DomParsingHelper domParsingHelper) {
 
@@ -162,7 +216,7 @@ public class PostSummaryResponseHandler implements ResponseHandler<PostSummaryIn
 
 		return posts;
 	}
-	
+
 	private List<PostSummary> constructPostListInBoard(
 			DomParsingHelper domParsingHelper, String xpathExpression) {
 
@@ -203,7 +257,7 @@ public class PostSummaryResponseHandler implements ResponseHandler<PostSummaryIn
 
 		return postSummaryList;
 	}
-	
+
 	private void validateAndAdjustPostList(PostSummaryInBoard posts,
 			int startNum) {
 		int postStartNum = posts.getStartPostNum();
@@ -217,7 +271,7 @@ public class PostSummaryResponseHandler implements ResponseHandler<PostSummaryIn
 			RemoveRedundantPosts(posts.getPostSummaryList(), redundantNum);
 			posts.setStartPostNum(startNum);
 		}
-		
+
 		// reverse the list
 		Collections.reverse(posts.getPostSummaryList());
 	}

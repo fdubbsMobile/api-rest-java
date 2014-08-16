@@ -14,6 +14,8 @@ import org.apache.http.client.methods.HttpGet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.exception.AuthenticationExpiredException;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.exception.AuthenticationRequiredException;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.exception.InvalidParameterException;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.Section;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.SectionMetaData;
@@ -66,111 +68,49 @@ public class SectionManager {
 					e);
 			return Response.status(
 					RESTErrorStatus.REST_SERVER_PAMAMETER_ERROR_STATUS).build();
+		} catch (AuthenticationRequiredException e) {
+			logger.error(e.getMessage(), e);
+			return Response.status(
+					RESTErrorStatus.REST_SERVER_AUTH_REQUIRED_ERROR_STATUS)
+					.build();
+		} catch (AuthenticationExpiredException e) {
+			logger.error("Auth Code " + authCode + " Expired!", e);
+			return Response.status(
+					RESTErrorStatus.REST_SERVER_AUTH_EXPIRED_ERROR_STATUS)
+					.build();
 		} catch (Exception e) {
 			logger.error("Exception occurs in getAllSectionsMetaData!", e);
 			return Response.status(
 					RESTErrorStatus.REST_SERVER_INTERNAL_ERROR_STATUS).build();
 		}
 
-		Response response;
-		if (section == null) {
-			response = Response.status(
-					RESTErrorStatus.REST_SERVER_INTERNAL_ERROR_STATUS).build();
-		} else {
-			response = Response.ok().entity(section).build();
-		}
-
 		logger.info(">>>>>>>>>>>>> End getSectionDetail <<<<<<<<<<<<<<");
-		return response;
+		return Response.ok().entity(section).build();
 	}
 
 	private List<SectionMetaData> getAllSectionsMetaDataFromServer(
 			String authCode) throws Exception {
-		/*
-		if (DebugHelper.shouldGenerateDebugData()) {
-			return generateDebugAllSections();
-		}
-		*/
-		
-		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getReusableClient(authCode, true);
+		ReusableHttpClient reusableClient = HttpClientManager.getInstance()
+				.getReusableClient(authCode, true);
 		AllSectionsResponseHandler handler = new AllSectionsResponseHandler();
 		HttpGet httpGet = handler.getAllSectionsGetRequest();
-		List<SectionMetaData> sections = reusableClient.execute(httpGet, handler);
-		HttpClientManager.getInstance().releaseReusableHttpClient(reusableClient);
+		List<SectionMetaData> sections = reusableClient.execute(httpGet,
+				handler);
+		HttpClientManager.getInstance().releaseReusableHttpClient(
+				reusableClient);
 		return sections;
 	}
 
 	private Section getSectionDetailFromServer(String authCode, String sectionId)
 			throws Exception {
-
-		/*
-		if (DebugHelper.shouldGenerateDebugData()) {
-			return generateDebugSectionDetail();
-		}
-		*/
-		
-		ReusableHttpClient reusableClient = HttpClientManager.getInstance().getReusableClient(authCode, true);
-		SectionDetailResponseHandler handler = new SectionDetailResponseHandler(sectionId);
+		ReusableHttpClient reusableClient = HttpClientManager.getInstance()
+				.getReusableClient(authCode, true);
+		SectionDetailResponseHandler handler = new SectionDetailResponseHandler(
+				sectionId);
 		HttpGet httpGet = handler.getSectionDetailGetRequest();
 		Section section = reusableClient.execute(httpGet, handler);
-		HttpClientManager.getInstance().releaseReusableHttpClient(reusableClient);
+		HttpClientManager.getInstance().releaseReusableHttpClient(
+				reusableClient);
 		return section;
 	}
-	
-	/*
-	private List<SectionMetaData> generateDebugAllSections() {
-		List<SectionMetaData> sections = new ArrayList<SectionMetaData>();
-		
-		try {
-
-			//String fileName = "cn/edu/fudan/ss/xulvcai/fdubbs/api/restful/mock/test_top_10.xml";
-			String fileName = "test_all_sections.xml";
-			String contentAsString = FileUtils.readFile(fileName);
-			logger.info("contentAsString : " + contentAsString);
-			String xpathOfBoard = "//ul[@class='sec']/li/a";
-			DomParsingHelper htmlParsingHelper = HtmlParsingHelper
-					.parseText(contentAsString);
-			int nodeCount = htmlParsingHelper.getNumberOfNodes(xpathOfBoard);
-
-			for (int index = 0; index < nodeCount; index++) {
-				SectionMetaData metaData = constructSectionMetaData(
-						htmlParsingHelper, xpathOfBoard, index);
-				
-				logger.info("SectionMetaData : " + metaData);
-				
-				sections.add(metaData);
-			}
-
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		return sections;
-	}
-	
-	private Section generateDebugSectionDetail() {
-		
-		try {
-			
-			String fileName = "test_section_detail.xml";
-			String contentAsString = FileUtils.readFile(fileName);
-			logger.info("contentAsString : " + contentAsString);
-			
-			return parseSectionDetail("0", contentAsString);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		return new Section();
-	}
-
-	public static void main(String[] args) {
-
-		SectionManager sm = new SectionManager();
-		sm.generateDebugAllSections();
-		sm.generateDebugSectionDetail();
-	}
-	*/
 }

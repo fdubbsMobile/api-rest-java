@@ -19,23 +19,23 @@ package pool4j;
  * under the License.
  */
 
-
 /**
  * Link : https://code.google.com/p/pool4j
  */
 
-
 /**
- *
- * A factory that creates new resources of type T.  ResourceFactories are often
+ * 
+ * A factory that creates new resources of type T. ResourceFactories are often
  * used with auto expanding resource pools in the creation of new resources for
  * the pool.
+ * 
  * @author Evan Worley
- * @param <T> The type of resource that this factory creates
+ * @param <T>
+ *            The type of resource that this factory creates
  */
 public interface ResourceFactory<T> {
-    /**
-     * @return A new instance of <code>T</code>
-     */
-    T createResource();
+	/**
+	 * @return A new instance of <code>T</code>
+	 */
+	T createResource();
 }

@@ -27,57 +27,62 @@ import java.util.Stack;
  */
 
 /**
- * A resource pool implementation with a finite number of resources.  This
- * is the type of resource pool you should use when it is expensive to create
- * new resources.
- *
+ * A resource pool implementation with a finite number of resources. This is the
+ * type of resource pool you should use when it is expensive to create new
+ * resources.
+ * 
  * This implementation is thread-safe.
- *
+ * 
  * @author Evan Worley
  */
 public final class FiniteResourcePool<T> implements ResourcePool<T> {
-   
-    // We will use a stack as our underlying story.  We can rely on the
-    // Stack implementation being thread-safe on the method level
-    private Stack<T> resources = new Stack<T>();
-   
-    /**
-     * Creates a <code>FiniteResourcePool</code> with a collection of resources
-     * @param resources The resources that compose the pool
-     * @throws EmptyResourcePoolException if resources is null or empty
-     */
-    public FiniteResourcePool(Collection<T> resources) throws EmptyResourcePoolException {
-        if (resources == null || resources.isEmpty()) {
-            throw new EmptyResourcePoolException(this);
-        }
-        this.resources.addAll(resources);
-    }
-   
-    public boolean isEmpty() {
-        return resources.isEmpty();
-    }
 
-    public T getResource() throws EmptyResourcePoolException {
-        // We must explicitly synchronize on the resources here to ensure that the
-        // resources collection has not been modified after we check if it's empty
-        synchronized (resources) {
-            if (resources.isEmpty()) {
-                throw new EmptyResourcePoolException(this);
-            }
-            return resources.pop();
-        }
-    }
+	// We will use a stack as our underlying story. We can rely on the
+	// Stack implementation being thread-safe on the method level
+	private Stack<T> resources = new Stack<T>();
 
-    public void releaseResource(T resource) {
-        if (resource == null) {
-            throw new IllegalArgumentException("resource cannot be null");
-        }
-        resources.push(resource);
-    }
-   
-    @Override
-    public String toString() {
-        return "FiniteResourcePool";
-    }
+	/**
+	 * Creates a <code>FiniteResourcePool</code> with a collection of resources
+	 * 
+	 * @param resources
+	 *            The resources that compose the pool
+	 * @throws EmptyResourcePoolException
+	 *             if resources is null or empty
+	 */
+	public FiniteResourcePool(Collection<T> resources)
+			throws EmptyResourcePoolException {
+		if (resources == null || resources.isEmpty()) {
+			throw new EmptyResourcePoolException(this);
+		}
+		this.resources.addAll(resources);
+	}
+
+	public boolean isEmpty() {
+		return resources.isEmpty();
+	}
+
+	public T getResource() throws EmptyResourcePoolException {
+		// We must explicitly synchronize on the resources here to ensure that
+		// the
+		// resources collection has not been modified after we check if it's
+		// empty
+		synchronized (resources) {
+			if (resources.isEmpty()) {
+				throw new EmptyResourcePoolException(this);
+			}
+			return resources.pop();
+		}
+	}
+
+	public void releaseResource(T resource) {
+		if (resource == null) {
+			throw new IllegalArgumentException("resource cannot be null");
+		}
+		resources.push(resource);
+	}
+
+	@Override
+	public String toString() {
+		return "FiniteResourcePool";
+	}
 }
-
