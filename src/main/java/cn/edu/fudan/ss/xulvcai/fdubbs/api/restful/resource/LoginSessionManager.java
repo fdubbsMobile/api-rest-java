@@ -1,33 +1,31 @@
 package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.resource;
 
-import java.net.URI;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.CookieParam;
 import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.utils.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.exception.ServerInternalException;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.exception.AuthenticationExpiredException;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.exception.AuthenticationRequiredException;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.LoginResponse;
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.BBSHostConstant;
-import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.ErrorMessage;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.pojo.LogoutResponse;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.LoginInfo;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.LoginUtils;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.common.RESTErrorStatus;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.HttpClientManager;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.ReusableHttpClient;
 import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.handler.LoginResponseHandler;
+import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.handler.LogoutResponseHandler;
 
 @Path("/user")
 public class LoginSessionManager {
@@ -39,7 +37,7 @@ public class LoginSessionManager {
 	@Path("/login")
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces(MediaType.APPLICATION_JSON)
-	public LoginResponse doUserLogin(@CookieParam("auth_code") String authCode,
+	public Response doUserLogin(@CookieParam("auth_code") String authCode,
 			@FormParam("user_id") String user_id,
 			@FormParam("passwd") String passwd) {
 		logger.info(">>>>>>>>>>>>> Start doUserLogin <<<<<<<<<<<<<<");
@@ -64,53 +62,52 @@ public class LoginSessionManager {
 		}
 
 		logger.info(">>>>>>>>>>>>> End doUserLogin <<<<<<<<<<<<<<");
-		return loginResponse;
+		return Response.ok().entity(loginResponse).build();
 	}
 
-	@POST
+	@GET
 	@Path("/logout")
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response doUserLogout(@CookieParam("auth_code") String authCode) {
 		logger.info(">>>>>>>>>>>>> Start doUserLogout <<<<<<<<<<<<<<");
-		if (authCode == null) {
-			logger.info("authCode is null");
-			return Response.status(
-					RESTErrorStatus.REST_SERVER_REQUEST_CONTENT_ERROR_STATUS)
-					.build();
-		}
 
+		LogoutResponse response;
+		
 		try {
-			postLogoutRequest(authCode);
+			response = postLogoutRequest(authCode);
+		} catch (AuthenticationRequiredException e) {
+			logger.error(e.getMessage(), e);
+			return Response.status(
+					RESTErrorStatus.REST_SERVER_AUTH_REQUIRED_ERROR_STATUS)
+					.build();
+		} catch (AuthenticationExpiredException e) {
+			logger.error("Auth Code " + authCode + " Expired!", e);
+			response = new LogoutResponse()
+					.withResultCode(LogoutResponse.ResultCode.SUCCESS);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Exception occurs in getUserFavorBoardsDetail!", e);
+			return Response.status(
+					RESTErrorStatus.REST_SERVER_INTERNAL_ERROR_STATUS).build();
 		}
+		
 
 		logger.info(">>>>>>>>>>>>> End doUserLogout <<<<<<<<<<<<<<");
-		return Response.ok().build();
+		return Response.ok().entity(response).build();
 	}
 
-	private void postLogoutRequest(String authCode) throws Exception {
+	private LogoutResponse postLogoutRequest(String authCode) throws Exception {
 		// Only allow Auth Cilent
 		ReusableHttpClient reusableClient = HttpClientManager.getInstance()
 				.getReusableClient(authCode, false);
 
-		URI uri = new URIBuilder().setScheme("http")
-				.setHost(BBSHostConstant.getHostName()).setPath("/bbs/all")
-				.build();
-
-		CloseableHttpResponse response = reusableClient.excuteGet(new HttpGet(
-				uri));
+		LogoutResponseHandler handler = new LogoutResponseHandler();
+		HttpGet httpGet = handler.getLogoutGetRequest();
+		LogoutResponse logoutResult = reusableClient.execute(httpGet, handler);
+		
 		HttpClientManager.getInstance().finalizeAuthCilent(authCode,
 				reusableClient);
-
-		boolean logoutSuccess = LoginUtils.isLoginOrLogoutSuccess(response
-				.getStatusLine().getStatusCode());
-		response.close();
-
-		if (!logoutSuccess) {
-			throw new ServerInternalException(
-					ErrorMessage.SERVER_INTERNAL_ERROR_MESSAGE);
-		}
+		
+		return logoutResult;
 
 	}
 

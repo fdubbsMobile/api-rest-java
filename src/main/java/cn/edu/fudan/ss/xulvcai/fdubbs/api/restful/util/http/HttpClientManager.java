@@ -116,6 +116,7 @@ public/* enum */class HttpClientManager {
 	public void disableClientForAuthCode(String authCode) {
 		if (authCode != null && authClientCache.containsKey(authCode)) {
 			authClientCache.remove(authCode);
+			authLoginInfoCache.remove(authCode);
 			logger.info("Remove client for authCode<" + authCode + "> ...");
 		}
 	}
@@ -149,13 +150,19 @@ public/* enum */class HttpClientManager {
 			while (enabled) {
 				Collection<String> keySet = authClientCache.keySet();
 
-				for (String key : keySet) {
-					ReusableHttpClient authClient = authClientCache.get(key);
+				for (String authCode : keySet) {
+					ReusableHttpClient authClient = authClientCache.get(authCode);
 					if (authClient.isExpired()) {
-						logger.info("HttpClient for auth_code" + key
-								+ "is EXPIRED !");
+						logger.info("HttpClient for auth_code <" + authCode
+								+ "> has been EXPIRED !");
+						/*
 						authClientCache.remove(key);
+						if (authLoginInfoCache.containsKey(key)) {
+							authLoginInfoCache.remove(key);
+						}
 						authClient.close();
+						*/
+						HttpClientManager.getInstance().finalizeAuthCilent(authCode, authClient);
 					}
 				}
 
