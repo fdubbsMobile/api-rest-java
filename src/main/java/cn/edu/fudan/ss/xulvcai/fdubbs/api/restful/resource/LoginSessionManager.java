@@ -83,7 +83,7 @@ public class LoginSessionManager {
 					RESTErrorStatus.REST_SERVER_AUTH_REQUIRED_ERROR_STATUS)
 					.build();
 		} catch (AuthenticationExpiredException e) {
-			logger.error("Auth Code " + authCode + " Expired!", e);
+			logger.error("Auth Code " + authCode + " Expired!");
 			response = new LogoutResponse()
 					.withResultCode(LogoutResponse.ResultCode.SUCCESS);
 		} catch (SocketException e) {

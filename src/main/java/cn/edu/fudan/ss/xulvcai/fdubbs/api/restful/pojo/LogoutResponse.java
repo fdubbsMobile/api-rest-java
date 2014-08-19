@@ -20,7 +20,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * login response
  * 
  */
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
     "result_code",
@@ -120,6 +120,7 @@ public class LogoutResponse {
     public static enum ResultCode {
 
         SUCCESS("SUCCESS"),
+        ALREADY_LOGOUT("ALREADY_LOGOUT"),
         INTERNAL_ERROR("INTERNAL_ERROR");
         private final String value;
         private static Map<String, LogoutResponse.ResultCode> constants = new HashMap<String, LogoutResponse.ResultCode>();
