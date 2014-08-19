@@ -5,11 +5,12 @@ import javax.ws.rs.core.Response.StatusType;
 
 public enum RESTErrorStatus implements StatusType {
 
-	REST_SERVER_INTERNAL_ERROR_STATUS(600, "REST Server Internal Error!"), REST_SERVER_PAMAMETER_ERROR_STATUS(
-			601, "Wrong Parameter Error!"), REST_SERVER_REQUEST_CONTENT_ERROR_STATUS(
-			602, "Bad Request Content!"), REST_SERVER_AUTH_REQUIRED_ERROR_STATUS(
-			603, "Authentication Required!"), REST_SERVER_AUTH_EXPIRED_ERROR_STATUS(
-			604, "Authentication Expired!");
+	REST_SERVER_INTERNAL_ERROR_STATUS(600, "REST Server Internal Error!"), 
+	REST_SERVER_PAMAMETER_ERROR_STATUS(601, "Wrong Parameter Error!"), 
+	REST_SERVER_REQUEST_CONTENT_ERROR_STATUS(602, "Bad Request Content!"), 
+	REST_SERVER_AUTH_REQUIRED_ERROR_STATUS(603, "Authentication Required!"), 
+	REST_SERVER_AUTH_EXPIRED_ERROR_STATUS(604, "Authentication Expired!"),
+	REST_SERVER_CONNECTION_REFUSED_ERROR_STATUS(605, "Connection Refused!");
 
 	private final int code;
 	private final String reason;

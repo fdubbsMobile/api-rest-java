@@ -1,5 +1,7 @@
 package cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.resource;
 
+import java.net.SocketException;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.CookieParam;
 import javax.ws.rs.FormParam;
@@ -71,7 +73,7 @@ public class LoginSessionManager {
 	public Response doUserLogout(@CookieParam("auth_code") String authCode) {
 		logger.info(">>>>>>>>>>>>> Start doUserLogout <<<<<<<<<<<<<<");
 
-		LogoutResponse response;
+		LogoutResponse response = null;
 		
 		try {
 			response = postLogoutRequest(authCode);
@@ -84,6 +86,10 @@ public class LoginSessionManager {
 			logger.error("Auth Code " + authCode + " Expired!", e);
 			response = new LogoutResponse()
 					.withResultCode(LogoutResponse.ResultCode.SUCCESS);
+		} catch (SocketException e) {
+			logger.error("SocketException occurs in getUserFavorBoardsDetail!", e);
+			return Response.status(
+					RESTErrorStatus.REST_SERVER_CONNECTION_REFUSED_ERROR_STATUS).build();
 		} catch (Exception e) {
 			logger.error("Exception occurs in getUserFavorBoardsDetail!", e);
 			return Response.status(
