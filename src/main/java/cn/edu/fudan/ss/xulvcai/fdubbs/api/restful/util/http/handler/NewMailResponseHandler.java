@@ -139,7 +139,7 @@ public class NewMailResponseHandler implements
 				xpathExpression, index);
 
 		String title = domParsingHelper
-				.getTextValueOfSingleNode(xpathExpression);
+				.getTextValueOfNode(xpathExpression, index);
 
 		boolean isNew = true;
 
