@@ -41,11 +41,13 @@ public class AllMailsResponseHandler implements
 
 	private String authCode;
 	private int startNum;
+	private int mailCountInPage;
 	private boolean retry;
 
-	public AllMailsResponseHandler(String authCode, int startNum) {
+	public AllMailsResponseHandler(String authCode, int startNum, int mailCountInPage) {
 		this.authCode = authCode;
 		this.startNum = startNum;
+		this.mailCountInPage = mailCountInPage;
 		retry = true;
 	}
 
@@ -57,6 +59,7 @@ public class AllMailsResponseHandler implements
 					.setPath("/bbs/mail");
 			if (startNum > 0) {
 				uriBuilder.setParameter("start", "" + startNum);
+				uriBuilder.setParameter("page", "" + mailCountInPage);
 			}
 
 			uri = uriBuilder.build();
@@ -70,8 +73,8 @@ public class AllMailsResponseHandler implements
 			builder.append("http://").append(BBSHostConstant.getHostName())
 					.append("/bbs/mail");
 			if (startNum > 0) {
-				builder.append("?start=");
-				builder.append(startNum);
+				builder.append("?start=").append(startNum);
+				builder.append("&page=").append(mailCountInPage);
 			}
 			return new HttpGet(builder.toString());
 		} else {

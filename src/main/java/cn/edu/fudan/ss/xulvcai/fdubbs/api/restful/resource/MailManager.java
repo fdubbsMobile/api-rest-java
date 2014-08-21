@@ -30,6 +30,8 @@ import cn.edu.fudan.ss.xulvcai.fdubbs.api.restful.util.http.handler.NewMailRespo
 public class MailManager {
 
 	private static Logger logger = LoggerFactory.getLogger(MailManager.class);
+	
+	private static int DEFAULT_MAIL_COUNT_IN_PAGE = 20;
 
 	@GET
 	@Path("/new")
@@ -72,7 +74,7 @@ public class MailManager {
 		MailSummaryInbox inbox = null;
 
 		try {
-			inbox = getAllMailsFromServer(authCode, 0);
+			inbox = getAllMailsFromServer(authCode, 0, DEFAULT_MAIL_COUNT_IN_PAGE);
 		} catch (AuthenticationRequiredException e) {
 			logger.error(e.getMessage(), e);
 			return Response.status(
@@ -105,7 +107,7 @@ public class MailManager {
 		MailSummaryInbox inbox = null;
 
 		try {
-			inbox = getAllMailsFromServer(authCode, startNum);
+			inbox = getAllMailsFromServer(authCode, startNum, DEFAULT_MAIL_COUNT_IN_PAGE);
 		} catch (AuthenticationRequiredException e) {
 			logger.error(e.getMessage(), e);
 			return Response.status(
@@ -123,6 +125,47 @@ public class MailManager {
 		}
 
 		logger.info(">>>>>>>>>>>>> End getAllMailsWithStartNum <<<<<<<<<<<<<<");
+		return Response.ok().entity(inbox).build();
+	}
+	
+	@GET
+	@Path("/all/{start_num}/{mail_count_in_page}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getAllMailsWithStartNumAndMailCountInPage(
+			@CookieParam("auth_code") String authCode,
+			@PathParam("start_num") int startNum, 
+			@PathParam("mail_count_in_page") int mailCountInPage) {
+
+		logger.info(">>>>>>>>>>>>> Start getAllMailsWithStartNumAndMailCountInPage <<<<<<<<<<<<<<");
+		
+		if (mailCountInPage <= 0 
+				|| mailCountInPage > DEFAULT_MAIL_COUNT_IN_PAGE) {
+			return Response.status(
+					RESTErrorStatus.REST_SERVER_PAMAMETER_ERROR_STATUS)
+					.build();
+		}
+
+		MailSummaryInbox inbox = null;
+
+		try {
+			inbox = getAllMailsFromServer(authCode, startNum, mailCountInPage);
+		} catch (AuthenticationRequiredException e) {
+			logger.error(e.getMessage(), e);
+			return Response.status(
+					RESTErrorStatus.REST_SERVER_AUTH_REQUIRED_ERROR_STATUS)
+					.build();
+		} catch (AuthenticationExpiredException e) {
+			logger.error("Auth Code " + authCode + " Expired!", e);
+			return Response.status(
+					RESTErrorStatus.REST_SERVER_AUTH_EXPIRED_ERROR_STATUS)
+					.build();
+		} catch (Exception e) {
+			logger.error("Exception occurs in getAllMailsWithStartNumAndMailCountInPage!", e);
+			return Response.status(
+					RESTErrorStatus.REST_SERVER_INTERNAL_ERROR_STATUS).build();
+		}
+
+		logger.info(">>>>>>>>>>>>> End getAllMailsWithStartNumAndMailCountInPage <<<<<<<<<<<<<<");
 		return Response.ok().entity(inbox).build();
 	}
 
@@ -182,12 +225,12 @@ public class MailManager {
 		return newMails;
 	}
 
-	private MailSummaryInbox getAllMailsFromServer(String authCode, int startNum)
+	private MailSummaryInbox getAllMailsFromServer(String authCode, int startNum, int mailCountInPage)
 			throws Exception {
 		ReusableHttpClient reusableClient = HttpClientManager.getInstance()
 				.getReusableClient(authCode, false);
 		AllMailsResponseHandler handler = new AllMailsResponseHandler(authCode,
-				startNum);
+				startNum, mailCountInPage);
 		HttpGet httpGet = handler.getAllMailsGetRequest();
 		MailSummaryInbox inbox = reusableClient.execute(httpGet, handler);
 		return inbox;
