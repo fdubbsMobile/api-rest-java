@@ -7,6 +7,6 @@ public class BBSHostConstant {
 	private static final String HOST_NAME_MOBILE = "";
 
 	public static String getHostName() {
-		return HOST_NAME_SH;
+		return HOST_NAME_EDU;
 	}
 }
